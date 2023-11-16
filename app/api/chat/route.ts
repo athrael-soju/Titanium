@@ -11,36 +11,16 @@ export async function POST(req: Request) {
     const { userMessage } = await req.json();
     const openai = new OpenAI(options); // Use your API key here
 
-    const completion = await openai.chat.completions.create({
+    const completion = openai.beta.chat.completions.stream({
       model: process.env.OPENAI_API_MODEL ?? 'gpt-4-1106-preview',
-      messages: [
-        { role: 'system', content: 'You are a helpful assistant.' },
-        { role: 'user', content: userMessage },
-      ],
+      messages: [{ role: 'user', content: userMessage }],
       stream: true,
     });
 
-    let aiResponse = '';
-    for await (const chunk of completion) {
-      if (chunk.choices[0]?.delta?.content) {
-        aiResponse += chunk.choices[0].delta.content;
-      }
-    }
-
     // Construct and return a new Response object
-    return new Response(JSON.stringify({ aiResponse }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    return new Response(completion.toReadableStream());
   } catch (error: any) {
     // Return an error response
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    return new Response(error);
   }
 }

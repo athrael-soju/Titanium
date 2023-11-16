@@ -13,7 +13,6 @@ interface IMessage {
 export default function Home() {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -26,29 +25,65 @@ export default function Home() {
     if (event.key === 'Enter') {
       const target = event.target as HTMLInputElement;
       const userMessage = target.value;
-      target.value = ''; // Clear the input field
       if (userMessage.trim()) {
+        const userMessageId = uuidv4();
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: userMessage, sender: 'user', id: uuidv4() },
+          { text: `🧑‍💻 ${userMessage}`, sender: 'user', id: userMessageId },
         ]);
-        // Make an API call to the server to get the AI response
+
+        target.value = ''; // Clear the input field
+
         try {
           const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userMessage: userMessage }),
+            body: JSON.stringify({ userMessage }),
           });
 
-          const { aiResponse } = await response.json();
-          console.log('aiResponse', aiResponse);
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
 
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            { text: aiResponse, sender: 'ai', id: uuidv4() },
-          ]);
+          const reader = response?.body?.getReader();
+          const decoder = new TextDecoder();
+
+          let aiResponseId = uuidv4();
+          let aiResponseText = '';
+
+          reader?.read().then(function processText({ done, value }) {
+            if (done) {
+              return;
+            }
+
+            // Decode the stream chunk and parse each line as JSON
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+
+            lines.forEach((line) => {
+              if (line) {
+                try {
+                  const json = JSON.parse(line);
+                  if (json?.choices[0].delta.content) {
+                    aiResponseText += json.choices[0].delta.content;
+                  }
+                } catch (error) {
+                  console.error('Failed to parse JSON:', line, error);
+                }
+              }
+            });
+
+            // Update the messages state with the latest AI response text
+            setMessages((prevMessages) => [
+              ...prevMessages.filter((msg) => msg.id !== aiResponseId),
+              { text: `🤖 ${aiResponseText}`, sender: 'ai', id: aiResponseId },
+            ]);
+
+            // Read the next chunk
+            reader.read().then(processText);
+          });
         } catch (error) {
           console.error('Failed to fetch AI response:', error);
         }
@@ -60,7 +95,9 @@ export default function Home() {
     <>
       <AppBar position="fixed">
         <Toolbar>
-          <Typography variant="h6">Chat Application</Typography>
+          <Typography variant="h6">
+            Titanium.AI - Super Duper Template
+          </Typography>
         </Toolbar>
       </AppBar>
       <main className={styles.main}>
