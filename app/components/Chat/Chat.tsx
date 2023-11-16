@@ -115,7 +115,7 @@ const Chat = () => {
 
         const aiResponseId = uuidv4();
         const reader = await handleAIResponse(userMessage);
-        await processAIResponseStream(reader!, aiResponseId);
+        await processAIResponseStream(reader, aiResponseId);
       }
     }
   };
