@@ -1,11 +1,13 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { AppBar, Toolbar, Typography, TextField } from '@mui/material';
+import { v4 as uuidv4 } from 'uuid';
 import styles from './page.module.css';
 
 interface IMessage {
   text: string;
   sender: 'user' | 'ai';
+  id: string;
 }
 
 export default function Home() {
@@ -18,7 +20,9 @@ export default function Home() {
 
   useEffect(scrollToBottom, [messages]);
 
-  const handleSendMessage = (event: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleSendMessage = async (
+    event: React.KeyboardEvent<HTMLDivElement>
+  ) => {
     if (event.key === 'Enter') {
       const target = event.target as HTMLInputElement;
       const userMessage = target.value;
@@ -26,15 +30,28 @@ export default function Home() {
       if (userMessage.trim()) {
         setMessages((prevMessages) => [
           ...prevMessages,
-          { text: userMessage, sender: 'user' },
+          { text: userMessage, sender: 'user', id: uuidv4() },
         ]);
-        // Mock AI response
-        setTimeout(() => {
+        // Make an API call to the server to get the AI response
+        try {
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ userMessage: userMessage }),
+          });
+
+          const { aiResponse } = await response.json();
+          console.log('aiResponse', aiResponse);
+
           setMessages((prevMessages) => [
             ...prevMessages,
-            { text: `AI Response to: "${userMessage}"`, sender: 'ai' },
+            { text: aiResponse, sender: 'ai', id: uuidv4() },
           ]);
-        }, 500);
+        } catch (error) {
+          console.error('Failed to fetch AI response:', error);
+        }
       }
     }
   };
@@ -49,9 +66,9 @@ export default function Home() {
       <main className={styles.main}>
         {/* Main window for conversation */}
         <div className={styles.chatWindow}>
-          {messages.map((message, index) => (
+          {messages.map((message) => (
             <div
-              key={index}
+              key={message.id}
               className={
                 message.sender === 'user'
                   ? styles.userMessage
