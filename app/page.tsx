@@ -1,22 +1,16 @@
 'use client';
 // pages/home.tsx
 import React from 'react';
-import { AppBar, Toolbar, Typography } from '@mui/material';
+import Header from './components/Header/Header'; // Adjust the path as necessary
 import Chat from './components/Chat/Chat'; // Adjust the path as necessary
-import styles from './page.module.css'; // This should contain styles for the AppBar and main container
+import styles from './page.module.css'; // This should contain styles for the main container
 
 export default function Home() {
   return (
     <>
-      <AppBar position="fixed">
-        <Toolbar>
-          <Typography variant="h6">
-            Titanium.AI - Super Duper Template
-          </Typography>
-        </Toolbar>
-      </AppBar>
+      <Header /> {/* Header component */}
       <main className={styles.main}>
-        <Chat /> {/* Here we use the Chat component */}
+        <Chat /> {/* Streaming Chat component */}
       </main>
     </>
   );

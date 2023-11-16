@@ -1,0 +1,18 @@
+/* components/Header.module.css */
+.gradientAppBar {
+  background: linear-gradient(150deg, #c0c0c0, #afafaf, #e6e8fa, #bfc1c2);
+}
+
+.appBarContent {
+  display: flex;
+  align-items: flex-start;
+}
+
+.titleText {
+  margin-right: 10px;
+}
+
+.subtitleText {
+  margin-top: 4px;
+  font-size: 14px;
+}
