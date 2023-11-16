@@ -11,7 +11,7 @@ export default function Home() {
       <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6">
-            Titanium.AI - Super Duper Template
+            <h1>Titanium.AI</h1>The Super Duper AI Template
           </Typography>
         </Toolbar>
       </AppBar>
