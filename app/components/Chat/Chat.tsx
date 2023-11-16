@@ -111,7 +111,7 @@ const Chat = () => {
       const userMessage = target.value.trim();
       if (userMessage) {
         addUserMessageToState(userMessage);
-        target.value = ''; // Clear the input field
+        target.value = '';
 
         const aiResponseId = uuidv4();
         const reader = await handleAIResponse(userMessage);
@@ -138,7 +138,7 @@ const Chat = () => {
       <div className={styles.inputBox}>
         <TextField
           fullWidth
-          label="Type your message"
+          label="🤖 How can I help?"
           variant="outlined"
           onKeyDown={handleSendMessage}
         />
