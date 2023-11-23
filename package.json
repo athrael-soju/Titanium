@@ -13,7 +13,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.14.18",
     "axios": "^1.6.2",
-    "next": "14.0.2",
+    "next": "^14.0.3",
     "openai": "^4.19.0",
     "react": "^18",
     "react-dom": "^18",
