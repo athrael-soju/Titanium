@@ -1,6 +1,10 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { TextField } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
+import FileUpload from '../FileUpload/FileUpload'; // Adjust the path as necessary
+import MessagesField from './MessagesField'; // Import the MessagesField component
 import styles from './Chat.module.css';
 
 interface IMessage {
@@ -122,26 +126,17 @@ const Chat = () => {
 
   return (
     <>
-      <div className={styles.chatWindow}>
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={
-              message.sender === 'user' ? styles.userMessage : styles.aiMessage
-            }
-          >
-            {message.text}
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-      <div className={styles.inputBox}>
+      <MessagesField messages={messages} />
+      <div ref={messagesEndRef} />
+      <div className={styles.inputArea}>
         <TextField
           fullWidth
           label="🤖 How can I help?"
           variant="outlined"
           onKeyDown={handleSendMessage}
+          className={styles.textField}
         />
+        <FileUpload />
       </div>
     </>
   );
