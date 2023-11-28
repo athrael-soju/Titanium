@@ -44,7 +44,7 @@ const MessagesField: React.FC<MessagesFieldProps> = ({ messages }) => {
             message.sender === 'user' ? styles.userMessage : styles.aiMessage
           }
         >
-          {/* TODO: @ts-ignore ReactMarkdown doesn't have types */}
+          {/* @ts-ignore ReactMarkdown doesn't have types */}
           <ReactMarkdown components={{ code: CodeBlock }}>
             {message.text}
           </ReactMarkdown>
