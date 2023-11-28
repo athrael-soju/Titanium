@@ -1,4 +1,4 @@
-Welcome to Titanium.AI - The Super Duper AI Template
+Welcome to Titanium - Super Simple Chat Template
 
 ## Getting Started
 
