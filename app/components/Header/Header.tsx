@@ -9,13 +9,13 @@ const Header = () => {
       <Toolbar>
         <div style={{ display: 'flex', alignItems: 'flex-start' }}>
           <Typography variant="h4" style={{ marginRight: '10px' }}>
-            Titanium.AI
+            Titanium
           </Typography>
           <Typography
             variant="body1"
             style={{ marginTop: '0px', fontSize: 13 }}
           >
-            The Super Duper AI Template
+            The Super Simple Chat Template
           </Typography>
         </div>
       </Toolbar>

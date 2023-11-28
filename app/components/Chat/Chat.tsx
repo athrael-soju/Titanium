@@ -1,6 +1,17 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
-import { TextField } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Paper,
+  Container,
+  Box,
+  Typography,
+} from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
+import FileUpload from '../FileUpload/FileUpload';
+import MessagesField from './MessagesField';
 import styles from './Chat.module.css';
 
 interface IMessage {
@@ -10,6 +21,10 @@ interface IMessage {
 }
 
 const Chat = () => {
+  const [assistantName, setAssistantName] = useState('');
+  const [assistantDescription, setAssistantDescription] = useState('');
+  const [isStartEnabled, setIsStartEnabled] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -36,6 +51,68 @@ const Chat = () => {
       { text: `🤖 ${aiResponseText}`, sender: 'ai', id: aiResponseId },
     ]);
   };
+
+  const checkFields = () => {
+    setIsStartEnabled(
+      assistantName.trim() !== '' && assistantDescription.trim() !== ''
+    );
+  };
+
+  // Invoke checkFields whenever there's a change in the input fields
+  useEffect(checkFields, [assistantName, assistantDescription]);
+
+  const handleStart = () => {
+    if (isStartEnabled) {
+      setHasStarted(true);
+    }
+  };
+
+  const renderLandingPage = () => (
+    <Container maxWidth="sm">
+      <Box sx={{ my: 8 }}>
+        <Paper elevation={6} sx={{ p: 4 }}>
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            textAlign="center"
+          >
+            Create your Assistant
+          </Typography>
+          <TextField
+            required
+            label="Assistant Name"
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            value={assistantName}
+            onChange={(e) => setAssistantName(e.target.value)}
+          />
+          <TextField
+            required
+            label="Assistant Description"
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            value={assistantDescription}
+            onChange={(e) => setAssistantDescription(e.target.value)}
+            multiline
+            rows={4}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth // This makes the button extend to the full width of the container
+            disabled={!isStartEnabled}
+            onClick={handleStart}
+            sx={{ mt: 2 }} // Adds margin-top for spacing
+          >
+            Start Chatting!
+          </Button>
+        </Paper>
+      </Box>
+    </Container>
+  );
 
   const handleAIResponse = async (userMessage: string) => {
     try {
@@ -120,28 +197,23 @@ const Chat = () => {
     }
   };
 
+  if (!hasStarted) {
+    return renderLandingPage();
+  }
+
   return (
     <>
-      <div className={styles.chatWindow}>
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={
-              message.sender === 'user' ? styles.userMessage : styles.aiMessage
-            }
-          >
-            {message.text}
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-      <div className={styles.inputBox}>
+      <MessagesField messages={messages} />
+      <div ref={messagesEndRef} />
+      <div className={styles.inputArea}>
         <TextField
           fullWidth
           label="🤖 How can I help?"
           variant="outlined"
           onKeyDown={handleSendMessage}
+          className={styles.textField}
         />
+        <FileUpload />
       </div>
     </>
   );
