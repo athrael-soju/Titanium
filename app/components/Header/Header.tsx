@@ -15,7 +15,7 @@ const Header = () => {
             variant="body1"
             style={{ marginTop: '0px', fontSize: 13 }}
           >
-            The Super Duper AI Template
+            A Super Simple Chat Template
           </Typography>
         </div>
       </Toolbar>

@@ -28,8 +28,7 @@ const FileUpload = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-
-        console.log('File uploaded successfully');
+        console.log('File uploaded successfully', response);
       } catch (error) {
         console.error('Failed to upload file:', error);
       }
@@ -52,7 +51,7 @@ const FileUpload = () => {
           component="span"
           onClick={handleFileUpload}
         >
-          <CloudUploadIcon />
+          <CloudUploadIcon fontSize="large" />
         </IconButton>
       </label>
     </>

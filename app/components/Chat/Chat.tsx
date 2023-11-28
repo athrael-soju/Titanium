@@ -1,10 +1,10 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { TextField } from '@mui/material';
+import { TextField, Button } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
-import FileUpload from '../FileUpload/FileUpload'; // Adjust the path as necessary
-import MessagesField from './MessagesField'; // Import the MessagesField component
+import FileUpload from '../FileUpload/FileUpload';
+import MessagesField from './MessagesField';
 import styles from './Chat.module.css';
 
 interface IMessage {
@@ -14,6 +14,10 @@ interface IMessage {
 }
 
 const Chat = () => {
+  const [assistantName, setAssistantName] = useState('');
+  const [assistantDescription, setAssistantDescription] = useState('');
+  const [isStartEnabled, setIsStartEnabled] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -40,6 +44,54 @@ const Chat = () => {
       { text: `🤖 ${aiResponseText}`, sender: 'ai', id: aiResponseId },
     ]);
   };
+
+  const checkFields = () => {
+    setIsStartEnabled(
+      assistantName.trim() !== '' && assistantDescription.trim() !== ''
+    );
+  };
+
+  const handleStart = () => {
+    if (isStartEnabled) {
+      setHasStarted(true);
+    }
+  };
+
+  const renderLandingPage = () => (
+    <div className={styles.landingContainer}>
+      <TextField
+        required
+        label="Assistant Name"
+        fullWidth
+        variant="outlined"
+        value={assistantName}
+        onChange={(e) => setAssistantName(e.target.value)}
+        onBlur={checkFields}
+        className={styles.textField}
+      />
+      <TextField
+        required
+        label="Assistant Description"
+        fullWidth
+        variant="outlined"
+        value={assistantDescription}
+        onChange={(e) => setAssistantDescription(e.target.value)}
+        onBlur={checkFields}
+        className={styles.textField}
+        multiline
+        rows={4}
+      />
+      <Button
+        variant="contained"
+        color="primary"
+        disabled={!isStartEnabled}
+        onClick={handleStart}
+        className={styles.startButton}
+      >
+        Create Assistant
+      </Button>
+    </div>
+  );
 
   const handleAIResponse = async (userMessage: string) => {
     try {
@@ -123,6 +175,10 @@ const Chat = () => {
       }
     }
   };
+
+  if (!hasStarted) {
+    return renderLandingPage();
+  }
 
   return (
     <>

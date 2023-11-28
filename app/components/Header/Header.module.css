@@ -1,6 +1,6 @@
 /* components/Header.module.css */
 .gradientAppBar {
-  background: linear-gradient(150deg, #c0c0c0, #afafaf, #e6e8fa, #bfc1c2);
+  /* background: linear-gradient(150deg, #c0c0c0, #afafaf, #e6e8fa, #bfc1c2); */
 }
 
 .appBarContent {
