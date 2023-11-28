@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { TextField, Button } from '@mui/material';
+import {
+  TextField,
+  Button,
+  Paper,
+  Container,
+  Box,
+  Typography,
+} from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import FileUpload from '../FileUpload/FileUpload';
 import MessagesField from './MessagesField';
@@ -51,6 +58,9 @@ const Chat = () => {
     );
   };
 
+  // Invoke checkFields whenever there's a change in the input fields
+  useEffect(checkFields, [assistantName, assistantDescription]);
+
   const handleStart = () => {
     if (isStartEnabled) {
       setHasStarted(true);
@@ -58,39 +68,50 @@ const Chat = () => {
   };
 
   const renderLandingPage = () => (
-    <div className={styles.landingContainer}>
-      <TextField
-        required
-        label="Assistant Name"
-        fullWidth
-        variant="outlined"
-        value={assistantName}
-        onChange={(e) => setAssistantName(e.target.value)}
-        onBlur={checkFields}
-        className={styles.textField}
-      />
-      <TextField
-        required
-        label="Assistant Description"
-        fullWidth
-        variant="outlined"
-        value={assistantDescription}
-        onChange={(e) => setAssistantDescription(e.target.value)}
-        onBlur={checkFields}
-        className={styles.textField}
-        multiline
-        rows={4}
-      />
-      <Button
-        variant="contained"
-        color="primary"
-        disabled={!isStartEnabled}
-        onClick={handleStart}
-        className={styles.startButton}
-      >
-        Create Assistant
-      </Button>
-    </div>
+    <Container maxWidth="sm">
+      <Box sx={{ my: 8 }}>
+        <Paper elevation={6} sx={{ p: 4 }}>
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            textAlign="center"
+          >
+            Create your Assistant
+          </Typography>
+          <TextField
+            required
+            label="Assistant Name"
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            value={assistantName}
+            onChange={(e) => setAssistantName(e.target.value)}
+          />
+          <TextField
+            required
+            label="Assistant Description"
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            value={assistantDescription}
+            onChange={(e) => setAssistantDescription(e.target.value)}
+            multiline
+            rows={4}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth // This makes the button extend to the full width of the container
+            disabled={!isStartEnabled}
+            onClick={handleStart}
+            sx={{ mt: 2 }} // Adds margin-top for spacing
+          >
+            Start Chatting!
+          </Button>
+        </Paper>
+      </Box>
+    </Container>
   );
 
   const handleAIResponse = async (userMessage: string) => {
