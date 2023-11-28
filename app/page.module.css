@@ -231,8 +231,8 @@
 .main {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Align items to the start of the main axis */
+  justify-content: flex-start;
   align-items: center;
-  padding: 6rem 1rem 1rem; /* Top padding is larger, bottom padding is reduced */
+  padding: 6rem 1rem 1rem;
   min-height: 100vh;
 }
