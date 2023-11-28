@@ -26,13 +26,6 @@ const Chat = () => {
   const [isStartEnabled, setIsStartEnabled] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(scrollToBottom, [messages]);
 
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
@@ -204,7 +197,6 @@ const Chat = () => {
   return (
     <>
       <MessagesField messages={messages} />
-      <div ref={messagesEndRef} />
       <div className={styles.inputArea}>
         <TextField
           fullWidth
