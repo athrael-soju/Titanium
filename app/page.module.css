@@ -235,11 +235,4 @@
   align-items: center;
   padding: 6rem 1rem 1rem; /* Top padding is larger, bottom padding is reduced */
   min-height: 100vh;
-  /* background: linear-gradient(
-    150deg,
-    #c0c0c0,
-    #afafaf,
-    #e6e8fa,
-    #bfc1c2
-  ); Silver-themed gradient */
 }
