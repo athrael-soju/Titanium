@@ -11,13 +11,11 @@ const FileUpload = ({
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     let files = event.target.files;
-    if (files && files[0]) {
-      setSelectedFile(files[0]);
+    if (files?.[0]) {
       uploadFile(files[0]);
     }
   };
