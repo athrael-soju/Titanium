@@ -1,18 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import {
-  TextField,
-  Button,
-  Paper,
-  Container,
-  Box,
-  Typography,
-} from '@mui/material';
+import { TextField } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
 import FileUpload from '../FileUpload/FileUpload';
 import MessagesField from './MessagesField';
 import styles from './Chat.module.css';
+import Loader from './Loader';
 
 interface IMessage {
   text: string;
@@ -21,11 +15,8 @@ interface IMessage {
 }
 
 const Chat = () => {
-  const [assistantName, setAssistantName] = useState('');
-  const [assistantDescription, setAssistantDescription] = useState('');
-  const [isStartEnabled, setIsStartEnabled] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
@@ -45,76 +36,15 @@ const Chat = () => {
     ]);
   };
 
-  const checkFields = () => {
-    setIsStartEnabled(
-      assistantName.trim() !== '' && assistantDescription.trim() !== ''
-    );
-  };
-
-  // Invoke checkFields whenever there's a change in the input fields
-  useEffect(checkFields, [assistantName, assistantDescription]);
-
-  const handleStart = () => {
-    if (isStartEnabled) {
-      setHasStarted(true);
-    }
-  };
-
-  const renderLandingPage = () => (
-    <Container maxWidth="sm">
-      <Box sx={{ my: 8 }}>
-        <Paper elevation={6} sx={{ p: 4 }}>
-          <Typography
-            variant="h4"
-            component="h1"
-            gutterBottom
-            textAlign="center"
-          >
-            Create your Assistant
-          </Typography>
-          <TextField
-            required
-            label="Assistant Name"
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            value={assistantName}
-            onChange={(e) => setAssistantName(e.target.value)}
-          />
-          <TextField
-            required
-            label="Assistant Description"
-            fullWidth
-            margin="normal"
-            variant="outlined"
-            value={assistantDescription}
-            onChange={(e) => setAssistantDescription(e.target.value)}
-            multiline
-            rows={4}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth // This makes the button extend to the full width of the container
-            disabled={!isStartEnabled}
-            onClick={handleStart}
-            sx={{ mt: 2 }} // Adds margin-top for spacing
-          >
-            Start Chatting!
-          </Button>
-        </Paper>
-      </Box>
-    </Container>
-  );
-
   const handleAIResponse = async (userMessage: string) => {
     try {
+      setIsLoading(true);
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userMessage }),
       });
-
+      setIsLoading(false);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -190,12 +120,9 @@ const Chat = () => {
     }
   };
 
-  if (!hasStarted) {
-    return renderLandingPage();
-  }
-
   return (
     <>
+      {isLoading && <Loader />}
       <MessagesField messages={messages} />
       <div className={styles.inputArea}>
         <TextField
@@ -205,10 +132,9 @@ const Chat = () => {
           onKeyDown={handleSendMessage}
           className={styles.textField}
         />
-        <FileUpload />
+        <FileUpload isLoading={isLoading} setIsLoading={setIsLoading} />
       </div>
     </>
   );
 };
-
 export default Chat;
