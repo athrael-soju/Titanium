@@ -2,7 +2,13 @@ Welcome to Titanium - Super Simple Chat Template
 
 ## Getting Started
 
-First, run the development server:
+First, create a new file in the root folder and name it `.env.local` provide your openAI API key. I tshould look something like this:
+```
+OPENAI_API_MODEL="gpt-3.5-turbo"
+OPENAI_API_KEY="YOUR_API_KEY"
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
@@ -34,3 +40,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Notes
+
+You'll notice a popup on the landing page asking you to create your new assistant. This is a mockup and not yet implemented, so just enter anytithing in the fields.
+
+Happy coding!
