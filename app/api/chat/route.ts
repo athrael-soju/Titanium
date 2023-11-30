@@ -8,8 +8,15 @@ const options: ClientOptions = {
 
 export async function POST(req: Request) {
   try {
-    const { userMessage } = await req.json();
+    const { userMessage, threadId } = await req.json();
     const openai = new OpenAI(options); // Use your API key here
+
+    // const threadMessages = await openai.beta.threads.messages.create(threadId, {
+    //   role: 'user',
+    //   content: userMessage,
+    // });
+
+    // console.log('Thread Messages:', threadMessages);
 
     const completion = openai.beta.chat.completions.stream({
       model: process.env.OPENAI_API_MODEL ?? 'gpt-4-1106-preview',

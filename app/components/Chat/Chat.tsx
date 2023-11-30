@@ -19,6 +19,7 @@ const Chat: React.FC = () => {
   const [assistantName, setAssistantName] = useState<string>('');
   const [assistantDescription, setAssistantDescription] = useState<string>('');
   const [assistantId, setAssistantId] = useState<string>('');
+  const [threadId, setThreadId] = useState<string>('');
   const [isStartEnabled, setIsStartEnabled] = useState<boolean>(false);
   const [hasStarted, setHasStarted] = useState<boolean>(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
@@ -41,6 +42,7 @@ const Chat: React.FC = () => {
         if (response.status === 200) {
           setHasStarted(true);
           setAssistantId(response.data.assistantId);
+          setThreadId(response.data.threadId);
         }
       } catch (error) {
         console.error('Error creating assistant:', error);
@@ -68,12 +70,12 @@ const Chat: React.FC = () => {
     ]);
   };
 
-  const handleAIResponse = async (userMessage: string) => {
+  const handleAIResponse = async (userMessage: string, threadId: string) => {
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userMessage }),
+        body: JSON.stringify({ userMessage, threadId }),
       });
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -137,28 +139,30 @@ const Chat: React.FC = () => {
         addUserMessageToState(userMessage);
         target.value = '';
         const aiResponseId = uuidv4();
-        const reader = await handleAIResponse(userMessage);
+        const reader = await handleAIResponse(userMessage, threadId);
         await processAIResponseStream(reader, aiResponseId);
       }
     }
   };
-  if (!hasStarted) {
-    return isLoading ? (
-      <Loader />
-    ) : (
-      <AssistantCreationForm
-        onAssistantCreate={handleStart}
-        isStartEnabled={isStartEnabled}
-        assistantName={assistantName}
-        setAssistantName={setAssistantName}
-        assistantDescription={assistantDescription}
-        setAssistantDescription={setAssistantDescription}
-      />
-    );
-  }
+  // if (!hasStarted) {
+  //   return isLoading ? (
+  //     <Loader />
+  //   ) : (
+  //     <AssistantCreationForm
+  //       onAssistantCreate={handleStart}
+  //       isStartEnabled={isStartEnabled}
+  //       assistantName={assistantName}
+  //       setAssistantName={setAssistantName}
+  //       assistantDescription={assistantDescription}
+  //       setAssistantDescription={setAssistantDescription}
+  //     />
+  //   );
+  // }
   return (
     <>
-      {isLoading && <Loader />}
+      {isLoading 
+      // && <Loader />
+      }
       <MessagesField messages={messages} />
       <div className={styles.inputArea}>
         <TextField
