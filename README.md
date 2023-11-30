@@ -1,4 +1,20 @@
-Welcome to Titanium - Super Simple Chat Template
+# What is Titanium?
+
+Titanium is a modern web application built with Next.js, leveraging Typescript for dynamic user interfaces and integrating with OpenAI's API. It's still in very early stages, but I aim to add implementations for all new OpenAI API's, including:
+- Multipurpose Assistants.
+- Code Interpretation/Generation.
+- Query/Discussion of uploaded documents.
+- Image Analysis/Generation.
+- Traditional RAG, using Vector DB's.
+- Persistent multi-user memory.
+  
+# Libraries
+
+- Next.js Framework: Utilizes the latest features of Next.js for server-side rendering and static site generation.
+- OpenAI Integration: Includes integration with [OpenAI's API](https://platform.openai.com/docs/api-reference).
+- Markdown Rendering: Supports rendering of Markdown content with react-markdown.
+- Syntax Highlighting: Implements syntax highlighting in code snippets using react-syntax-highlighter.
+- Material UI: Styled with Material-UI components for a responsive and modern UI/UX.
 
 ## Getting Started
 
@@ -24,7 +40,6 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
 ## Learn More
 
