@@ -1,11 +1,9 @@
-// components/Header.tsx
 import React from 'react';
 import { AppBar, Toolbar, Typography } from '@mui/material';
-import styles from './Header.module.css'; // Adjust the path as necessary
 
 const Header = () => {
   return (
-    <AppBar position="fixed" className={styles.gradientAppBar}>
+    <AppBar position="fixed">
       <Toolbar>
         <div style={{ display: 'flex', alignItems: 'flex-start' }}>
           <Typography variant="h4" style={{ marginRight: '10px' }}>

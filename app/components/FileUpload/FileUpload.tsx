@@ -18,7 +18,7 @@ const FileUpload = ({
     let files = event.target.files;
     if (files && files[0]) {
       setSelectedFile(files[0]);
-      uploadFile(files[0]); // Trigger upload after file selection
+      uploadFile(files[0]);
     }
   };
 
