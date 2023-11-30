@@ -10,12 +10,6 @@ import Loader from './Loader';
 import useMessages from '../hooks/useMessages'; // Custom hook for managing messages
 import styles from './Chat.module.css';
 
-interface IMessage {
-  text: string;
-  sender: 'user' | 'ai';
-  id: string;
-}
-
 const Chat: React.FC = () => {
   const [assistantName, setAssistantName] = useState<string>('');
   const [assistantDescription, setAssistantDescription] = useState<string>('');
