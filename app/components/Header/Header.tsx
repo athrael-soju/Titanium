@@ -1,4 +1,3 @@
-// components/Header.tsx
 import React from 'react';
 import { AppBar, Toolbar, Typography } from '@mui/material';
 import styles from './Header.module.css'; // Adjust the path as necessary
