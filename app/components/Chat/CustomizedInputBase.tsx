@@ -27,10 +27,10 @@ const CustomizedInputBase = ({
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent form submission
+      event.preventDefault();
       if (inputValue.trim()) {
         onSendMessage(inputValue);
-        setInputValue(''); // Clear input
+        setInputValue('');
       }
     }
   };
@@ -125,13 +125,12 @@ const CustomizedInputBase = ({
             <ListItemIcon>
               <SpeechIcon />
             </ListItemIcon>
-            Enable/Disable Speech
+            Web Speech
           </MenuItem>
         </Menu>
         <InputBase
           sx={{ ml: 1, flex: 1 }}
-          placeholder="What would you like to know?"
-          inputProps={{ 'aria-label': 'search google maps' }}
+          placeholder="Enter your message"
           value={inputValue}
           onChange={handleInputChange}
         />
