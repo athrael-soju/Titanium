@@ -1,13 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { TextField } from '@mui/material';
 import { v4 as uuidv4 } from 'uuid';
-import FileUpload from '../FileUpload/FileUpload';
 import MessagesField from './MessagesField';
 import styles from './Chat.module.css';
 import Loader from './Loader';
-
+import CustomizedInputBase from './CustomizedInputBase';
 interface IMessage {
   text: string;
   sender: 'user' | 'ai';
@@ -103,18 +101,12 @@ const Chat = () => {
     await reader.read().then(processText);
   };
 
-  const handleSendMessage = async (
-    event: React.KeyboardEvent<HTMLDivElement>
-  ) => {
-    if (event.key === 'Enter') {
-      const target = event.target as HTMLInputElement;
-      const userMessage = target.value.trim();
-      if (userMessage) {
-        addUserMessageToState(userMessage);
-        target.value = '';
-
-        const aiResponseId = uuidv4();
-        const reader = await handleAIResponse(userMessage);
+  const sendUserMessage = async (message: string) => {
+    if (message.trim()) {
+      addUserMessageToState(message);
+      const aiResponseId = uuidv4();
+      const reader = await handleAIResponse(message);
+      if (reader) {
         await processAIResponseStream(reader, aiResponseId);
       }
     }
@@ -125,14 +117,10 @@ const Chat = () => {
       {isLoading && <Loader />}
       <MessagesField messages={messages} />
       <div className={styles.inputArea}>
-        <TextField
-          fullWidth
-          label="🤖 How can I help?"
-          variant="outlined"
-          onKeyDown={handleSendMessage}
-          className={styles.textField}
+        <CustomizedInputBase
+          setIsLoading={setIsLoading}
+          onSendMessage={sendUserMessage}
         />
-        <FileUpload isLoading={isLoading} setIsLoading={setIsLoading} />
       </div>
     </>
   );

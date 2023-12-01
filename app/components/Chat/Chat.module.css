@@ -1,16 +1,5 @@
-
-.inputBox {
-  width: 60%;
-  margin-top: auto;
-}
-
 .inputArea {
   display: flex;
   align-items: center;
-  width: 60%;
   margin-top: auto;
-}
-
-.textField {
-  flex-grow: 1;
 }
