@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import MessagesField from './MessagesField';
 import styles from './Chat.module.css';
 import Loader from './Loader';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import CustomizedInputBase from './CustomizedInputBase';
 interface IMessage {
   text: string;
