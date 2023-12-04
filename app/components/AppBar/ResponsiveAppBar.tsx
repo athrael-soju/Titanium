@@ -71,7 +71,7 @@ function ResponsiveAppBar() {
               textDecoration: 'none',
             }}
           >
-            Titaniumg
+            Titanium
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
