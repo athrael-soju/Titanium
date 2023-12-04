@@ -130,10 +130,9 @@ const Chat = () => {
     );
   }
   return (
-    <>
-      Not signed in <br />
-      <button onClick={() => signIn()}>Sign in</button>
-    </>
+    <div className={styles.loginPrompt}>
+      <p>Please sign in to access the chat.</p>
+    </div>
   );
 };
 export default Chat;
