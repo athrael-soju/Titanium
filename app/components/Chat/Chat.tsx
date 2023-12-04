@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import MessagesField from './MessagesField';
 import styles from './Chat.module.css';
 import Loader from './Loader';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import CustomizedInputBase from './CustomizedInputBase';
 interface IMessage {
   text: string;
@@ -13,6 +14,8 @@ interface IMessage {
 }
 
 const Chat = () => {
+  const { data: session } = useSession();
+
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -112,16 +115,24 @@ const Chat = () => {
     }
   };
 
+  if (session) {
+    return (
+      <>
+        {isLoading && <Loader />}
+        <MessagesField messages={messages} />
+        <div className={styles.inputArea}>
+          <CustomizedInputBase
+            setIsLoading={setIsLoading}
+            onSendMessage={sendUserMessage}
+          />
+        </div>
+      </>
+    );
+  }
   return (
     <>
-      {isLoading && <Loader />}
-      <MessagesField messages={messages} />
-      <div className={styles.inputArea}>
-        <CustomizedInputBase
-          setIsLoading={setIsLoading}
-          onSendMessage={sendUserMessage}
-        />
-      </div>
+      Not signed in <br />
+      <button onClick={() => signIn()}>Sign in</button>
     </>
   );
 };
