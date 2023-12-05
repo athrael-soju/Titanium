@@ -9,8 +9,10 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import FileUploadIcon from '@mui/icons-material/CloudUpload';
 import SpeechIcon from '@mui/icons-material/RecordVoiceOver';
+import AssistantIcon from '@mui/icons-material/Assistant'; // Import the icon for "Assistants"
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import AssistantDialog from './AssistantDialog'; // Import the AssistantDialog component
 
 const CustomizedInputBase = ({
   setIsLoading,
@@ -24,6 +26,7 @@ const CustomizedInputBase = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [inputValue, setInputValue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isAssistantDialogOpen, setAssistantDialogOpen] = useState(false); // State for managing the Assistant dialog
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -54,6 +57,11 @@ const CustomizedInputBase = ({
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
+    handleMenuClose();
+  };
+
+  const handleAssistantsClick = () => {
+    setAssistantDialogOpen(true);
     handleMenuClose();
   };
 
@@ -121,6 +129,12 @@ const CustomizedInputBase = ({
             </ListItemIcon>
             Upload File
           </MenuItem>
+          <MenuItem onClick={handleAssistantsClick}>
+            <ListItemIcon>
+              <AssistantIcon />
+            </ListItemIcon>
+            Personal Assistant
+          </MenuItem>
           <MenuItem onClick={handleMenuClose}>
             <ListItemIcon>
               <SpeechIcon />
@@ -149,6 +163,11 @@ const CustomizedInputBase = ({
         ref={fileInputRef}
         style={{ display: 'none' }}
         onChange={handleFileSelect}
+      />
+
+      <AssistantDialog
+        open={isAssistantDialogOpen}
+        onClose={() => setAssistantDialogOpen(false)}
       />
     </>
   );
