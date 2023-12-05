@@ -3,3 +3,10 @@
   align-items: center;
   margin-top: auto;
 }
+
+.loginPrompt {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 18px;
+  color: #666; /* or any color that suits your design */
+}
