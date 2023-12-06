@@ -1,15 +1,16 @@
-import React, { useState, useRef } from "react";
-import Paper from "@mui/material/Paper";
-import InputBase from "@mui/material/InputBase";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import SendIcon from "@mui/icons-material/Send";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import FileUploadIcon from "@mui/icons-material/CloudUpload";
-import { useTheme } from "@mui/material/styles";
-import useMediaQuery from "@mui/material/useMediaQuery";
+import React, { useState, useRef } from 'react';
+import Paper from '@mui/material/Paper';
+import InputBase from '@mui/material/InputBase';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import SendIcon from '@mui/icons-material/Send';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import FileUploadIcon from '@mui/icons-material/CloudUpload';
+import SpeechIcon from '@mui/icons-material/RecordVoiceOver';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const CustomizedInputBase = ({
   setIsLoading,
@@ -19,19 +20,17 @@ const CustomizedInputBase = ({
   onSendMessage: (message: string) => void;
 }) => {
   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  console.log(fileInputRef);
-
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       event.preventDefault();
       if (inputValue.trim()) {
         onSendMessage(inputValue);
-        setInputValue("");
+        setInputValue('');
       }
     }
   };
@@ -42,7 +41,7 @@ const CustomizedInputBase = ({
 
   const handleSendClick = () => {
     onSendMessage(inputValue);
-    setInputValue("");
+    setInputValue('');
   };
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -65,19 +64,19 @@ const CustomizedInputBase = ({
     setIsLoading(true);
     if (file) {
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append('file', file);
       try {
-        const response = await fetch("/api/upload", {
-          method: "POST",
+        const response = await fetch('/api/upload', {
+          method: 'POST',
           body: formData,
         });
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
-        console.log("File uploaded successfully", response);
+        console.log('File uploaded successfully', response);
       } catch (error) {
-        console.error("Failed to upload file:", error);
+        console.error('Failed to upload file:', error);
       } finally {
         setIsLoading(false);
       }
@@ -89,15 +88,15 @@ const CustomizedInputBase = ({
       <Paper
         component="form"
         sx={{
-          p: "2px 4px",
-          display: "flex",
-          alignItems: "center",
-          width: isSmallScreen ? "100%" : 600,
+          p: '2px 4px',
+          display: 'flex',
+          alignItems: 'center',
+          width: isSmallScreen ? '100%' : 600,
         }}
         onKeyDown={handleKeyDown}
       >
         <IconButton
-          sx={{ p: "10px" }}
+          sx={{ p: '10px' }}
           aria-label="menu"
           onClick={handleMenuOpen}
         >
@@ -108,12 +107,12 @@ const CustomizedInputBase = ({
           open={Boolean(anchorEl)}
           onClose={handleMenuClose}
           anchorOrigin={{
-            vertical: "top",
-            horizontal: "right",
+            vertical: 'top',
+            horizontal: 'right',
           }}
           transformOrigin={{
-            vertical: "bottom",
-            horizontal: "right",
+            vertical: 'bottom',
+            horizontal: 'right',
           }}
         >
           <MenuItem onClick={handleUploadClick}>
@@ -121,6 +120,12 @@ const CustomizedInputBase = ({
               <FileUploadIcon />
             </ListItemIcon>
             Upload File
+          </MenuItem>
+          <MenuItem onClick={handleMenuClose}>
+            <ListItemIcon>
+              <SpeechIcon />
+            </ListItemIcon>
+            Web Speech
           </MenuItem>
         </Menu>
         <InputBase
@@ -131,7 +136,7 @@ const CustomizedInputBase = ({
         />
         <IconButton
           type="button"
-          sx={{ p: "10px" }}
+          sx={{ p: '10px' }}
           aria-label="send"
           onClick={handleSendClick}
         >
@@ -142,7 +147,7 @@ const CustomizedInputBase = ({
       <input
         type="file"
         ref={fileInputRef}
-        style={{ display: "none" }}
+        style={{ display: 'none' }}
         onChange={handleFileSelect}
       />
     </>
