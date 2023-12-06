@@ -115,7 +115,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           <Button onClick={handleReset}>Reset</Button>
           <Button onClick={onClose}>Cancel</Button>
           <Typography variant="caption" sx={{ mx: 1 }}>
-            Enabled
+            Disabled
           </Typography>
           <Switch
             checked={isActive}
@@ -123,7 +123,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
             name="activeAssistant"
           />
           <Typography variant="caption" sx={{ mx: 1 }}>
-            Disabled
+            Enabled
           </Typography>
         </Box>
       </DialogActions>
