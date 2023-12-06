@@ -1,13 +1,14 @@
 # What is Titanium?
 
 Titanium is a modern web application built with Next.js, leveraging Typescript for dynamic user interfaces and integrating with OpenAI's API. It's still in very early stages, but I aim to add implementations for all new OpenAI API's, including:
+
 - Multipurpose Assistants.
 - Code Interpretation/Generation.
 - Query/Discussion of uploaded documents.
 - Image Analysis/Generation.
 - Traditional RAG, using Vector DB's.
 - Persistent multi-user memory.
-  
+
 # Libraries
 
 - Next.js Framework: Utilizes the latest features of Next.js for server-side rendering and static site generation.
@@ -19,9 +20,16 @@ Titanium is a modern web application built with Next.js, leveraging Typescript f
 ## Getting Started
 
 First, create a new file in the root folder and name it `.env.local` provide your openAI API key. I tshould look something like this:
+
 ```
 OPENAI_API_MODEL="gpt-3.5-turbo"
 OPENAI_API_KEY="YOUR_API_KEY"
+```
+
+Or copy `.env.example` and rename it to `.env.local` and provide your API key.
+
+```bash
+cp .env.example .env.local
 ```
 
 Then, run the development server:
@@ -39,7 +47,6 @@ bun dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
 
 ## Learn More
 
