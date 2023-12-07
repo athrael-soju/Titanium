@@ -24,8 +24,15 @@ import { randomUUID } from 'crypto';
 import Debug from 'debug';
 const debug = Debug('nextjs:api:auth');
 
+interface CustomUser extends User {
+  provider?: string;
+}
+
+interface CustomSession extends Session {
+  token_provider?: string;
+}
+
 const createAnonymousUser = (): User => {
-  // generate a random name and email for this anonymous user
   const customConfig: Config = {
     dictionaries: [adjectives, colors, starWars],
     separator: '-',
@@ -78,7 +85,6 @@ const options: NextAuthOptions = {
       profile?: Profile;
     }): Promise<JWT> {
       if (account && account?.expires_at && account?.type === 'oauth') {
-        // at sign-in, persist in the JWT the GitHub account details to enable brokered requests in the future
         token.access_token = account.access_token;
         token.expires_at = account.expires_at;
         token.refresh_token = account.refresh_token;
@@ -93,13 +99,12 @@ const options: NextAuthOptions = {
       token,
       user,
     }: {
-      session: Session;
+      session: CustomSession;
       token: JWT;
       user: AdapterUser;
     }): Promise<Session> {
-      // don't make the token (JWT) contents available to the client session (JWT), but flag that they're server-side
       if (token.provider) {
-        session.token_provider = token.provider;
+        session.token_provider = token.provider as string;
       }
       return session;
     },
@@ -110,7 +115,7 @@ const options: NextAuthOptions = {
       account,
       profile,
     }: {
-      user: User;
+      user: CustomUser;
       account: Account | null;
       profile?: Profile;
     }): Promise<void> {
@@ -129,7 +134,6 @@ const options: NextAuthOptions = {
     },
   },
   session: {
-    // use default, an encrypted JWT (JWE) store in the session cookie
     strategy: 'jwt' as SessionStrategy,
   },
 };
