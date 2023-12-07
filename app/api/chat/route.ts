@@ -1,5 +1,5 @@
-import OpenAI, { ClientOptions } from 'openai';
-export const runtime = 'edge';
+import OpenAI, { ClientOptions } from "openai";
+export const runtime = "edge";
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const options: ClientOptions = {
@@ -12,9 +12,22 @@ export async function POST(req: Request) {
     const openai = new OpenAI(options); // Use your API key here
 
     const completion = openai.beta.chat.completions.stream({
-      model: process.env.OPENAI_API_MODEL ?? 'gpt-4-1106-preview',
-      messages: [{ role: 'user', content: userMessage }],
+      model: "gpt-4-vision-preview",
       stream: true,
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: "What’s in this image?" },
+            {
+              type: "image_url",
+              image_url: {
+                url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
+              },
+            },
+          ],
+        },
+      ],
     });
 
     // Construct and return a new Response object
