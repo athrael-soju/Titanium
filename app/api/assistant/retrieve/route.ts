@@ -17,7 +17,12 @@ export async function GET(req: Request) {
     // ...
 
     // Construct and return a new Response object
-    return new Response(/* your response here */);
+    return new Response(JSON.stringify({ message: 'Success' }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (error: any) {
     // Return an error response
     return new Response(error, { status: 500 });

@@ -1,34 +1,39 @@
-export const runtime = 'edge';
+import clientPromise from '../../../lib/client/mongodb';
+
+//export const runtime = 'edge';
 
 export async function POST(req: Request) {
-  try {
-    // Parse the request body as JSON
-    const requestBody = await req.json();
+  const client = await clientPromise;
+  const db = client.db();
 
-    // Extract parameters from the request body
-    const { name, description, isActive } = requestBody;
-    // Validate the required parameters
-    if (!name || !description || isActive === undefined) {
+  try {
+    const { userEmail, name, description, isActive } = await req.json();
+
+    if (!userEmail || !name || !description || isActive === undefined) {
       return new Response('Missing required parameters', { status: 400 });
     }
 
-    // Your logic here using the extracted parameters
-    // ...
+    const usersCollection = db.collection<IUser>('users');
+    const user = await usersCollection.findOne({ email: userEmail });
 
-    // Construct and return a successful Response object
-    return new Response(JSON.stringify({ message: 'Success' }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    if (!user) {
+      return new Response('User not found', { status: 404 });
+    }
+
+    let assistantId = user.assistantId;
+    if (!assistantId) {
+      // Logic to interact with OpenAI API. Use temporary value for now.
+      // ...
+      assistantId = 'assistant-456';
+      // ...
+      await usersCollection.updateOne(
+        { email: userEmail },
+        { $set: { assistantId } }
+      );
+    }
+
+    return new Response('Assistant updated', { status: 200 });
   } catch (error: any) {
-    // Return an error response
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    return new Response(error.message, { status: 500 });
   }
 }

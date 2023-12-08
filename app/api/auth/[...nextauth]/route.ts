@@ -47,8 +47,8 @@ const createAnonymousUser = (): User => {
   const unique_uuid: string = randomUUID();
   return {
     id: unique_uuid,
-    email: `${unique_handle.toLowerCase()}@guest.com`,
     name: unique_realname,
+    email: `${unique_handle.toLowerCase()}@titanium-guest.com`,
     image: '',
   };
 };
@@ -66,7 +66,22 @@ const providers = [
     name: 'a Guest Account',
     credentials: {},
     async authorize(credentials, req) {
-      return createAnonymousUser();
+      const user = createAnonymousUser();
+
+      // Get the MongoDB client and database
+      const client = await clientPromise;
+      const db = client.db();
+
+      // Check if user already exists
+      const existingUser = await db
+        .collection('users')
+        .findOne({ email: user.email });
+      if (!existingUser) {
+        // Save the new user if not exists
+        await db.collection('users').insertOne(user);
+      }
+
+      return user;
     },
   }),
 ];
