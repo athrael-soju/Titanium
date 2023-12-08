@@ -40,13 +40,17 @@ const MessagesField: React.FC<MessagesFieldProps> = ({ messages }) => {
     if (message?.imageURL) {
       return (
         <div className={styles.imageContainer}>
-          <p>{message?.text}</p>
+          <div dangerouslySetInnerHTML={{ __html: message.text }} />
           <img
             src={message?.imageURL}
             alt="Uploaded"
             style={{
               width: "100%",
+              maxWidth: "500px",
               height: "auto",
+              marginLeft: "auto",
+              marginRight: "auto",
+              display: "block",
               objectFit: "contain",
               marginTop: "20px",
             }}
@@ -54,7 +58,15 @@ const MessagesField: React.FC<MessagesFieldProps> = ({ messages }) => {
         </div>
       );
     }
-    return message?.text;
+
+    return (
+      <div
+        style={{
+          paddingLeft: "30px",
+        }}
+        dangerouslySetInnerHTML={{ __html: message.text }}
+      />
+    );
   };
 
   return (

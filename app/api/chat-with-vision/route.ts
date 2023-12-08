@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI, { ClientOptions } from "openai";
+import { remark } from "remark";
+import html from "remark-html";
 import type { ChatWithVisionVariables } from "@/lib/types";
 export const runtime = "edge";
 
@@ -45,7 +47,10 @@ export async function POST(req: Request) {
 
     const data = completion?.choices?.[0]?.message?.content;
 
-    return NextResponse.json(data, { status: 200 });
+    const processedContent = await remark().use(html).process(data);
+    const contentHtml = processedContent.toString();
+
+    return NextResponse.json(contentHtml, { status: 200 });
   } catch (error: any) {
     // Return an error response
     return new Response(error);

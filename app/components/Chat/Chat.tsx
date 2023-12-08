@@ -37,7 +37,7 @@ const Chat = () => {
   ) => {
     setMessages((prevMessages) => [
       ...prevMessages.filter((msg) => msg.id !== aiResponseId),
-      { text: `🤖 ${aiResponseText}`, sender: "ai", id: aiResponseId },
+      { text: aiResponseText, sender: "ai", id: aiResponseId },
     ]);
   };
 
