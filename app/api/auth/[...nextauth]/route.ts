@@ -1,32 +1,48 @@
-import NextAuth, { User } from 'next-auth';
+import NextAuth, {
+  Account,
+  Profile,
+  SessionStrategy,
+  Session,
+  User,
+} from 'next-auth';
 import type { NextAuthOptions } from 'next-auth';
+import { MongoDBAdapter } from '@auth/mongodb-adapter';
+import { JWT } from 'next-auth/jwt';
+import { AdapterUser } from 'next-auth/adapters';
 import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
+import clientPromise from '../../../lib/client/mongodb';
 import {
   uniqueNamesGenerator,
   Config,
   adjectives,
   colors,
   starWars,
-  animals,
 } from 'unique-names-generator';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { randomUUID } from 'crypto';
+import Debug from 'debug';
+const debug = Debug('nextjs:api:auth');
+
+interface CustomUser extends User {
+  provider?: string;
+}
+
+interface CustomSession extends Session {
+  token_provider?: string;
+}
 
 const createAnonymousUser = (): User => {
-  // generate a random name and email for this anonymous user
   const customConfig: Config = {
-    dictionaries: [adjectives, colors, animals, starWars],
+    dictionaries: [adjectives, colors, starWars],
     separator: '-',
     length: 3,
     style: 'capital',
   };
-  // handle is simple-red-aardvark
   const unique_handle: string = uniqueNamesGenerator(customConfig).replaceAll(
     ' ',
     ''
   );
-  // real name is Red Aardvark
   const unique_realname: string = unique_handle.split('-').slice(1).join(' ');
   const unique_uuid: string = randomUUID();
   return {
@@ -55,7 +71,72 @@ const providers = [
   }),
 ];
 
-const options: NextAuthOptions = { providers };
+const options: NextAuthOptions = {
+  providers,
+  adapter: MongoDBAdapter(clientPromise),
+  callbacks: {
+    async jwt({
+      token,
+      account,
+      profile,
+    }: {
+      token: JWT;
+      account: Account | null;
+      profile?: Profile;
+    }): Promise<JWT> {
+      if (account?.expires_at && account?.type === 'oauth') {
+        token.access_token = account.access_token;
+        token.expires_at = account.expires_at;
+        token.refresh_token = account.refresh_token;
+        token.refresh_token_expires_in = account.refresh_token_expires_in;
+        token.provider = 'github';
+      }
+      if (!token.provider) token.provider = 'Titanium';
+      return token;
+    },
+    async session({
+      session,
+      token,
+      user,
+    }: {
+      session: CustomSession;
+      token: JWT;
+      user: AdapterUser;
+    }): Promise<Session> {
+      if (token.provider) {
+        session.token_provider = token.provider as string;
+      }
+      return session;
+    },
+  },
+  events: {
+    async signIn({
+      user,
+      account,
+      profile,
+    }: {
+      user: CustomUser;
+      account: Account | null;
+      profile?: Profile;
+    }): Promise<void> {
+      debug(
+        `signIn of ${user.name} from ${user?.provider ?? account?.provider}`
+      );
+    },
+    async signOut({
+      session,
+      token,
+    }: {
+      session: Session;
+      token: JWT;
+    }): Promise<void> {
+      debug(`signOut of ${token.name} from ${token.provider}`);
+    },
+  },
+  session: {
+    strategy: 'jwt' as SessionStrategy,
+  },
+};
 
 const handler = NextAuth(options);
 export { handler as GET, handler as POST };
