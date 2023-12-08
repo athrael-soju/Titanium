@@ -15,24 +15,33 @@ import { useSession } from 'next-auth/react';
 interface AssistantDialogProps {
   open: boolean;
   onClose: () => void;
+  name: string;
+  setName: (name: string) => void;
+  description: string;
+  setDescription: (description: string) => void;
   onToggleAssistant?: (isActive: boolean) => void;
   onReset?: () => void;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AssistantDialog: React.FC<AssistantDialogProps> = ({
   open,
   onClose,
+  name,
+  setName,
+  description,
+  setDescription,
   onToggleAssistant,
   onReset,
+  setIsLoading,
 }) => {
   const { data: session } = useSession();
-  const [name, setName] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
   const [isActive, setIsActive] = useState<boolean>(false);
   const [error, setError] = useState<{ name: boolean; description: boolean }>({
     name: false,
     description: false,
   });
+
   const handleAccept = async () => {
     let hasError = false;
     if (!name) {
@@ -46,6 +55,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     if (hasError) return;
 
     try {
+      setIsLoading(true);
       if (session) {
         const userEmail = session.user?.email as string;
         const response = await updateAssistant({
@@ -58,11 +68,11 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       } else {
         throw new Error('No session found');
       }
-      // Handle the response
     } catch (error) {
-      // Handle the error
+      console.error('Error updating assistant:', error);
+    } finally {
+      setIsLoading(false);
     }
-
     onClose();
   };
 
@@ -76,6 +86,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   const handleReset = () => {
     setName('');
     setDescription('');
+    setIsActive(false);
     setError({ name: false, description: false });
     if (onReset) {
       onReset();
@@ -99,7 +110,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
             label="Name"
             fullWidth
             variant="outlined"
-            value={name}
+            value={name || ''}
             onChange={(e) => setName(e.target.value)}
             error={error.name}
             helperText={error.name ? 'Name is required' : ' '}
@@ -117,7 +128,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
             multiline
             rows={4}
             variant="outlined"
-            value={description}
+            value={description || ''}
             onChange={(e) => setDescription(e.target.value)}
             error={error.description}
             helperText={error.description ? 'Description is required' : ' '}

@@ -30,7 +30,8 @@ const CustomizedInputBase = ({
   const [inputValue, setInputValue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
-
+  const [name, setName] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -67,18 +68,22 @@ const CustomizedInputBase = ({
     setIsAssistantDialogOpen(true);
     handleMenuClose();
 
-    // Replace with actual session retrieval
+    // Retrieve the assistant
     try {
+      setIsLoading(true);
       if (session) {
         const userEmail = session.user?.email as string;
         const response = await retrieveAssistant({ userEmail });
+        setName(response.assistant.name);
+        setDescription(response.assistant.instructions);
         console.log('Assistant retrieved successfully', response);
       } else {
         throw new Error('No session found');
       }
-      // Handle the retrieved data
     } catch (error) {
-      // Handle errors
+      console.error('Error retrieving assistant:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -86,11 +91,11 @@ const CustomizedInputBase = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    setIsLoading(true);
     if (file) {
       const formData = new FormData();
       formData.append('file', file);
       try {
+        setIsLoading(true);
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
@@ -185,6 +190,11 @@ const CustomizedInputBase = ({
       <AssistantDialog
         open={isAssistantDialogOpen}
         onClose={() => setIsAssistantDialogOpen(false)}
+        name={name}
+        setName={setName}
+        description={description}
+        setDescription={setDescription}
+        setIsLoading={setIsLoading}
       />
     </>
   );

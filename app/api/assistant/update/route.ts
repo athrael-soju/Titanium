@@ -1,8 +1,13 @@
+import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '../../../lib/client/mongodb';
 
-//export const runtime = 'edge';
+import OpenAI from 'openai';
 
-export async function POST(req: Request) {
+// export const runtime = 'edge';
+
+const openai = new OpenAI();
+
+export async function POST(req: NextRequest) {
   const client = await clientPromise;
   const db = client.db();
 
@@ -10,30 +15,41 @@ export async function POST(req: Request) {
     const { userEmail, name, description, isActive } = await req.json();
 
     if (!userEmail || !name || !description || isActive === undefined) {
-      return new Response('Missing required parameters', { status: 400 });
+      return NextResponse.json('Missing required parameters', { status: 400 });
     }
 
     const usersCollection = db.collection<IUser>('users');
     const user = await usersCollection.findOne({ email: userEmail });
 
     if (!user) {
-      return new Response('User not found', { status: 404 });
+      return NextResponse.json('User not found', { status: 404 });
     }
-
+    let assistant;
     let assistantId = user.assistantId;
     if (!assistantId) {
-      // Logic to interact with OpenAI API. Use temporary value for now.
-      // ...
-      assistantId = 'assistant-456';
-      // ...
+      // Create a new assistant
+      assistant = await openai.beta.assistants.create({
+        instructions: description,
+        name: name,
+        tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
+        model: process.env.OPENAI_API_MODEL as string,
+      });
+      assistantId = assistant.id;
       await usersCollection.updateOne(
         { email: userEmail },
         { $set: { assistantId } }
       );
+    } else {
+      assistant = await openai.beta.assistants.update(assistantId, {
+        instructions: description,
+        name: name,
+        tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
+        model: process.env.OPENAI_API_MODEL as string,
+        file_ids: [],
+      });
     }
-
-    return new Response('Assistant updated', { status: 200 });
+    return NextResponse.json('Assistant updated', { status: 200 });
   } catch (error: any) {
-    return new Response(error.message, { status: 500 });
+    return NextResponse.json(error.message, { status: 500 });
   }
 }

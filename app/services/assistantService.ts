@@ -27,11 +27,7 @@ const updateAssistant = async ({
 
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error)) {
-      console.error('Error with Axios request:', error.message);
-    } else {
-      console.error('Unexpected error:', error);
-    }
+    console.error('Unexpected error:', error);
     throw error;
   }
 };
@@ -39,13 +35,14 @@ const retrieveAssistant = async ({
   userEmail,
 }: AssistantRetrieveData): Promise<any> => {
   try {
-    // Example: Passing session as a header
+    // Send a GET request to the /api/assistant/retrieve endpoint
     const response = await axios.get(`/api/assistant/retrieve/`, {
-      params: { userEmail },
+      headers: { userEmail: userEmail },
     });
     return response.data;
   } catch (error) {
-    // ...error handling...
+    console.error('Unexpected error:', error);
+    throw error;
   }
 };
 
