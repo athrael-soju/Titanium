@@ -84,7 +84,7 @@ const options: NextAuthOptions = {
       account: Account | null;
       profile?: Profile;
     }): Promise<JWT> {
-      if (account && account?.expires_at && account?.type === 'oauth') {
+      if (account?.expires_at && account?.type === 'oauth') {
         token.access_token = account.access_token;
         token.expires_at = account.expires_at;
         token.refresh_token = account.refresh_token;
@@ -120,7 +120,7 @@ const options: NextAuthOptions = {
       profile?: Profile;
     }): Promise<void> {
       debug(
-        `signIn of ${user.name} from ${user?.provider || account?.provider}`
+        `signIn of ${user.name} from ${user?.provider ?? account?.provider}`
       );
     },
     async signOut({

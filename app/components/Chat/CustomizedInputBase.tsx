@@ -26,7 +26,7 @@ const CustomizedInputBase = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [inputValue, setInputValue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isAssistantDialogOpen, setAssistantDialogOpen] = useState(false); // State for managing the Assistant dialog
+  const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -61,7 +61,7 @@ const CustomizedInputBase = ({
   };
 
   const handleAssistantsClick = () => {
-    setAssistantDialogOpen(true);
+    setIsAssistantDialogOpen(true);
     handleMenuClose();
   };
 
@@ -167,7 +167,7 @@ const CustomizedInputBase = ({
 
       <AssistantDialog
         open={isAssistantDialogOpen}
-        onClose={() => setAssistantDialogOpen(false)}
+        onClose={() => setIsAssistantDialogOpen(false)}
       />
     </>
   );
