@@ -12,7 +12,9 @@ import SpeechIcon from '@mui/icons-material/RecordVoiceOver';
 import AssistantIcon from '@mui/icons-material/Assistant'; // Import the icon for "Assistants"
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import AssistantDialog from './AssistantDialog'; // Import the AssistantDialog component
+import AssistantDialog from './AssistantDialog';
+import { retrieveAssistant } from '@/app/services/assistantService'; // Import the service function
+import { useSession } from 'next-auth/react';
 
 const CustomizedInputBase = ({
   setIsLoading,
@@ -21,6 +23,7 @@ const CustomizedInputBase = ({
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   onSendMessage: (message: string) => void;
 }) => {
+  const { data: session } = useSession();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -60,9 +63,23 @@ const CustomizedInputBase = ({
     handleMenuClose();
   };
 
-  const handleAssistantsClick = () => {
+  const handleAssistantsClick = async () => {
     setIsAssistantDialogOpen(true);
     handleMenuClose();
+
+    // Replace with actual session retrieval
+    try {
+      if (session) {
+        const userEmail = session.user?.email as string;
+        const response = await retrieveAssistant({ userEmail });
+        console.log('Assistant retrieved successfully', response);
+      } else {
+        throw new Error('No session found');
+      }
+      // Handle the retrieved data
+    } catch (error) {
+      // Handle errors
+    }
   };
 
   const handleFileSelect = async (

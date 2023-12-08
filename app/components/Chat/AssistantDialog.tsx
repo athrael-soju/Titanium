@@ -9,6 +9,8 @@ import FormControl from '@mui/material/FormControl';
 import Switch from '@mui/material/Switch';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { updateAssistant } from '@/app/services/assistantService';
+import { useSession } from 'next-auth/react';
 
 interface AssistantDialogProps {
   open: boolean;
@@ -23,6 +25,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   onToggleAssistant,
   onReset,
 }) => {
+  const { data: session } = useSession();
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const [isActive, setIsActive] = useState<boolean>(false);
@@ -30,8 +33,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     name: false,
     description: false,
   });
-
-  const handleAccept = () => {
+  const handleAccept = async () => {
     let hasError = false;
     if (!name) {
       setError((prev) => ({ ...prev, name: true }));
@@ -42,6 +44,24 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       hasError = true;
     }
     if (hasError) return;
+
+    try {
+      if (session) {
+        const userEmail = session.user?.email as string;
+        const response = await updateAssistant({
+          name,
+          description,
+          isActive,
+          userEmail,
+        });
+        console.log('Assistant updated successfully', response);
+      } else {
+        throw new Error('No session found');
+      }
+      // Handle the response
+    } catch (error) {
+      // Handle the error
+    }
 
     onClose();
   };
