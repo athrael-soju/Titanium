@@ -58,6 +58,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     if (hasError) return;
 
     try {
+      onClose();
       setIsLoading(true);
       if (session) {
         const userEmail = session.user?.email as string;
@@ -76,7 +77,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     } finally {
       setIsLoading(false);
     }
-    onClose();
   };
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
