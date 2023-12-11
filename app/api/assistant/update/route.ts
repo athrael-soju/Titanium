@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
     }
     let assistant, thread;
     if (!user.assistantId) {
-      // Create a new assistant
       assistant = await openai.beta.assistants.create({
         instructions: description,
         name: name,
