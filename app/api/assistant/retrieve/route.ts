@@ -18,16 +18,24 @@ export async function GET(req: NextRequest) {
     // Retrieve the user from the database
     const usersCollection = db.collection<IUser>('users');
     const user = await usersCollection.findOne({ email: userEmail });
-    let assistant = null;
+    let assistant, thread;
     if (!user) {
       return NextResponse.json('User not found', { status: 404 });
     }
     // If the user has an assistantId, retrieve the assistant from OpenAI
     if (user.assistantId) {
       assistant = await openai.beta.assistants.retrieve(user.assistantId);
+      thread = await openai.beta.threads.retrieve(user.threadId as string);
     }
-    // Return a JSON response
-    return NextResponse.json({ assistant: assistant }, { status: 200 });
+    // Return a success response
+    return NextResponse.json(
+      {
+        message: 'Assistant updated',
+        assistant: assistant,
+        threadId: thread?.id,
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     // Return an error response
     return NextResponse.json(error.message, { status: 500 });

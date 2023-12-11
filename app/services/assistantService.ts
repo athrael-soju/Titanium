@@ -24,7 +24,7 @@ const updateAssistant = async ({
       isActive,
       userEmail,
     });
-
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Unexpected error:', error);
@@ -39,6 +39,7 @@ const retrieveAssistant = async ({
     const response = await axios.get(`/api/assistant/retrieve/`, {
       headers: { userEmail: userEmail },
     });
+    console.log(response.data);
     return response.data;
   } catch (error) {
     console.error('Unexpected error:', error);

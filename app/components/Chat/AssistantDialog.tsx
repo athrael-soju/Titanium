@@ -19,6 +19,8 @@ interface AssistantDialogProps {
   setName: (name: string) => void;
   description: string;
   setDescription: (description: string) => void;
+  isActive: boolean;
+  setIsActive: (isActive: boolean) => void;
   onToggleAssistant?: (isActive: boolean) => void;
   onReset?: () => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -31,12 +33,13 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   setName,
   description,
   setDescription,
+  isActive,
+  setIsActive,
   onToggleAssistant,
   onReset,
   setIsLoading,
 }) => {
   const { data: session } = useSession();
-  const [isActive, setIsActive] = useState<boolean>(false);
   const [error, setError] = useState<{ name: boolean; description: boolean }>({
     name: false,
     description: false,

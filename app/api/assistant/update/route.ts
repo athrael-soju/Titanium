@@ -22,9 +22,8 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json('User not found', { status: 404 });
     }
-    let assistant;
-    let assistantId = user.assistantId;
-    if (!assistantId) {
+    let assistant, thread;
+    if (!user.assistantId) {
       // Create a new assistant
       assistant = await openai.beta.assistants.create({
         instructions: description,
@@ -32,21 +31,39 @@ export async function POST(req: NextRequest) {
         tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
         model: process.env.OPENAI_API_MODEL as string,
       });
-      assistantId = assistant.id;
+      thread = await openai.beta.threads.create();
+      let assistantId = assistant.id;
+      let threadId = thread.id;
       await usersCollection.updateOne(
         { email: userEmail },
-        { $set: { assistantId } }
+        { $set: { assistantId, threadId, isActive } }
       );
     } else {
-      assistant = await openai.beta.assistants.update(assistantId, {
+      assistant = await openai.beta.assistants.update(user.assistantId, {
         instructions: description,
         name: name,
         tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
         model: process.env.OPENAI_API_MODEL as string,
         file_ids: [],
       });
+      let threadId = user.threadId;
+      thread = await openai.beta.threads.retrieve(threadId as string);
+
+      await usersCollection.updateOne(
+        { email: userEmail },
+        { $set: { isActive } }
+      );
     }
-    return NextResponse.json('Assistant updated', { status: 200 });
+
+    return NextResponse.json(
+      {
+        message: 'Assistant updated',
+        assistantId: assistant.id,
+        threadId: thread.id,
+        isActive: user.isActive,
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     return NextResponse.json(error.message, { status: 500 });
   }

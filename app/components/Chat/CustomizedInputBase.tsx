@@ -31,6 +31,7 @@ const CustomizedInputBase = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [name, setName] = useState<string>('');
+  const [isActive, setIsActive] = useState<boolean>(false);
   const [description, setDescription] = useState<string>('');
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -194,6 +195,8 @@ const CustomizedInputBase = ({
         setName={setName}
         description={description}
         setDescription={setDescription}
+        isActive={isActive}
+        setIsActive={setIsActive}
         setIsLoading={setIsLoading}
       />
     </>
