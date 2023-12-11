@@ -18,6 +18,7 @@ const Chat = () => {
 
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isActive, setIsActive] = useState<boolean>(false);
 
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
@@ -43,7 +44,7 @@ const Chat = () => {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userMessage }),
+        body: JSON.stringify({ userMessage, isActive }),
       });
       setIsLoading(false);
       if (!response.ok) {
@@ -124,6 +125,8 @@ const Chat = () => {
           <CustomizedInputBase
             setIsLoading={setIsLoading}
             onSendMessage={sendUserMessage}
+            isActive={isActive}
+            setIsActive={setIsActive}
           />
         </div>
       </>

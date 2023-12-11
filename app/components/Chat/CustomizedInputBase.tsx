@@ -19,9 +19,13 @@ import { useSession } from 'next-auth/react';
 const CustomizedInputBase = ({
   setIsLoading,
   onSendMessage,
+  isActive,
+  setIsActive,
 }: {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   onSendMessage: (message: string) => void;
+  isActive: boolean;
+  setIsActive: (isActive: boolean) => void;
 }) => {
   const { data: session } = useSession();
   const theme = useTheme();
@@ -31,7 +35,6 @@ const CustomizedInputBase = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [name, setName] = useState<string>('');
-  const [isActive, setIsActive] = useState<boolean>(false);
   const [description, setDescription] = useState<string>('');
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -75,8 +78,11 @@ const CustomizedInputBase = ({
       if (session) {
         const userEmail = session.user?.email as string;
         const response = await retrieveAssistant({ userEmail });
-        setName(response.assistant.name);
-        setDescription(response.assistant.instructions);
+        if (response.assistant) {
+          setName(response.assistant.name);
+          setDescription(response.assistant.instructions);
+          setIsActive(response.isActive);
+        }
         console.log('Assistant retrieved successfully', response);
       } else {
         throw new Error('No session found');
@@ -101,7 +107,6 @@ const CustomizedInputBase = ({
           method: 'POST',
           body: formData,
         });
-
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
