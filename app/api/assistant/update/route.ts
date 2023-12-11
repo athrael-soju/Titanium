@@ -6,10 +6,10 @@ import OpenAI from 'openai';
 const openai = new OpenAI();
 
 export async function POST(req: NextRequest) {
-  const client = await clientPromise;
-  const db = client.db();
-
   try {
+    const client = await clientPromise;
+    const db = client.db();
+
     const { userEmail, name, description, isActive } = await req.json();
 
     if (!userEmail || !name || !description || isActive === undefined) {

@@ -5,9 +5,9 @@ import OpenAI from 'openai';
 const openai = new OpenAI();
 
 export async function GET(req: NextRequest) {
-  const client = await clientPromise;
-  const db = client.db();
   try {
+    const client = await clientPromise;
+    const db = client.db();
     // Retrieve the userEmail from the request headers
     const userEmail = req.headers.get('userEmail');
     if (!userEmail) {
