@@ -2,8 +2,6 @@ import clientPromise from '@/app/lib/client/mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-// export const runtime = 'edge';
-
 const openai = new OpenAI();
 
 export async function GET(req: NextRequest) {

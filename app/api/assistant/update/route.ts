@@ -3,8 +3,6 @@ import clientPromise from '../../../lib/client/mongodb';
 
 import OpenAI from 'openai';
 
-// export const runtime = 'edge';
-
 const openai = new OpenAI();
 
 export async function POST(req: NextRequest) {
