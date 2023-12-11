@@ -67,7 +67,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           isActive,
           userEmail,
         });
-        console.log('Assistant updated successfully', response);
+        console.log('Assistant updated successfully');
       } else {
         throw new Error('No session found');
       }

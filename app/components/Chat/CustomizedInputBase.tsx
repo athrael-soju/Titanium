@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
@@ -9,11 +9,11 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import FileUploadIcon from '@mui/icons-material/CloudUpload';
 import SpeechIcon from '@mui/icons-material/RecordVoiceOver';
-import AssistantIcon from '@mui/icons-material/Assistant'; // Import the icon for "Assistants"
+import AssistantIcon from '@mui/icons-material/Assistant';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import AssistantDialog from './AssistantDialog';
-import { retrieveAssistant } from '@/app/services/assistantService'; // Import the service function
+import { retrieveAssistant } from '@/app/services/assistantService';
 import { useSession } from 'next-auth/react';
 
 const CustomizedInputBase = ({
@@ -36,6 +36,30 @@ const CustomizedInputBase = ({
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+
+  useEffect(() => {
+    const prefetchAssistantData = async () => {
+      if (session) {
+        try {
+          setIsLoading(true);
+          const userEmail = session.user?.email as string;
+          const response = await retrieveAssistant({ userEmail });
+          if (response.assistant) {
+            setName(response.assistant.name);
+            setDescription(response.assistant.instructions);
+            setIsActive(response.isActive);
+          }
+        } catch (error) {
+          console.error('Error prefetching assistant:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    prefetchAssistantData();
+  }, [session, setIsActive, setIsLoading]);
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -51,8 +75,10 @@ const CustomizedInputBase = ({
   };
 
   const handleSendClick = () => {
-    onSendMessage(inputValue);
-    setInputValue('');
+    if (inputValue.trim()) {
+      onSendMessage(inputValue);
+      setInputValue('');
+    }
   };
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -71,27 +97,6 @@ const CustomizedInputBase = ({
   const handleAssistantsClick = async () => {
     setIsAssistantDialogOpen(true);
     handleMenuClose();
-
-    // Retrieve the assistant
-    try {
-      setIsLoading(true);
-      if (session) {
-        const userEmail = session.user?.email as string;
-        const response = await retrieveAssistant({ userEmail });
-        if (response.assistant) {
-          setName(response.assistant.name);
-          setDescription(response.assistant.instructions);
-          setIsActive(response.isActive);
-        }
-        console.log('Assistant retrieved successfully', response);
-      } else {
-        throw new Error('No session found');
-      }
-    } catch (error) {
-      console.error('Error retrieving assistant:', error);
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const handleFileSelect = async (
