@@ -57,7 +57,6 @@ export async function POST(req: NextRequest) {
         });
       }
       const data = assistantMessageContent.text.value;
-      //console.log('Assistant message:', assistantMessageContent.text.value);
       return new Response(data);
     } else {
       const completion = openai.beta.chat.completions.stream({
