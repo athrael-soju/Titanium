@@ -110,43 +110,59 @@ const Chat = () => {
   };
 
   const sendUserMessage = async (message: string) => {
-    if (message.trim()) {
-      addUserMessageToState(message);
-      const aiResponseId = uuidv4();
-      const response = await handleAIResponse(message);
+    if (!message.trim()) return;
 
-      if (response) {
-        if (isAssistantEnabled) {
-          // Check if response is of type Response
-          if (response instanceof Response) {
-            const contentType = response.headers.get('Content-Type');
+    addUserMessageToState(message);
+    const aiResponseId = uuidv4();
+    const response = await handleAIResponse(message);
 
-            if (contentType?.includes('application/json')) {
-              try {
-                const data = await response.json();
-                addAiMessageToState(data, aiResponseId);
-              } catch (error) {
-                console.error('Error parsing JSON:', error);
-              }
-            } else {
-              try {
-                const textResponse = await response.text();
-                addAiMessageToState(textResponse, aiResponseId);
-              } catch (error) {
-                console.error('Error reading text response:', error);
-              }
-            }
-          }
-        }
-        // Check if response is of type ReadableStreamDefaultReader<Uint8Array>
-        else if (response instanceof ReadableStreamDefaultReader) {
-          await processAIResponseStream(response, aiResponseId);
-        } else {
-          console.error('Unexpected response type:', response);
-        }
-      }
+    if (!response) return;
+
+    if (isAssistantEnabled) {
+      await processResponse(response, aiResponseId);
+    } else {
+      await processStream(response, aiResponseId);
     }
   };
+
+  async function processResponse(
+    response: ReadableStreamDefaultReader<Uint8Array> | Response,
+    aiResponseId: string
+  ) {
+    if (!(response instanceof Response)) {
+      console.error('Expected a Response object, received:', response);
+      return;
+    }
+
+    try {
+      const contentType = response.headers.get('Content-Type');
+      const data = contentType?.includes('application/json')
+        ? await response.json()
+        : await response.text();
+      addAiMessageToState(data, aiResponseId);
+    } catch (error) {
+      console.error('Error processing response:', error);
+    }
+  }
+
+  async function processStream(
+    stream: ReadableStreamDefaultReader<Uint8Array> | Response,
+    aiResponseId: string
+  ) {
+    if (!(stream instanceof ReadableStreamDefaultReader)) {
+      console.error(
+        'Expected a ReadableStreamDefaultReader object, received:',
+        stream
+      );
+      return;
+    }
+
+    try {
+      await processAIResponseStream(stream, aiResponseId);
+    } catch (error) {
+      console.error('Error processing stream:', error);
+    }
+  }
 
   if (session) {
     return (
