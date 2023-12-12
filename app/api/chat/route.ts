@@ -2,8 +2,6 @@ import OpenAI, { ClientOptions } from 'openai';
 import clientPromise from '../../lib/client/mongodb';
 import { NextRequest, NextResponse } from 'next/server';
 
-//export const runtime = 'edge';
-
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const options: ClientOptions = {
   apiKey: OPENAI_API_KEY,
@@ -56,8 +54,16 @@ export async function POST(req: NextRequest) {
           error: 'No assistant message content found',
         });
       }
-      const data = assistantMessageContent.text.value;
-      return new Response(data);
+      // Check if the message content is of type MessageContentText
+      if ('text' in assistantMessageContent) {
+        const data = assistantMessageContent.text.value;
+        return new Response(data);
+      } else {
+        // Handle the case where the message content is not text (e.g., image file)
+        return NextResponse.json({
+          error: 'Assistant message content is not text',
+        });
+      }
     } else {
       const completion = openai.beta.chat.completions.stream({
         model: process.env.OPENAI_API_MODEL ?? 'gpt-4-1106-preview',

@@ -62,7 +62,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       setIsLoading(true);
       if (session) {
         const userEmail = session.user?.email as string;
-        const response = await updateAssistant({
+        await updateAssistant({
           name,
           description,
           isAssistantEnabled,
