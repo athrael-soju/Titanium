@@ -50,7 +50,7 @@ function ResponsiveAppBar() {
   };
 
   return (
-    <AppBar position="fixed" className={styles.main}>
+    <AppBar className={styles.main}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <BlurOnRoundedIcon
