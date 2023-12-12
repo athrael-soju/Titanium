@@ -117,25 +117,32 @@ const Chat = () => {
 
       if (response) {
         if (isAssistantEnabled) {
-          const contentType = response.headers.get('Content-Type');
+          // Check if response is of type Response
+          if (response instanceof Response) {
+            const contentType = response.headers.get('Content-Type');
 
-          if (contentType && contentType.includes('application/json')) {
-            try {
-              const data = await response.json();
-              addAiMessageToState(data, aiResponseId);
-            } catch (error) {
-              console.error('Error parsing JSON:', error);
-            }
-          } else {
-            try {
-              const textResponse = await response.text();
-              addAiMessageToState(textResponse, aiResponseId);
-            } catch (error) {
-              console.error('Error reading text response:', error);
+            if (contentType?.includes('application/json')) {
+              try {
+                const data = await response.json();
+                addAiMessageToState(data, aiResponseId);
+              } catch (error) {
+                console.error('Error parsing JSON:', error);
+              }
+            } else {
+              try {
+                const textResponse = await response.text();
+                addAiMessageToState(textResponse, aiResponseId);
+              } catch (error) {
+                console.error('Error reading text response:', error);
+              }
             }
           }
-        } else {
+        }
+        // Check if response is of type ReadableStreamDefaultReader<Uint8Array>
+        else if (response instanceof ReadableStreamDefaultReader) {
           await processAIResponseStream(response, aiResponseId);
+        } else {
+          console.error('Unexpected response type:', response);
         }
       }
     }
