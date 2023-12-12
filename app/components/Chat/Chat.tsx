@@ -52,10 +52,10 @@ const Chat = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       if (isActive) {
-        return response.body;
+        return response;
+      } else {
+        return response.body?.getReader();
       }
-      //console.log('AI response:', response.body?.getReader());
-      return response.body?.getReader();
     } catch (error) {
       console.error('Failed to fetch AI response:', error);
     }
@@ -113,13 +113,30 @@ const Chat = () => {
     if (message.trim()) {
       addUserMessageToState(message);
       const aiResponseId = uuidv4();
-      const reader = await handleAIResponse(message);
-      if(reader instanceof ReadableStreamDefaultReader){
-        console.log('reader is ReadableStreamDefaultReader')
-      }
-      if (reader) {
-        console.log('reader is 2')
-        await processAIResponseStream(reader, aiResponseId);
+      const response = await handleAIResponse(message);
+
+      if (response) {
+        if (isActive) {
+          const contentType = response.headers.get('Content-Type');
+
+          if (contentType && contentType.includes('application/json')) {
+            try {
+              const data = await response.json();
+              addAiMessageToState(data, aiResponseId);
+            } catch (error) {
+              console.error('Error parsing JSON:', error);
+            }
+          } else {
+            try {
+              const textResponse = await response.text();
+              addAiMessageToState(textResponse, aiResponseId);
+            } catch (error) {
+              console.error('Error reading text response:', error);
+            }
+          }
+        } else {
+          await processAIResponseStream(response, aiResponseId);
+        }
       }
     }
   };

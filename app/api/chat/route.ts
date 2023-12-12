@@ -30,9 +30,15 @@ export async function POST(req: NextRequest) {
         content: userMessage,
       });
 
-      await openai.beta.threads.runs.create(threadId, {
+      let run = await openai.beta.threads.runs.create(threadId, {
         assistant_id: assistantId,
       });
+
+      while (run.status !== 'completed') {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        run = await openai.beta.threads.runs.retrieve(threadId, run.id);
+        console.log('Thread Run status:', run.status);
+      }
 
       const messages = await openai.beta.threads.messages.list(threadId);
 
@@ -50,7 +56,9 @@ export async function POST(req: NextRequest) {
           error: 'No assistant message content found',
         });
       }
-      return new Response(assistantMessageContent.text.value);
+      const data = assistantMessageContent.text.value;
+      //console.log('Assistant message:', assistantMessageContent.text.value);
+      return new Response(data);
     } else {
       const completion = openai.beta.chat.completions.stream({
         model: process.env.OPENAI_API_MODEL ?? 'gpt-4-1106-preview',
