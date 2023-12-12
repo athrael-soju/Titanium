@@ -39,18 +39,22 @@ const Chat = () => {
   };
 
   const handleAIResponse = async (userMessage: string) => {
+    const userEmail = session?.user?.email as string;
     try {
       setIsLoading(true);
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userMessage, isActive }),
+        body: JSON.stringify({ userMessage, userEmail }),
       });
       setIsLoading(false);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
+      if (isActive) {
+        return response.body;
+      }
+      //console.log('AI response:', response.body?.getReader());
       return response.body?.getReader();
     } catch (error) {
       console.error('Failed to fetch AI response:', error);
@@ -110,7 +114,11 @@ const Chat = () => {
       addUserMessageToState(message);
       const aiResponseId = uuidv4();
       const reader = await handleAIResponse(message);
+      if(reader instanceof ReadableStreamDefaultReader){
+        console.log('reader is ReadableStreamDefaultReader')
+      }
       if (reader) {
+        console.log('reader is 2')
         await processAIResponseStream(reader, aiResponseId);
       }
     }
