@@ -19,13 +19,13 @@ import { useSession } from 'next-auth/react';
 const CustomizedInputBase = ({
   setIsLoading,
   onSendMessage,
-  isActive,
-  setIsActive,
+  isAssistantEnabled,
+  setIsAssistantEnabled,
 }: {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   onSendMessage: (message: string) => void;
-  isActive: boolean;
-  setIsActive: (isActive: boolean) => void;
+  isAssistantEnabled: boolean;
+  setIsAssistantEnabled: (isAssistantEnabled: boolean) => void;
 }) => {
   const { data: session } = useSession();
   const theme = useTheme();
@@ -47,7 +47,7 @@ const CustomizedInputBase = ({
           if (response.assistant) {
             setName(response.assistant.name);
             setDescription(response.assistant.instructions);
-            setIsActive(response.isActive);
+            setIsAssistantEnabled(response.isAssistantEnabled);
           }
         } catch (error) {
           console.error('Error prefetching assistant:', error);
@@ -58,7 +58,7 @@ const CustomizedInputBase = ({
     };
 
     prefetchAssistantData();
-  }, [session, setIsActive, setIsLoading]);
+  }, [session, setIsAssistantEnabled, setIsLoading]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -205,8 +205,8 @@ const CustomizedInputBase = ({
         setName={setName}
         description={description}
         setDescription={setDescription}
-        isActive={isActive}
-        setIsActive={setIsActive}
+        isAssistantEnabled={isAssistantEnabled}
+        setIsAssistantEnabled={setIsAssistantEnabled}
         setIsLoading={setIsLoading}
       />
     </>

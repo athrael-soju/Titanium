@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
         message: 'Assistant updated',
         assistant: assistant,
         threadId: thread?.id,
-        isActive: user.isActive,
+        isAssistantEnabled: user.isAssistantEnabled,
       },
       { status: 200 }
     );

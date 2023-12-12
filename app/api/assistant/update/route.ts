@@ -10,9 +10,9 @@ export async function POST(req: NextRequest) {
     const client = await clientPromise;
     const db = client.db();
 
-    const { userEmail, name, description, isActive } = await req.json();
+    const { userEmail, name, description, isAssistantEnabled } = await req.json();
 
-    if (!userEmail || !name || !description || isActive === undefined) {
+    if (!userEmail || !name || !description || isAssistantEnabled === undefined) {
       return NextResponse.json('Missing required parameters', { status: 400 });
     }
 
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       let threadId = thread.id;
       await usersCollection.updateOne(
         { email: userEmail },
-        { $set: { assistantId, threadId, isActive } }
+        { $set: { assistantId, threadId, isAssistantEnabled } }
       );
     } else {
       assistant = await openai.beta.assistants.update(user.assistantId, {
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
 
       await usersCollection.updateOne(
         { email: userEmail },
-        { $set: { isActive } }
+        { $set: { isAssistantEnabled } }
       );
     }
 
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
         message: 'Assistant updated',
         assistantId: assistant.id,
         threadId: thread.id,
-        isActive: user.isActive,
+        isAssistantEnabled: user.isAssistantEnabled,
       },
       { status: 200 }
     );

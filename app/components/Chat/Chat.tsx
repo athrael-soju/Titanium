@@ -18,7 +18,7 @@ const Chat = () => {
 
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isActive, setIsActive] = useState<boolean>(false);
+  const [isAssistantEnabled, setIsAssistantEnabled] = useState<boolean>(false);
 
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
@@ -51,7 +51,7 @@ const Chat = () => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-      if (isActive) {
+      if (isAssistantEnabled) {
         return response;
       } else {
         return response.body?.getReader();
@@ -116,7 +116,7 @@ const Chat = () => {
       const response = await handleAIResponse(message);
 
       if (response) {
-        if (isActive) {
+        if (isAssistantEnabled) {
           const contentType = response.headers.get('Content-Type');
 
           if (contentType && contentType.includes('application/json')) {
@@ -150,8 +150,8 @@ const Chat = () => {
           <CustomizedInputBase
             setIsLoading={setIsLoading}
             onSendMessage={sendUserMessage}
-            isActive={isActive}
-            setIsActive={setIsActive}
+            isAssistantEnabled={isAssistantEnabled}
+            setIsAssistantEnabled={setIsAssistantEnabled}
           />
         </div>
       </>

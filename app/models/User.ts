@@ -4,5 +4,5 @@ interface IUser {
   description: string;
   assistantId?: string;
   threadId?: string;
-  isActive: boolean;
+  isAssistantEnabled: boolean;
 }

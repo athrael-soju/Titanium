@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     const openai = new OpenAI(options);
 
-    if (user?.isActive) {
+    if (user?.isAssistantEnabled) {
       const threadId = user.threadId as string;
       const assistantId = user.assistantId as string;
 

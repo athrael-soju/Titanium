@@ -19,9 +19,9 @@ interface AssistantDialogProps {
   setName: (name: string) => void;
   description: string;
   setDescription: (description: string) => void;
-  isActive: boolean;
-  setIsActive: (isActive: boolean) => void;
-  onToggleAssistant?: (isActive: boolean) => void;
+  isAssistantEnabled: boolean;
+  setIsAssistantEnabled: (isAssistantEnabled: boolean) => void;
+  onToggleAssistant?: (isAssistantEnabled: boolean) => void;
   onReset?: () => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -33,8 +33,8 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   setName,
   description,
   setDescription,
-  isActive,
-  setIsActive,
+  isAssistantEnabled,
+  setIsAssistantEnabled,
   onToggleAssistant,
   onReset,
   setIsLoading,
@@ -65,7 +65,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
         const response = await updateAssistant({
           name,
           description,
-          isActive,
+          isAssistantEnabled,
           userEmail,
         });
         console.log('Assistant updated successfully');
@@ -80,7 +80,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   };
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsActive(event.target.checked);
+    setIsAssistantEnabled(event.target.checked);
     if (onToggleAssistant) {
       onToggleAssistant(event.target.checked);
     }
@@ -89,7 +89,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   const handleReset = () => {
     setName('');
     setDescription('');
-    setIsActive(false);
+    setIsAssistantEnabled(false);
     setError({ name: false, description: false });
     if (onReset) {
       onReset();
@@ -152,7 +152,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
             Disabled
           </Typography>
           <Switch
-            checked={isActive}
+            checked={isAssistantEnabled}
             onChange={handleToggle}
             name="activeAssistant"
           />

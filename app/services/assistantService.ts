@@ -3,7 +3,7 @@ import axios from 'axios';
 interface AssistantUpdateData {
   name: string;
   description: string;
-  isActive: boolean;
+  isAssistantEnabled: boolean;
   userEmail: string;
 }
 
@@ -14,14 +14,14 @@ interface AssistantRetrieveData {
 const updateAssistant = async ({
   name,
   description,
-  isActive,
+  isAssistantEnabled,
   userEmail,
 }: AssistantUpdateData): Promise<any> => {
   try {
     const response = await axios.post('/api/assistant/update', {
       name,
       description,
-      isActive,
+      isAssistantEnabled,
       userEmail,
     });
     return response.data;
