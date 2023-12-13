@@ -1,5 +1,5 @@
-import clientPromise from '@/app/lib/client/mongodb';
 import { NextRequest, NextResponse } from 'next/server';
+import clientPromise from '@/app/lib/client/mongodb';
 import OpenAI from 'openai';
 
 const openai = new OpenAI();
@@ -18,7 +18,10 @@ export async function GET(req: NextRequest) {
     // Retrieve the user from the database
     const usersCollection = db.collection<IUser>('users');
     const user = await usersCollection.findOne({ email: userEmail });
-    let assistant, thread;
+    let assistant,
+      thread,
+      fileList,
+      filesWithNames: { id: string; name: string; assistantId: string }[] = [];
     if (!user) {
       return NextResponse.json('User not found', { status: 404 });
     }
@@ -26,14 +29,35 @@ export async function GET(req: NextRequest) {
     if (user.assistantId) {
       assistant = await openai.beta.assistants.retrieve(user.assistantId);
       thread = await openai.beta.threads.retrieve(user.threadId as string);
+      fileList = await openai.beta.assistants.files.list(user.assistantId);
+
+      // Retrieve each file's metadata and construct a new array
+      if (fileList?.data) {
+        for (const fileObject of fileList.data) {
+          const file = await openai.files.retrieve(fileObject.id);
+          filesWithNames.push({
+            id: fileObject.id,
+            name: file.filename,
+            assistantId: user.assistantId,
+          });
+        }
+      }
+      // Return a success response
+      return NextResponse.json(
+        {
+          message: 'Assistant updated',
+          assistant: assistant,
+          threadId: thread?.id,
+          fileList: filesWithNames,
+          isAssistantEnabled: user.isAssistantEnabled,
+        },
+        { status: 200 }
+      );
     }
     // Return a success response
     return NextResponse.json(
       {
-        message: 'Assistant updated',
-        assistant: assistant,
-        threadId: thread?.id,
-        isAssistantEnabled: user.isAssistantEnabled,
+        message: 'No assistant found',
       },
       { status: 200 }
     );

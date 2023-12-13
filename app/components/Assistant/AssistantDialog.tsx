@@ -9,7 +9,23 @@ import FormControl from '@mui/material/FormControl';
 import Switch from '@mui/material/Switch';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { updateAssistant } from '@/app/services/assistantService';
+import Paper from '@mui/material/Paper';
+
+import {
+  Avatar,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+} from '@mui/material';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
+import FolderIcon from '@mui/icons-material/Folder';
+import {
+  updateAssistant,
+  deleteAssistantFile,
+} from '@/app/services/assistantService';
 import { useSession } from 'next-auth/react';
 
 interface AssistantDialogProps {
@@ -24,6 +40,7 @@ interface AssistantDialogProps {
   onToggleAssistant?: (isAssistantEnabled: boolean) => void;
   onReset?: () => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  files: { name: string; id: string; assistandId: string }[];
 }
 
 const AssistantDialog: React.FC<AssistantDialogProps> = ({
@@ -38,6 +55,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   onToggleAssistant,
   onReset,
   setIsLoading,
+  files,
 }) => {
   const { data: session } = useSession();
   const [error, setError] = useState<{ name: boolean; description: boolean }>({
@@ -96,6 +114,21 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     }
   };
 
+  const handleFileDelete = async (file: any) => {
+    try {
+      setIsLoading(true); // Assuming you have a loading state
+
+      // Delete the file from the assistant
+      console.log('Deleting file from the assistant:', file);
+      let response = await deleteAssistantFile({ file });
+      console.log('File successfully deleted from the assistant:', response);
+    } catch (error) {
+      console.error('Failed to remove file from the assistant:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle style={{ textAlign: 'center' }}>
@@ -137,6 +170,54 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
             helperText={error.description ? 'Description is required' : ' '}
           />
         </FormControl>
+
+        {/* Files display section */}
+ <Grid item xs={12} md={6}>
+  <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
+    <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
+      Attached Files
+    </Typography>
+    <Box sx={{ height: '160px', overflowY: 'auto' }}>
+      <List dense>
+        {files.map((file) => (
+          <ListItem
+            key={file.id}
+            secondaryAction={
+              <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => {
+                  // Wrap the async function call in an arrow function
+                  handleFileDelete(file)
+                    .catch((error) => {
+                      console.error('Error deleting file:', error);
+                    })
+                    .then(() => {
+                      // Remove the file from the list
+                      files.splice(files.indexOf(file), 1);
+                    });
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            }
+          >
+            <ListItemAvatar>
+              <Avatar>
+                <FolderIcon />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText
+              primary={file.name}
+              // Add secondary text if needed
+              // secondary="Secondary text"
+            />
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  </Paper>
+</Grid>
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box

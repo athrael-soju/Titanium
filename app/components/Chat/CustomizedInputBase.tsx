@@ -12,7 +12,7 @@ import SpeechIcon from '@mui/icons-material/RecordVoiceOver';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import AssistantDialog from './AssistantDialog';
+import AssistantDialog from '../Assistant/AssistantDialog';
 import { retrieveAssistant } from '@/app/services/assistantService';
 import { useSession } from 'next-auth/react';
 
@@ -36,6 +36,7 @@ const CustomizedInputBase = ({
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+  const files = useRef<{ name: string; id: string; assistandId: string }[]>([]);
 
   useEffect(() => {
     const prefetchAssistantData = async () => {
@@ -48,6 +49,7 @@ const CustomizedInputBase = ({
             setName(response.assistant.name);
             setDescription(response.assistant.instructions);
             setIsAssistantEnabled(response.isAssistantEnabled);
+            files.current = response.fileList;
           }
         } catch (error) {
           console.error('Error prefetching assistant:', error);
@@ -106,16 +108,24 @@ const CustomizedInputBase = ({
     if (file) {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('userEmail', session?.user?.email as string);
       try {
         setIsLoading(true);
-        const response = await fetch('/api/upload', {
+        const fileUploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!fileUploadResponse.ok || fileUploadResponse.status !== 200) {
+          throw new Error(`HTTP error! Status: ${fileUploadResponse.status}`);
         }
-        console.log('File uploaded successfully', response);
+
+        const retrieveAssistantResponse = await retrieveAssistant({
+          userEmail: session?.user?.email as string,
+        });
+        if (retrieveAssistantResponse.assistant) {
+          files.current = retrieveAssistantResponse.fileList;
+        }
+        console.log('File uploaded successfully', fileUploadResponse);
       } catch (error) {
         console.error('Failed to upload file:', error);
       } finally {
@@ -208,6 +218,7 @@ const CustomizedInputBase = ({
         isAssistantEnabled={isAssistantEnabled}
         setIsAssistantEnabled={setIsAssistantEnabled}
         setIsLoading={setIsLoading}
+        files={files.current}
       />
     </>
   );

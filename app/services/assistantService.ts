@@ -46,4 +46,20 @@ const retrieveAssistant = async ({
   }
 };
 
-export { updateAssistant, retrieveAssistant };
+const deleteAssistantFile = async ({
+  file,
+}: {
+  file: string;
+}): Promise<any> => {
+  try {
+    const response = await axios.post('/api/assistant/delete-file', {
+      file,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    throw error;
+  }
+};
+
+export { updateAssistant, retrieveAssistant, deleteAssistantFile };
