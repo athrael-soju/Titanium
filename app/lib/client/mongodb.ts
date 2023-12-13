@@ -22,6 +22,7 @@ const getClientPromise = async (): Promise<MongoClient> => {
     }
     clientPromise = globalWithMongo._mongoClientPromise;
   } else {
+    client = new MongoClient(uri, options);
     try {
       clientPromise = client.connect();
     } catch (error: any) {

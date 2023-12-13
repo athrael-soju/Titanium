@@ -14,7 +14,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import BlurOnRoundedIcon from '@mui/icons-material/BlurOnRounded';
 import styles from './ResponsiveAppBar.module.css';
-const pages = ['Home', 'About'];
+const pages = ['About'];
 const settings = ['Account', 'Logout'];
 
 function ResponsiveAppBar() {
@@ -50,7 +50,7 @@ function ResponsiveAppBar() {
   };
 
   return (
-    <AppBar position="fixed" className={styles.main}>
+    <AppBar className={styles.main}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <BlurOnRoundedIcon

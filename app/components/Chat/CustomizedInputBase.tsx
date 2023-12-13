@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
@@ -9,24 +9,58 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import FileUploadIcon from '@mui/icons-material/CloudUpload';
 import SpeechIcon from '@mui/icons-material/RecordVoiceOver';
-import AssistantIcon from '@mui/icons-material/Assistant'; // Import the icon for "Assistants"
+import AssistantIcon from '@mui/icons-material/Assistant';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import AssistantDialog from './AssistantDialog'; // Import the AssistantDialog component
+import AssistantDialog from '../Assistant/AssistantDialog';
+import { retrieveAssistant } from '@/app/services/assistantService';
+import { useSession } from 'next-auth/react';
 
 const CustomizedInputBase = ({
   setIsLoading,
   onSendMessage,
+  isAssistantEnabled,
+  setIsAssistantEnabled,
 }: {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   onSendMessage: (message: string) => void;
+  isAssistantEnabled: boolean;
+  setIsAssistantEnabled: (isAssistantEnabled: boolean) => void;
 }) => {
+  const { data: session } = useSession();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [inputValue, setInputValue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
+  const [name, setName] = useState<string>('');
+  const [description, setDescription] = useState<string>('');
+  const files = useRef<{ name: string; id: string; assistandId: string }[]>([]);
+
+  useEffect(() => {
+    const prefetchAssistantData = async () => {
+      if (session) {
+        try {
+          setIsLoading(true);
+          const userEmail = session.user?.email as string;
+          const response = await retrieveAssistant({ userEmail });
+          if (response.assistant) {
+            setName(response.assistant.name);
+            setDescription(response.assistant.instructions);
+            setIsAssistantEnabled(response.isAssistantEnabled);
+            files.current = response.fileList;
+          }
+        } catch (error) {
+          console.error('Error prefetching assistant:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    prefetchAssistantData();
+  }, [session, setIsAssistantEnabled, setIsLoading]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -43,8 +77,10 @@ const CustomizedInputBase = ({
   };
 
   const handleSendClick = () => {
-    onSendMessage(inputValue);
-    setInputValue('');
+    if (inputValue.trim()) {
+      onSendMessage(inputValue);
+      setInputValue('');
+    }
   };
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -60,7 +96,7 @@ const CustomizedInputBase = ({
     handleMenuClose();
   };
 
-  const handleAssistantsClick = () => {
+  const handleAssistantsClick = async () => {
     setIsAssistantDialogOpen(true);
     handleMenuClose();
   };
@@ -69,20 +105,27 @@ const CustomizedInputBase = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
-    setIsLoading(true);
     if (file) {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('userEmail', session?.user?.email as string);
       try {
-        const response = await fetch('/api/upload', {
+        setIsLoading(true);
+        const fileUploadResponse = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+        if (!fileUploadResponse.ok || fileUploadResponse.status !== 200) {
+          throw new Error(`HTTP error! Status: ${fileUploadResponse.status}`);
         }
-        console.log('File uploaded successfully', response);
+
+        const retrieveAssistantResponse = await retrieveAssistant({
+          userEmail: session?.user?.email as string,
+        });
+        if (retrieveAssistantResponse.assistant) {
+          files.current = retrieveAssistantResponse.fileList;
+        }
+        console.log('File uploaded successfully', fileUploadResponse);
       } catch (error) {
         console.error('Failed to upload file:', error);
       } finally {
@@ -168,6 +211,14 @@ const CustomizedInputBase = ({
       <AssistantDialog
         open={isAssistantDialogOpen}
         onClose={() => setIsAssistantDialogOpen(false)}
+        name={name}
+        setName={setName}
+        description={description}
+        setDescription={setDescription}
+        isAssistantEnabled={isAssistantEnabled}
+        setIsAssistantEnabled={setIsAssistantEnabled}
+        setIsLoading={setIsLoading}
+        files={files.current}
       />
     </>
   );
