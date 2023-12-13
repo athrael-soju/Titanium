@@ -17,7 +17,7 @@ const CodeBlock: React.FC<{
   className?: string;
   children?: React.ReactNode;
 }> = ({ className, children }) => {
-  const match = /language-(\w+)/.exec(className || '');
+  const match = /language-(\w+)/.exec(className ?? '');
   return match ? (
     <SyntaxHighlighter language={match[1]} PreTag="div">
       {String(children)}
