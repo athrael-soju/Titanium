@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -63,6 +64,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     name: false,
     description: false,
   });
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   const handleAccept = async () => {
     let hasError = false;
@@ -117,12 +119,11 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
 
   const handleFileDelete = async (file: any) => {
     try {
-      setIsLoading(true); // Assuming you have a loading state
-
-      // Delete the file from the assistant
+      setIsLoading(true);
       console.log('Deleting file from the assistant:', file);
       let response = await deleteAssistantFile({ file });
       console.log('File successfully deleted from the assistant:', response);
+      files.splice(files.indexOf(file), 1);
     } catch (error) {
       console.error('Failed to remove file from the assistant:', error);
     } finally {
@@ -130,7 +131,12 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     }
   };
 
-  const handleAssistantDelete = async () => {
+  const handleAssistantDelete = () => {
+    setIsConfirmDialogOpen(true);
+  };
+
+  const performAssistantDelete = async () => {
+    setIsConfirmDialogOpen(false);
     const userEmail = session?.user?.email as string;
     try {
       setIsLoading(true);
@@ -145,6 +151,29 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       setIsLoading(false);
     }
   };
+
+  const ConfirmationDialog = () => (
+    <Dialog
+      open={isConfirmDialogOpen}
+      onClose={() => setIsConfirmDialogOpen(false)}
+    >
+      <DialogTitle>{'Confirm Delete'}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Are you sure you want to delete your Assistant? All associated
+          Threads, Messages and Files will also be deleted.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setIsConfirmDialogOpen(false)} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={performAssistantDelete} color="secondary">
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -188,7 +217,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           />
         </FormControl>
 
-        {/* Files display section */}
         <Grid item xs={12} md={6}>
           <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
             <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
@@ -203,17 +231,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
                       <IconButton
                         edge="end"
                         aria-label="delete"
-                        onClick={() => {
-                          // Wrap the async function call in an arrow function
-                          handleFileDelete(file)
-                            .then(() => {
-                              // Remove the file from the list
-                              files.splice(files.indexOf(file), 1);
-                            })
-                            .catch((error) => {
-                              console.error('Error deleting file:', error);
-                            });
-                        }}
+                        onClick={() => handleFileDelete(file)}
                       >
                         <DeleteIcon />
                       </IconButton>
@@ -224,11 +242,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
                         <FolderIcon />
                       </Avatar>
                     </ListItemAvatar>
-                    <ListItemText
-                      primary={file.name}
-                      // Add secondary text if needed
-                      // secondary="Secondary text"
-                    />
+                    <ListItemText primary={file.name} />
                   </ListItem>
                 ))}
               </List>
@@ -260,6 +274,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           </Typography>
         </Box>
       </DialogActions>
+      <ConfirmationDialog />
     </Dialog>
   );
 };
