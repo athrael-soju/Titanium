@@ -25,6 +25,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import {
   updateAssistant,
   deleteAssistantFile,
+  deleteAssistant,
 } from '@/app/services/assistantService';
 import { useSession } from 'next-auth/react';
 
@@ -129,6 +130,22 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     }
   };
 
+  const handleAssistantDelete = async () => {
+    const userEmail = session?.user?.email as string;
+    try {
+      setIsLoading(true);
+      let response = await deleteAssistant({ userEmail });
+      console.log('Assistant deleted successfully', response);
+      files.splice(0, files.length);
+      handleReset();
+      onClose();
+    } catch (error) {
+      console.error('Error deleting assistant:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle style={{ textAlign: 'center' }}>
@@ -172,52 +189,52 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
         </FormControl>
 
         {/* Files display section */}
- <Grid item xs={12} md={6}>
-  <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
-    <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
-      Attached Files
-    </Typography>
-    <Box sx={{ height: '160px', overflowY: 'auto' }}>
-      <List dense>
-        {files.map((file) => (
-          <ListItem
-            key={file.id}
-            secondaryAction={
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => {
-                  // Wrap the async function call in an arrow function
-                  handleFileDelete(file)
-                    .catch((error) => {
-                      console.error('Error deleting file:', error);
-                    })
-                    .then(() => {
-                      // Remove the file from the list
-                      files.splice(files.indexOf(file), 1);
-                    });
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            }
-          >
-            <ListItemAvatar>
-              <Avatar>
-                <FolderIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-              primary={file.name}
-              // Add secondary text if needed
-              // secondary="Secondary text"
-            />
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  </Paper>
-</Grid>
+        <Grid item xs={12} md={6}>
+          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
+            <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
+              Attached Files
+            </Typography>
+            <Box sx={{ height: '160px', overflowY: 'auto' }}>
+              <List dense>
+                {files.map((file) => (
+                  <ListItem
+                    key={file.id}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => {
+                          // Wrap the async function call in an arrow function
+                          handleFileDelete(file)
+                            .then(() => {
+                              // Remove the file from the list
+                              files.splice(files.indexOf(file), 1);
+                            })
+                            .catch((error) => {
+                              console.error('Error deleting file:', error);
+                            });
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemAvatar>
+                      <Avatar>
+                        <FolderIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={file.name}
+                      // Add secondary text if needed
+                      // secondary="Secondary text"
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </Paper>
+        </Grid>
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box
@@ -229,8 +246,9 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           <Button onClick={handleAccept}>Accept</Button>
           <Button onClick={handleReset}>Reset</Button>
           <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleAssistantDelete}>Delete</Button>
           <Typography variant="caption" sx={{ mx: 1 }}>
-            Disabled
+            Off
           </Typography>
           <Switch
             checked={isAssistantEnabled}
@@ -238,7 +256,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
             name="activeAssistant"
           />
           <Typography variant="caption" sx={{ mx: 1 }}>
-            Enabled
+            On
           </Typography>
         </Box>
       </DialogActions>

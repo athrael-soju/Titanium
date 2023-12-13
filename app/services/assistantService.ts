@@ -62,4 +62,23 @@ const deleteAssistantFile = async ({
   }
 };
 
-export { updateAssistant, retrieveAssistant, deleteAssistantFile };
+const deleteAssistant = async ({
+  userEmail,
+}: AssistantRetrieveData): Promise<any> => {
+  try {
+    const response = await axios.post('/api/assistant/delete', {
+      userEmail,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    throw error;
+  }
+};
+
+export {
+  updateAssistant,
+  retrieveAssistant,
+  deleteAssistantFile,
+  deleteAssistant,
+};
