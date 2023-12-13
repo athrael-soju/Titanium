@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -25,6 +26,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import {
   updateAssistant,
   deleteAssistantFile,
+  deleteAssistant,
 } from '@/app/services/assistantService';
 import { useSession } from 'next-auth/react';
 
@@ -62,6 +64,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     name: false,
     description: false,
   });
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   const handleAccept = async () => {
     let hasError = false;
@@ -116,18 +119,61 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
 
   const handleFileDelete = async (file: any) => {
     try {
-      setIsLoading(true); // Assuming you have a loading state
-
-      // Delete the file from the assistant
+      setIsLoading(true);
       console.log('Deleting file from the assistant:', file);
       let response = await deleteAssistantFile({ file });
       console.log('File successfully deleted from the assistant:', response);
+      files.splice(files.indexOf(file), 1);
     } catch (error) {
       console.error('Failed to remove file from the assistant:', error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleAssistantDelete = () => {
+    setIsConfirmDialogOpen(true);
+  };
+
+  const performAssistantDelete = async () => {
+    setIsConfirmDialogOpen(false);
+    const userEmail = session?.user?.email as string;
+    try {
+      setIsLoading(true);
+      let response = await deleteAssistant({ userEmail });
+      console.log('Assistant deleted successfully', response);
+      files.splice(0, files.length);
+      handleReset();
+      onClose();
+    } catch (error) {
+      console.error('Error deleting assistant:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const ConfirmationDialog = () => (
+    <Dialog
+      open={isConfirmDialogOpen}
+      onClose={() => setIsConfirmDialogOpen(false)}
+    >
+      <DialogTitle>{'Confirm Delete'}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          Are you sure you want to delete your Assistant? All associated
+          Threads, Messages and Files will also be deleted.
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setIsConfirmDialogOpen(false)} color="primary">
+          Cancel
+        </Button>
+        <Button onClick={performAssistantDelete} color="secondary">
+          Delete
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -171,53 +217,38 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           />
         </FormControl>
 
-        {/* Files display section */}
- <Grid item xs={12} md={6}>
-  <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
-    <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
-      Attached Files
-    </Typography>
-    <Box sx={{ height: '160px', overflowY: 'auto' }}>
-      <List dense>
-        {files.map((file) => (
-          <ListItem
-            key={file.id}
-            secondaryAction={
-              <IconButton
-                edge="end"
-                aria-label="delete"
-                onClick={() => {
-                  // Wrap the async function call in an arrow function
-                  handleFileDelete(file)
-                    .catch((error) => {
-                      console.error('Error deleting file:', error);
-                    })
-                    .then(() => {
-                      // Remove the file from the list
-                      files.splice(files.indexOf(file), 1);
-                    });
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            }
-          >
-            <ListItemAvatar>
-              <Avatar>
-                <FolderIcon />
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-              primary={file.name}
-              // Add secondary text if needed
-              // secondary="Secondary text"
-            />
-          </ListItem>
-        ))}
-      </List>
-    </Box>
-  </Paper>
-</Grid>
+        <Grid item xs={12} md={6}>
+          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
+            <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
+              Attached Files
+            </Typography>
+            <Box sx={{ height: '160px', overflowY: 'auto' }}>
+              <List dense>
+                {files.map((file) => (
+                  <ListItem
+                    key={file.id}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        aria-label="delete"
+                        onClick={() => handleFileDelete(file)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemAvatar>
+                      <Avatar>
+                        <FolderIcon />
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText primary={file.name} />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          </Paper>
+        </Grid>
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box
@@ -229,8 +260,9 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           <Button onClick={handleAccept}>Accept</Button>
           <Button onClick={handleReset}>Reset</Button>
           <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleAssistantDelete}>Delete</Button>
           <Typography variant="caption" sx={{ mx: 1 }}>
-            Disabled
+            Off
           </Typography>
           <Switch
             checked={isAssistantEnabled}
@@ -238,10 +270,11 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
             name="activeAssistant"
           />
           <Typography variant="caption" sx={{ mx: 1 }}>
-            Enabled
+            On
           </Typography>
         </Box>
       </DialogActions>
+      <ConfirmationDialog />
     </Dialog>
   );
 };
