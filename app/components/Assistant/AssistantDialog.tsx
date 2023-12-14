@@ -28,6 +28,8 @@ interface AssistantDialogProps {
   setDescription: (description: string) => void;
   isAssistantEnabled: boolean;
   setIsAssistantEnabled: (isAssistantEnabled: boolean) => void;
+  isAssistantDefined: boolean;
+  setIsAssistantDefined: (isAssistantDefined: boolean) => void;
   onToggleAssistant?: (isAssistantEnabled: boolean) => void;
   onReset?: () => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -43,6 +45,8 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   setDescription,
   isAssistantEnabled,
   setIsAssistantEnabled,
+  isAssistantDefined,
+  setIsAssistantDefined,
   onToggleAssistant,
   onReset,
   setIsLoading,
@@ -78,6 +82,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           isAssistantEnabled,
           userEmail,
         });
+        setIsAssistantDefined(true);
         console.log('Assistant updated successfully');
       } else {
         throw new Error('No session found');
@@ -133,6 +138,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       console.log('Assistant deleted successfully', response);
       files.splice(0, files.length);
       handleReset();
+      setIsAssistantDefined(false);
     } catch (error) {
       console.error('Error deleting assistant:', error);
     } finally {
@@ -165,7 +171,12 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           <Button onClick={handleAccept}>Accept</Button>
           <Button onClick={handleReset}>Reset</Button>
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleAssistantDelete}>Delete</Button>
+          <Button
+            onClick={handleAssistantDelete}
+            disabled={!isAssistantDefined}
+          >
+            Delete
+          </Button>
           <Typography variant="caption" sx={{ mx: 1 }}>
             Off
           </Typography>

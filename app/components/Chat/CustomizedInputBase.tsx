@@ -34,6 +34,7 @@ const CustomizedInputBase = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [inputValue, setInputValue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isAssistantDefined, setIsAssistantDefined] = useState(false);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -51,6 +52,9 @@ const CustomizedInputBase = ({
             setDescription(response.assistant.instructions);
             setIsAssistantEnabled(response.isAssistantEnabled);
             files.current = response.fileList;
+            setIsAssistantDefined(true);
+          } else {
+            setIsAssistantDefined(false);
           }
         } catch (error) {
           console.error('Error prefetching assistant:', error);
@@ -211,6 +215,8 @@ const CustomizedInputBase = ({
         setDescription={setDescription}
         isAssistantEnabled={isAssistantEnabled}
         setIsAssistantEnabled={setIsAssistantEnabled}
+        isAssistantDefined={isAssistantDefined}
+        setIsAssistantDefined={setIsAssistantDefined}
         setIsLoading={setIsLoading}
         files={files.current}
       />
