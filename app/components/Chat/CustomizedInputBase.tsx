@@ -176,12 +176,6 @@ const CustomizedInputBase = ({
             </ListItemIcon>
             Assistant
           </MenuItem>
-          <MenuItem onClick={handleMenuClose}>
-            <ListItemIcon>
-              <SpeechIcon />
-            </ListItemIcon>
-            Web Speech
-          </MenuItem>
         </Menu>
         <InputBase
           sx={{ ml: 1, flex: 1 }}
