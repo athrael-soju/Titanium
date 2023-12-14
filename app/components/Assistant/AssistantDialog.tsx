@@ -1,34 +1,23 @@
 import React, { useState } from 'react';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import FormControl from '@mui/material/FormControl';
-import Switch from '@mui/material/Switch';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-
 import {
-  Avatar,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  Switch,
+  Typography,
+  Box,
 } from '@mui/material';
-import Grid from '@mui/material/Grid';
-import IconButton from '@mui/material/IconButton';
-import DeleteIcon from '@mui/icons-material/Delete';
-import FolderIcon from '@mui/icons-material/Folder';
+import AssistantForm from './AssistantForm';
+import FileList from './FileList';
+import ConfirmationDialog from './ConfirmationDialog';
+import { useSession } from 'next-auth/react';
 import {
   updateAssistant,
   deleteAssistantFile,
   deleteAssistant,
 } from '@/app/services/assistantService';
-import { useSession } from 'next-auth/react';
 
 interface AssistantDialogProps {
   open: boolean;
@@ -39,6 +28,8 @@ interface AssistantDialogProps {
   setDescription: (description: string) => void;
   isAssistantEnabled: boolean;
   setIsAssistantEnabled: (isAssistantEnabled: boolean) => void;
+  isAssistantDefined: boolean;
+  setIsAssistantDefined: (isAssistantDefined: boolean) => void;
   onToggleAssistant?: (isAssistantEnabled: boolean) => void;
   onReset?: () => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -54,6 +45,8 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   setDescription,
   isAssistantEnabled,
   setIsAssistantEnabled,
+  isAssistantDefined,
+  setIsAssistantDefined,
   onToggleAssistant,
   onReset,
   setIsLoading,
@@ -89,6 +82,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           isAssistantEnabled,
           userEmail,
         });
+        setIsAssistantDefined(true);
         console.log('Assistant updated successfully');
       } else {
         throw new Error('No session found');
@@ -120,7 +114,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   const handleFileDelete = async (file: any) => {
     try {
       setIsLoading(true);
-      console.log('Deleting file from the assistant:', file);
       let response = await deleteAssistantFile({ file });
       console.log('File successfully deleted from the assistant:', response);
       files.splice(files.indexOf(file), 1);
@@ -140,11 +133,12 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     const userEmail = session?.user?.email as string;
     try {
       setIsLoading(true);
+      onClose();
       let response = await deleteAssistant({ userEmail });
       console.log('Assistant deleted successfully', response);
       files.splice(0, files.length);
       handleReset();
-      onClose();
+      setIsAssistantDefined(false);
     } catch (error) {
       console.error('Error deleting assistant:', error);
     } finally {
@@ -152,103 +146,20 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     }
   };
 
-  const ConfirmationDialog = () => (
-    <Dialog
-      open={isConfirmDialogOpen}
-      onClose={() => setIsConfirmDialogOpen(false)}
-    >
-      <DialogTitle>{'Confirm Delete'}</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          Are you sure you want to delete your Assistant? All associated
-          Threads, Messages and Files will also be deleted.
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setIsConfirmDialogOpen(false)} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={performAssistantDelete} color="secondary">
-          Delete
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle style={{ textAlign: 'center' }}>
-        Customize your Personal Assistant
+        Customize your Assistant
       </DialogTitle>
       <DialogContent style={{ paddingBottom: 8 }}>
-        <FormControl
-          fullWidth
-          margin="dense"
-          error={error.name}
-          variant="outlined"
-        >
-          <TextField
-            autoFocus
-            label="Name"
-            fullWidth
-            variant="outlined"
-            value={name || ''}
-            onChange={(e) => setName(e.target.value)}
-            error={error.name}
-            helperText={error.name ? 'Name is required' : ' '}
-          />
-        </FormControl>
-        <FormControl
-          fullWidth
-          margin="dense"
-          error={error.description}
-          variant="outlined"
-        >
-          <TextField
-            label="Description"
-            fullWidth
-            multiline
-            rows={4}
-            variant="outlined"
-            value={description || ''}
-            onChange={(e) => setDescription(e.target.value)}
-            error={error.description}
-            helperText={error.description ? 'Description is required' : ' '}
-          />
-        </FormControl>
-
-        <Grid item xs={12} md={6}>
-          <Paper variant="outlined" sx={{ padding: 2, marginBottom: 2 }}>
-            <Typography variant="subtitle1" sx={{ textAlign: 'center' }}>
-              Attached Files
-            </Typography>
-            <Box sx={{ height: '160px', overflowY: 'auto' }}>
-              <List dense>
-                {files.map((file) => (
-                  <ListItem
-                    key={file.id}
-                    secondaryAction={
-                      <IconButton
-                        edge="end"
-                        aria-label="delete"
-                        onClick={() => handleFileDelete(file)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemAvatar>
-                      <Avatar>
-                        <FolderIcon />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText primary={file.name} />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          </Paper>
-        </Grid>
+        <AssistantForm
+          name={name}
+          setName={setName}
+          description={description}
+          setDescription={setDescription}
+          error={error}
+        />
+        <FileList files={files} onDelete={handleFileDelete} />
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box
@@ -260,7 +171,12 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           <Button onClick={handleAccept}>Accept</Button>
           <Button onClick={handleReset}>Reset</Button>
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleAssistantDelete}>Delete</Button>
+          <Button
+            onClick={handleAssistantDelete}
+            disabled={!isAssistantDefined}
+          >
+            Delete
+          </Button>
           <Typography variant="caption" sx={{ mx: 1 }}>
             Off
           </Typography>
@@ -274,7 +190,11 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           </Typography>
         </Box>
       </DialogActions>
-      <ConfirmationDialog />
+      <ConfirmationDialog
+        open={isConfirmDialogOpen}
+        onClose={() => setIsConfirmDialogOpen(false)}
+        onConfirm={performAssistantDelete}
+      />
     </Dialog>
   );
 };
