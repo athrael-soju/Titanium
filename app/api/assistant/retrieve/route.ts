@@ -5,48 +5,45 @@ import OpenAI from 'openai';
 const openai = new OpenAI();
 
 export async function GET(req: NextRequest) {
+  const userEmail = req.headers.get('userEmail');
+  if (!userEmail) {
+    return NextResponse.json(
+      { message: 'userEmail header is required' },
+      { status: 400 }
+    );
+  }
+
   try {
     const client = await clientPromise;
     const db = client.db();
-    // Retrieve the userEmail from the request headers
-    const userEmail = req.headers.get('userEmail');
-    if (!userEmail) {
-      return NextResponse.json('userEmail header is required', {
-        status: 400,
-      });
-    }
-    // Retrieve the user from the database
     const usersCollection = db.collection<IUser>('users');
     const user = await usersCollection.findOne({ email: userEmail });
-    let assistant,
-      thread,
-      fileList,
-      filesWithNames: { id: string; name: string; assistantId: string }[] = [];
     if (!user) {
-      return NextResponse.json('User not found', { status: 404 });
+      return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
-    // If the user has an assistantId, retrieve the assistant from OpenAI
-    if (user.assistantId) {
-      assistant = await openai.beta.assistants.retrieve(user.assistantId);
-      thread = await openai.beta.threads.retrieve(user.threadId as string);
-      fileList = await openai.beta.assistants.files.list(user.assistantId);
 
-      // Retrieve each file's metadata and construct a new array
-      if (fileList?.data) {
-        for (const fileObject of fileList.data) {
+    if (user.assistantId) {
+      const [assistant, thread, fileList] = await Promise.all([
+        openai.beta.assistants.retrieve(user.assistantId),
+        openai.beta.threads.retrieve(user.threadId as string),
+        openai.beta.assistants.files.list(user.assistantId),
+      ]);
+
+      const filesWithNames = await Promise.all(
+        fileList.data.map(async (fileObject) => {
           const file = await openai.files.retrieve(fileObject.id);
-          filesWithNames.push({
+          return {
             id: fileObject.id,
             name: file.filename,
             assistantId: user.assistantId,
-          });
-        }
-      }
-      // Return a success response
+          };
+        })
+      );
+
       return NextResponse.json(
         {
-          message: 'Assistant updated',
-          assistant: assistant,
+          message: 'Assistant retrieved',
+          assistant,
           threadId: thread?.id,
           fileList: filesWithNames,
           isAssistantEnabled: user.isAssistantEnabled,
@@ -54,15 +51,16 @@ export async function GET(req: NextRequest) {
         { status: 200 }
       );
     }
-    // Return a success response
+
     return NextResponse.json(
-      {
-        message: 'No assistant found',
-      },
+      { message: 'No assistant found for the user' },
       { status: 200 }
     );
   } catch (error: any) {
-    // Return an error response
-    return NextResponse.json(error.message, { status: 500 });
+    console.error('Error retrieving assistant:', error);
+    return NextResponse.json(
+      { message: 'Error retrieving assistant', error: error.message },
+      { status: 500 }
+    );
   }
 }

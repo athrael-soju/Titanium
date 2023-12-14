@@ -128,11 +128,11 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     const userEmail = session?.user?.email as string;
     try {
       setIsLoading(true);
+      onClose();
       let response = await deleteAssistant({ userEmail });
       console.log('Assistant deleted successfully', response);
       files.splice(0, files.length);
       handleReset();
-      onClose();
     } catch (error) {
       console.error('Error deleting assistant:', error);
     } finally {

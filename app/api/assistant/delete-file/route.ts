@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import OpenAI from 'openai';
 
 const openai = new OpenAI();
@@ -9,18 +8,17 @@ export async function POST(req: NextRequest) {
 
   try {
     // Delete the file from the assistant
-    const response = await openai.beta.assistants.files.del(
-      file.assistantId,
-      file.id
-    );
+    const assistantFileDeletionResponse =
+      await openai.beta.assistants.files.del(file.assistantId, file.id);
 
     // Delete the file from openai.files
-    await openai.files.del(file.id);
+    const openaiFileDeletionResponse = await openai.files.del(file.id);
 
     return NextResponse.json(
       {
-        message: 'File deleted',
-        response: response,
+        message: 'File deleted successfully',
+        assistantFileDeletionResponse,
+        openaiFileDeletionResponse,
       },
       { status: 200 }
     );
@@ -29,7 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message: 'Assistant file deletion unsuccessful',
-        error: error,
+        error,
       },
       { status: 500 }
     );
