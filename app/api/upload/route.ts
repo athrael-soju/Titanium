@@ -68,10 +68,10 @@ export async function POST(request: NextRequest) {
       );
     }
   } else {
-    console.error('Assistant is not enabled');
+    console.error('File uploads are only available with the assistant enabled');
     return NextResponse.json(
       {
-        message: 'Assistant not enabled',
+        message: 'File uploads are only available with the assistant enabled',
       },
       { status: 400 }
     );
