@@ -1,10 +1,11 @@
 # What is Titanium?
 
-Titanium is a modern web application built with Next.js, leveraging Typescript for dynamic user interfaces and integrating with OpenAI's API. It's still in very early stages, but I aim to add implementations for all new OpenAI API's, including:
+Titanium is a modern web application built with Next.js, using MaterialUI for the UI and leveraging the latest OpenAI API to offer an advanced Generative and Conversational AI experience. It's still in very early stages, but I aim to add implementations for the latest OpenAI API's, including:
 
-- Multipurpose Assistants.
-- Code Interpretation/Generation.
-- Query/Discussion of uploaded documents.
+- Multi-user Authentication using next-auth ✅ (Including a custom CredentialProvider for guest accounts)
+- Customizable, Multipurpose Assistants with File Upload. ✅ (Also supports complete deletion of all Assistant related data)
+- Code Interpretation/Generation. ✅ (Supported as part of Assistants implementation)
+- Query/Discussion of uploaded documents. ✅ (Supported as part of Assistants implementation)
 - Image Analysis/Generation.
 - Traditional RAG, using Vector DB's.
 - Persistent multi-user memory.
@@ -12,6 +13,7 @@ Titanium is a modern web application built with Next.js, leveraging Typescript f
 # Libraries
 
 - Next.js Framework: Utilizes the latest features of Next.js for server-side rendering and static site generation.
+- Next-auth + mongodb adapter for authentication
 - OpenAI Integration: Includes integration with [OpenAI's API](https://platform.openai.com/docs/api-reference).
 - Markdown Rendering: Supports rendering of Markdown content with react-markdown.
 - Syntax Highlighting: Implements syntax highlighting in code snippets using react-syntax-highlighter.
@@ -19,14 +21,26 @@ Titanium is a modern web application built with Next.js, leveraging Typescript f
 
 ## Getting Started
 
-First, create a new file in the root folder and name it `.env.local` provide your openAI API key. I tshould look something like this:
+First, create a new file in the root folder and name it `.env.local`. I tshould look something like this:
 
 ```
-OPENAI_API_MODEL="gpt-3.5-turbo"
-OPENAI_API_KEY="YOUR_API_KEY"
+# Created by Vercel CLI
+OPENAI_API_KEY=""
+OPENAI_API_MODEL="gpt-4-1106-preview" // This model is required for using the latest beta features, such as assistants.
+# next-auth - Optional. You can just use a guest account, but keep in mind that once you logout, logging back it will create a new guest account.
+GITHUB_ID= 
+GITHUB_SECRET=
+GOOGLE_ID=
+GOOGLE_SECRET=
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=
+# mongodb
+NODE_ENV='development'
+MONGODB_URI= // Needed to store sessions and Assistant related data. I would Suggest Mongodb Atlas, as it's easy to set up.
+
 ```
 
-Or copy `.env.example` and rename it to `.env.local` and provide your API key.
+Or copy `.env.example` and rename it to `.env.local` and provide your variables.
 
 ```bash
 cp .env.example .env.local
@@ -45,8 +59,6 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 ## Learn More
 
