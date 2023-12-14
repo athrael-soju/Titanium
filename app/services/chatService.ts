@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 const retrieveAIResponse = async (
   userMessage: string,
   userEmail: string,
