@@ -110,13 +110,11 @@ bun dev
 
 ![image-1](https://github.com/athrael-soju/Titanium/assets/25455658/1dedc1e1-6250-4302-b9f3-aca27e88a206)
 
-
 ## Using the standard chat
 
 - The standard chat is a simple chat that uses the OpenAI API to generate responses. It doesn't use any of the assistant features, but it's pretty fast, since it uses streaming to generate responses.
 
 ![image-2](https://github.com/athrael-soju/Titanium/assets/25455658/242710b4-9da9-4cde-afcd-a441f12464bf)
-
 
 ## Using the assistant
 
@@ -124,16 +122,13 @@ bun dev
 
 ![image-3](https://github.com/athrael-soju/Titanium/assets/25455658/74066948-c08a-42c7-be53-4a461c5c0adc)
 
-
 ### Provide a name and description for your assistant. Enable it from the switch on the bottom right corner and click "ACCEPT".
 
 ![image-4](https://github.com/athrael-soju/Titanium/assets/25455658/1a759412-b71e-423d-84d1-1ca1c6d65d38)
 
-
 ### Upload a file the assistant will use to generate responses. (Optional)
 
 ![image-5](https://github.com/athrael-soju/Titanium/assets/25455658/23535de6-ccad-4e40-8b7d-8f5be8eb8eca)
-
 
 ### Chat with your Assistant. Responses may take a while to generate, as streaming is not yet supported.
 
@@ -146,7 +141,7 @@ bun dev
 - You can delete your Assistant and all associated files by pressing "DELETE" and confirming in a followup dialog. This is non reversible.
 - You can also delete independent uploaded files for the assistant by clicking the delete button for the corresponding file in the "Attached Files" List.
 - If the assistant is disabled, chat will revert to Standard (Streaming) and any uploaded files will not be available to the assistant.
- 
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
