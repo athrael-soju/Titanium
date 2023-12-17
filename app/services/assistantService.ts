@@ -75,9 +75,29 @@ const deleteAssistant = async ({
   }
 };
 
+const uploadFile = async (
+  file: File,
+  userEmail: string
+): Promise<Response | undefined> => {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('userEmail', userEmail);
+
+    const fileUploadResponse = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    return fileUploadResponse;
+  } catch (error) {
+    console.error('Failed to upload file:', error);
+  }
+};
+
 export {
   updateAssistant,
   retrieveAssistant,
   deleteAssistantFile,
   deleteAssistant,
+  uploadFile,
 };
