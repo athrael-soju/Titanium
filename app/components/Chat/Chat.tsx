@@ -58,8 +58,8 @@ const Chat = () => {
 
       const chunk = value ? decoder.decode(value, { stream: true }) : '';
       const lines = chunk.split('\n');
-      console.log('lines:', lines);
       lines.forEach((line) => {
+        console.log('lines:', line);
         if (line) {
           try {
             const json = JSON.parse(line);
