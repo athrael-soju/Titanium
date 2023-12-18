@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import MessagesField from './MessagesField';
@@ -13,14 +12,11 @@ interface IMessage {
   sender: 'user' | 'ai';
   id: string;
 }
-
 const Chat = () => {
   const { data: session } = useSession();
-
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAssistantEnabled, setIsAssistantEnabled] = useState<boolean>(false);
-
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
     setMessages((prevMessages) => [
@@ -28,7 +24,6 @@ const Chat = () => {
       { text: `🧑‍💻 ${message}`, sender: 'user', id: userMessageId },
     ]);
   };
-
   const addAiMessageToState = (
     aiResponseText: string,
     aiResponseId: string
@@ -38,7 +33,6 @@ const Chat = () => {
       { text: `🤖 ${aiResponseText}`, sender: 'ai', id: aiResponseId },
     ]);
   };
-
   const processAIResponseStream = async (
     reader: ReadableStreamDefaultReader<Uint8Array> | undefined,
     aiResponseId: string
@@ -49,10 +43,8 @@ const Chat = () => {
       );
       return;
     }
-
     const decoder = new TextDecoder();
     let aiResponseText = '';
-
     const processText = async ({
       done,
       value,
@@ -68,7 +60,6 @@ const Chat = () => {
       const lines = chunk.split('\n');
 
       lines.forEach((line) => {
-        console.log('line:', line);
         if (line) {
           try {
             const json = JSON.parse(line);
@@ -85,9 +76,9 @@ const Chat = () => {
 
       return reader.read().then(processText);
     };
+
     await reader.read().then(processText);
   };
-
   const sendUserMessage = async (message: string) => {
     if (!message.trim()) return;
     try {
@@ -100,9 +91,7 @@ const Chat = () => {
         userEmail,
         isAssistantEnabled
       );
-
       if (!response) return;
-
       if (isAssistantEnabled) {
         await processResponse(response, aiResponseId);
       } else {
@@ -114,7 +103,6 @@ const Chat = () => {
       setIsLoading(false);
     }
   };
-
   async function processResponse(
     response: ReadableStreamDefaultReader<Uint8Array> | Response,
     aiResponseId: string
@@ -123,7 +111,6 @@ const Chat = () => {
       console.error('Expected a Response object, received:', response);
       return;
     }
-
     try {
       const contentType = response.headers.get('Content-Type');
       const data = contentType?.includes('application/json')
@@ -134,7 +121,6 @@ const Chat = () => {
       console.error('Error processing response:', error);
     }
   }
-
   async function processStream(
     stream: ReadableStreamDefaultReader<Uint8Array> | Response,
     aiResponseId: string
@@ -146,14 +132,12 @@ const Chat = () => {
       );
       return;
     }
-
     try {
       await processAIResponseStream(stream, aiResponseId);
     } catch (error) {
       console.error('Error processing stream:', error);
     }
   }
-
   if (session) {
     return (
       <>
