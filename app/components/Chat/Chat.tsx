@@ -39,50 +39,6 @@ const Chat = () => {
     ]);
   };
 
-  const processAIResponseStream = async (
-    stream: ReadableStreamDefaultReader<Uint8Array> | undefined,
-    aiResponseId: string
-  ) => {
-    if (!stream) {
-      console.error(
-        'No reader available for processing the AI response stream.'
-      );
-      return;
-    }
-
-    const decoder = new TextDecoder();
-    let aiResponseText = '';
-
-    stream?.read().then(function processText({ done, value }) {
-      if (done) {
-        return;
-      }
-
-      // Decode the stream chunk and parse each line as JSON
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
-
-      lines.forEach((line) => {
-        if (line) {
-          try {
-            const json = JSON.parse(line);
-            if (json?.choices[0].delta.content) {
-              aiResponseText += json.choices[0].delta.content;
-            }
-          } catch (error) {
-            console.error('Failed to parse JSON:', line, error);
-          }
-        }
-      });
-
-      // Update the messages state with the latest AI response text
-      addAiMessageToState(aiResponseText, aiResponseId);
-
-      // Read the next chunk
-      stream.read().then(processText);
-    });
-  };
-
   const sendUserMessage = async (message: string) => {
     if (!message.trim()) return;
     try {
@@ -100,8 +56,49 @@ const Chat = () => {
 
       if (isAssistantEnabled) {
         await processResponse(response, aiResponseId);
-      } else {
-        await processStream(response, aiResponseId);
+      } else if (response instanceof ReadableStreamDefaultReader) {
+        try {
+          if (!response) {
+            console.error(
+              'No reader available for processing the AI response stream.'
+            );
+            return;
+          }
+
+          const decoder = new TextDecoder();
+          let aiResponseText = '';
+
+          response?.read().then(function processText({ done, value }) {
+            if (done) {
+              return;
+            }
+
+            // Decode the stream chunk and parse each line as JSON
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+
+            lines.forEach((line) => {
+              if (line) {
+                try {
+                  const json = JSON.parse(line);
+                  if (json?.choices[0].delta.content) {
+                    aiResponseText += json.choices[0].delta.content;
+                  }
+                } catch (error) {
+                  console.error('Failed to parse JSON:', line, error);
+                }
+              }
+            });
+
+            // Update the messages state with the latest AI response text
+            addAiMessageToState(aiResponseText, aiResponseId);
+
+            // Read the next chunk
+            response.read().then(processText);
+          });
+        } catch (error) {
+          console.error('Error processing stream:', error);
+        }
       }
     } catch (error) {
       console.log(error);
@@ -127,25 +124,6 @@ const Chat = () => {
       addAiMessageToState(data, aiResponseId);
     } catch (error) {
       console.error('Error processing response:', error);
-    }
-  }
-
-  async function processStream(
-    stream: ReadableStreamDefaultReader<Uint8Array> | Response,
-    aiResponseId: string
-  ) {
-    if (!(stream instanceof ReadableStreamDefaultReader)) {
-      console.error(
-        'Expected a ReadableStreamDefaultReader object, received:',
-        stream
-      );
-      return;
-    }
-
-    try {
-      await processAIResponseStream(stream, aiResponseId);
-    } catch (error) {
-      console.error('Error processing stream:', error);
     }
   }
 
