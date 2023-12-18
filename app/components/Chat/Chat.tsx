@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import MessagesField from './MessagesField';
@@ -7,26 +6,17 @@ import styles from './Chat.module.css';
 import Loader from './Loader';
 import { useSession } from 'next-auth/react';
 import CustomizedInputBase from './CustomizedInputBase';
-import OpenAI, { ClientOptions } from 'openai';
-
+import { retrieveAIResponse } from '@/app/services/chatService';
 interface IMessage {
   text: string;
   sender: 'user' | 'ai';
   id: string;
 }
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('OPENAI_API_KEY is not set');
-}
-
-const options: ClientOptions = { apiKey: process.env.OPENAI_API_KEY };
-const openai = new OpenAI(options);
 const Chat = () => {
   const { data: session } = useSession();
-
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAssistantEnabled, setIsAssistantEnabled] = useState<boolean>(false);
-
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
     setMessages((prevMessages) => [
@@ -34,7 +24,6 @@ const Chat = () => {
       { text: `🧑‍💻 ${message}`, sender: 'user', id: userMessageId },
     ]);
   };
-
   const addAiMessageToState = (
     aiResponseText: string,
     aiResponseId: string
@@ -44,64 +33,69 @@ const Chat = () => {
       { text: `🤖 ${aiResponseText}`, sender: 'ai', id: aiResponseId },
     ]);
   };
+  const processAIResponseStream = async (
+    reader: ReadableStreamDefaultReader<Uint8Array> | undefined,
+    aiResponseId: string
+  ) => {
+    if (!reader) {
+      console.error(
+        'No reader available for processing the AI response stream.'
+      );
+      return;
+    }
+    const decoder = new TextDecoder();
+    let aiResponseText = '';
+    const processText = async ({
+      done,
+      value,
+    }: {
+      done: boolean;
+      value?: Uint8Array;
+    }): Promise<void> => {
+      if (done) {
+        return;
+      }
 
+      const chunk = value ? decoder.decode(value, { stream: true }) : '';
+      const lines = chunk.split('\n');
+      console.log('lines:', lines);
+      lines.forEach((line) => {
+        if (line) {
+          try {
+            const json = JSON.parse(line);
+            if (json?.choices[0].delta.content) {
+              aiResponseText += json.choices[0].delta.content;
+            }
+          } catch (error) {
+            console.error('Failed to parse JSON:', line, error);
+          }
+        }
+      });
+
+      addAiMessageToState(aiResponseText, aiResponseId);
+
+      return reader.read().then(processText);
+    };
+
+    await reader.read().then(processText);
+  };
   const sendUserMessage = async (message: string) => {
     if (!message.trim()) return;
     try {
       setIsLoading(true);
       addUserMessageToState(message);
       const aiResponseId = uuidv4();
-
-      const completion = openai.beta.chat.completions.stream({
-        model: process.env.OPENAI_API_MODEL ?? 'gpt-4-1106-preview',
-        messages: [{ role: 'user', content: message }],
-        stream: true,
-      });
-
-      let response = completion.toReadableStream().getReader();
+      const userEmail = session?.user?.email as string;
+      const response = await retrieveAIResponse(
+        message,
+        userEmail,
+        isAssistantEnabled
+      );
       if (!response) return;
-
-      try {
-        if (!response) {
-          console.error(
-            'No reader available for processing the AI response stream.'
-          );
-          return;
-        }
-
-        const decoder = new TextDecoder();
-        let aiResponseText = '';
-
-        response?.read().then(function processText({ done, value }) {
-          if (done) {
-            return;
-          }
-
-          // Decode the stream chunk and parse each line as JSON
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
-
-          lines.forEach((line) => {
-            if (line) {
-              try {
-                const json = JSON.parse(line);
-                if (json?.choices[0].delta.content) {
-                  aiResponseText += json.choices[0].delta.content;
-                }
-              } catch (error) {
-                console.error('Failed to parse JSON:', line, error);
-              }
-            }
-          });
-
-          // Update the messages state with the latest AI response text
-          addAiMessageToState(aiResponseText, aiResponseId);
-
-          // Read the next chunk
-          response.read().then(processText);
-        });
-      } catch (error) {
-        console.error('Error processing stream:', error);
+      if (isAssistantEnabled) {
+        await processResponse(response, aiResponseId);
+      } else {
+        await processStream(response, aiResponseId);
       }
     } catch (error) {
       console.log(error);
@@ -109,7 +103,41 @@ const Chat = () => {
       setIsLoading(false);
     }
   };
-
+  async function processResponse(
+    response: ReadableStreamDefaultReader<Uint8Array> | Response,
+    aiResponseId: string
+  ) {
+    if (!(response instanceof Response)) {
+      console.error('Expected a Response object, received:', response);
+      return;
+    }
+    try {
+      const contentType = response.headers.get('Content-Type');
+      const data = contentType?.includes('application/json')
+        ? await response.json()
+        : await response.text();
+      addAiMessageToState(data, aiResponseId);
+    } catch (error) {
+      console.error('Error processing response:', error);
+    }
+  }
+  async function processStream(
+    stream: ReadableStreamDefaultReader<Uint8Array> | Response,
+    aiResponseId: string
+  ) {
+    if (!(stream instanceof ReadableStreamDefaultReader)) {
+      console.error(
+        'Expected a ReadableStreamDefaultReader object, received:',
+        stream
+      );
+      return;
+    }
+    try {
+      await processAIResponseStream(stream, aiResponseId);
+    } catch (error) {
+      console.error('Error processing stream:', error);
+    }
+  }
   if (session) {
     return (
       <>
@@ -118,7 +146,7 @@ const Chat = () => {
         <div className={styles.inputArea}>
           <CustomizedInputBase
             setIsLoading={setIsLoading}
-            onSendMessage={() => sendUserMessage('')}
+            onSendMessage={sendUserMessage}
             isAssistantEnabled={isAssistantEnabled}
             setIsAssistantEnabled={setIsAssistantEnabled}
           />
