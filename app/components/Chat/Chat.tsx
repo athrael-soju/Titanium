@@ -63,7 +63,7 @@ const Chat = () => {
         if (line) {
           try {
             const json = JSON.parse(line);
-            if (json?.choices[0].delta.content) {
+            if (json?.choices[0]?.delta?.content) {
               aiResponseText += json.choices[0].delta.content;
             }
           } catch (error) {
