@@ -40,10 +40,10 @@ const Chat = () => {
   };
 
   const processAIResponseStream = async (
-    reader: ReadableStreamDefaultReader<Uint8Array> | undefined,
+    stream: ReadableStreamDefaultReader<Uint8Array> | undefined,
     aiResponseId: string
   ) => {
-    if (!reader) {
+    if (!stream) {
       console.error(
         'No reader available for processing the AI response stream.'
       );
@@ -53,18 +53,13 @@ const Chat = () => {
     const decoder = new TextDecoder();
     let aiResponseText = '';
 
-    const processText = async ({
-      done,
-      value,
-    }: {
-      done: boolean;
-      value?: Uint8Array;
-    }): Promise<void> => {
+    stream?.read().then(function processText({ done, value }) {
       if (done) {
         return;
       }
 
-      const chunk = value ? decoder.decode(value, { stream: true }) : '';
+      // Decode the stream chunk and parse each line as JSON
+      const chunk = decoder.decode(value, { stream: true });
       const lines = chunk.split('\n');
 
       lines.forEach((line) => {
@@ -80,11 +75,12 @@ const Chat = () => {
         }
       });
 
+      // Update the messages state with the latest AI response text
       addAiMessageToState(aiResponseText, aiResponseId);
 
-      return reader.read().then(processText);
-    };
-    await reader.read().then(processText);
+      // Read the next chunk
+      stream.read().then(processText);
+    });
   };
 
   const sendUserMessage = async (message: string) => {
