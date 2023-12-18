@@ -7,7 +7,6 @@ import styles from './Chat.module.css';
 import Loader from './Loader';
 import { useSession } from 'next-auth/react';
 import CustomizedInputBase from './CustomizedInputBase';
-import { retrieveAIResponse } from '@/app/services/chatService';
 interface IMessage {
   text: string;
   sender: 'user' | 'ai';
@@ -37,6 +36,29 @@ const Chat = () => {
       ...prevMessages.filter((msg) => msg.id !== aiResponseId),
       { text: `🤖 ${aiResponseText}`, sender: 'ai', id: aiResponseId },
     ]);
+  };
+
+  const handleAIResponse = async (userMessage: string) => {
+    const userEmail = session?.user?.email as string;
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userMessage, userEmail }),
+      });
+      setIsLoading(false);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      if (isAssistantEnabled) {
+        return response;
+      } else {
+        return response.body?.getReader();
+      }
+    } catch (error) {
+      console.error('Failed to fetch AI response:', error);
+    }
   };
 
   const processAIResponseStream = async (
@@ -89,28 +111,17 @@ const Chat = () => {
 
   const sendUserMessage = async (message: string) => {
     if (!message.trim()) return;
-    try {
-      setIsLoading(true);
-      addUserMessageToState(message);
-      const aiResponseId = uuidv4();
-      const userEmail = session?.user?.email as string;
-      const response = await retrieveAIResponse(
-        message,
-        userEmail,
-        isAssistantEnabled
-      );
 
-      if (!response) return;
+    addUserMessageToState(message);
+    const aiResponseId = uuidv4();
+    const response = await handleAIResponse(message);
 
-      if (isAssistantEnabled) {
-        await processResponse(response, aiResponseId);
-      } else {
-        await processStream(response, aiResponseId);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
+    if (!response) return;
+
+    if (isAssistantEnabled) {
+      await processResponse(response, aiResponseId);
+    } else {
+      await processStream(response, aiResponseId);
     }
   };
 
