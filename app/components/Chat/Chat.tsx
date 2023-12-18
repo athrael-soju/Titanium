@@ -44,26 +44,33 @@ const Chat = () => {
       return;
     }
     const decoder = new TextDecoder();
+    let buffer = '';
     let aiResponseText = '';
-    const processText = async ({
-      done,
-      value,
-    }: {
-      done: boolean;
-      value?: Uint8Array;
-    }): Promise<void> => {
+
+    const processChunk = async () => {
+      const { done, value } = await reader.read();
       if (done) {
-        return;
+        // Process any remaining data in buffer
+        processBuffer();
+        return true; // Indicates the stream has ended
       }
+      buffer += value ? decoder.decode(value, { stream: true }) : '';
+      processBuffer();
+      return false; // Indicates more data might be available
+    };
 
-      const chunk = value ? decoder.decode(value, { stream: true }) : '';
-      const lines = chunk.split('\n');
+    const processBuffer = () => {
+      let boundary = buffer.lastIndexOf('\n');
+      if (boundary === -1) return; // No complete JSON object to process
 
-      lines.forEach((line) => {
+      let completeData = buffer.substring(0, boundary);
+      buffer = buffer.substring(boundary + 1); // Keep incomplete part in buffer
+
+      completeData.split('\n').forEach((line) => {
         if (line) {
           try {
             const json = JSON.parse(line);
-            if (json?.choices[0].delta.content) {
+            if (json?.choices[0]?.delta?.content) {
               aiResponseText += json.choices[0].delta.content;
             }
           } catch (error) {
@@ -71,14 +78,15 @@ const Chat = () => {
           }
         }
       });
-
       addAiMessageToState(aiResponseText, aiResponseId);
-
-      return reader.read().then(processText);
     };
 
-    await reader.read().then(processText);
+    let isDone = false;
+    while (!isDone) {
+      isDone = await processChunk();
+    }
   };
+
   const sendUserMessage = async (message: string) => {
     if (!message.trim()) return;
     try {
