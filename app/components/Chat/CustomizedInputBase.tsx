@@ -7,14 +7,11 @@ import SendIcon from '@mui/icons-material/Send';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import FileUploadIcon from '@mui/icons-material/CloudUpload';
-import SpeechIcon from '@mui/icons-material/RecordVoiceOver';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import AssistantDialog from '../Assistant/AssistantDialog';
 import { retrieveAssistant } from '@/app/services/assistantService';
-import { uploadFile } from '@/app/services/chatService';
 import { useSession } from 'next-auth/react';
 
 const CustomizedInputBase = ({
@@ -33,13 +30,16 @@ const CustomizedInputBase = ({
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [inputValue, setInputValue] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAssistantDefined, setIsAssistantDefined] = useState(false);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const files = useRef<{ name: string; id: string; assistandId: string }[]>([]);
-
+  const updateFiles = (
+    newFiles: { name: string; id: string; assistandId: string }[]
+  ) => {
+    files.current = newFiles;
+  };
   useEffect(() => {
     const prefetchAssistantData = async () => {
       if (session) {
@@ -96,40 +96,9 @@ const CustomizedInputBase = ({
     setAnchorEl(null);
   };
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-    handleMenuClose();
-  };
-
   const handleAssistantsClick = async () => {
     setIsAssistantDialogOpen(true);
     handleMenuClose();
-  };
-
-  const handleFileSelect = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const userEmail = session?.user?.email as string;
-      try {
-        setIsLoading(true);
-        const fileUploadResponse = await uploadFile(file, userEmail);
-        const retrieveAssistantResponse = await retrieveAssistant({
-          userEmail,
-        });
-        if (retrieveAssistantResponse.assistant) {
-          files.current = retrieveAssistantResponse.fileList;
-        }
-        if (fileUploadResponse?.status === 200) {
-          console.log('File uploaded successfully', fileUploadResponse);
-        }
-      } catch (error) {
-        console.error('Failed to upload file:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
   };
 
   return (
@@ -164,12 +133,6 @@ const CustomizedInputBase = ({
             horizontal: 'right',
           }}
         >
-          <MenuItem onClick={handleUploadClick}>
-            <ListItemIcon>
-              <FileUploadIcon />
-            </ListItemIcon>
-            Upload File
-          </MenuItem>
           <MenuItem onClick={handleAssistantsClick}>
             <ListItemIcon>
               <AssistantIcon />
@@ -193,13 +156,6 @@ const CustomizedInputBase = ({
         </IconButton>
       </Paper>
 
-      <input
-        type="file"
-        ref={fileInputRef}
-        style={{ display: 'none' }}
-        onChange={handleFileSelect}
-      />
-
       <AssistantDialog
         open={isAssistantDialogOpen}
         onClose={() => setIsAssistantDialogOpen(false)}
@@ -213,6 +169,7 @@ const CustomizedInputBase = ({
         setIsAssistantDefined={setIsAssistantDefined}
         setIsLoading={setIsLoading}
         files={files.current}
+        updateFiles={updateFiles}
       />
     </>
   );

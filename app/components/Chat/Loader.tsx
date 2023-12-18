@@ -9,6 +9,7 @@ const Loader: React.FC = () => {
       alignItems="center"
       height="80vh"
       position="fixed"
+      zIndex={9999}
     >
       <CircularProgress />
     </Box>
