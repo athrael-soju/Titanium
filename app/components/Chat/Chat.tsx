@@ -7,6 +7,7 @@ import styles from './Chat.module.css';
 import Loader from './Loader';
 import { useSession } from 'next-auth/react';
 import CustomizedInputBase from './CustomizedInputBase';
+import { retrieveAIResponse } from '@/app/services/chatService';
 interface IMessage {
   text: string;
   sender: 'user' | 'ai';
@@ -38,29 +39,6 @@ const Chat = () => {
     ]);
   };
 
-  const handleAIResponse = async (userMessage: string) => {
-    const userEmail = session?.user?.email as string;
-    try {
-      setIsLoading(true);
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userMessage, userEmail }),
-      });
-      setIsLoading(false);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      if (isAssistantEnabled) {
-        return response;
-      } else {
-        return response.body?.getReader();
-      }
-    } catch (error) {
-      console.error('Failed to fetch AI response:', error);
-    }
-  };
-
   const processAIResponseStream = async (
     reader: ReadableStreamDefaultReader<Uint8Array> | undefined,
     aiResponseId: string
@@ -83,26 +61,35 @@ const Chat = () => {
       value?: Uint8Array;
     }): Promise<void> => {
       if (done) {
+        // Try parsing the final accumulated text after reading is done
+        try {
+          const finalJson = JSON.parse(aiResponseText);
+          if (finalJson?.choices[0].delta.content) {
+            aiResponseText = finalJson.choices[0].delta.content;
+          }
+        } catch (error) {
+          console.error('Failed to parse final JSON:', aiResponseText, error);
+        }
+        addAiMessageToState(aiResponseText, aiResponseId);
         return;
       }
 
       const chunk = value ? decoder.decode(value, { stream: true }) : '';
-      const lines = chunk.split('\n');
+      aiResponseText += chunk;
 
-      lines.forEach((line) => {
-        if (line) {
-          try {
-            const json = JSON.parse(line);
-            if (json?.choices[0].delta.content) {
-              aiResponseText += json.choices[0].delta.content;
-            }
-          } catch (error) {
-            console.error('Failed to parse JSON:', line, error);
+      // Process the accumulated text only if it's a complete JSON object
+      if (aiResponseText.endsWith('}\n')) {
+        try {
+          const json = JSON.parse(aiResponseText);
+          if (json?.choices[0].delta.content) {
+            aiResponseText = json.choices[0].delta.content;
+            addAiMessageToState(aiResponseText, aiResponseId);
+            aiResponseText = ''; // Reset the accumulated text
           }
+        } catch (error) {
+          console.error('Failed to parse JSON:', aiResponseText, error);
         }
-      });
-
-      addAiMessageToState(aiResponseText, aiResponseId);
+      }
 
       return reader.read().then(processText);
     };
@@ -111,17 +98,28 @@ const Chat = () => {
 
   const sendUserMessage = async (message: string) => {
     if (!message.trim()) return;
+    try {
+      setIsLoading(true);
+      addUserMessageToState(message);
+      const aiResponseId = uuidv4();
+      const userEmail = session?.user?.email as string;
+      const response = await retrieveAIResponse(
+        message,
+        userEmail,
+        isAssistantEnabled
+      );
 
-    addUserMessageToState(message);
-    const aiResponseId = uuidv4();
-    const response = await handleAIResponse(message);
+      if (!response) return;
 
-    if (!response) return;
-
-    if (isAssistantEnabled) {
-      await processResponse(response, aiResponseId);
-    } else {
-      await processStream(response, aiResponseId);
+      if (isAssistantEnabled) {
+        await processResponse(response, aiResponseId);
+      } else {
+        await processStream(response, aiResponseId);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
