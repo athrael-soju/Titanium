@@ -212,7 +212,9 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle style={{ textAlign: 'center' }}>
-        Customize your Assistant
+        {!isAssistantDefined
+          ? 'Create Assistant'
+          : `Customize Assistant: ${name}`}
       </DialogTitle>
       <DialogContent style={{ paddingBottom: 8 }}>
         <AssistantForm
