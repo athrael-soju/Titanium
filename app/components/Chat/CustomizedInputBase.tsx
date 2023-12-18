@@ -7,7 +7,6 @@ import SendIcon from '@mui/icons-material/Send';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import FileUploadIcon from '@mui/icons-material/CloudUpload';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -31,7 +30,6 @@ const CustomizedInputBase = ({
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [inputValue, setInputValue] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isAssistantDefined, setIsAssistantDefined] = useState(false);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [name, setName] = useState<string>('');
@@ -98,11 +96,6 @@ const CustomizedInputBase = ({
     setAnchorEl(null);
   };
 
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-    handleMenuClose();
-  };
-
   const handleAssistantsClick = async () => {
     setIsAssistantDialogOpen(true);
     handleMenuClose();
@@ -140,12 +133,6 @@ const CustomizedInputBase = ({
             horizontal: 'right',
           }}
         >
-          <MenuItem onClick={handleUploadClick}>
-            <ListItemIcon>
-              <FileUploadIcon />
-            </ListItemIcon>
-            Upload File
-          </MenuItem>
           <MenuItem onClick={handleAssistantsClick}>
             <ListItemIcon>
               <AssistantIcon />

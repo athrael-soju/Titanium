@@ -84,7 +84,7 @@ const uploadFile = async (
     formData.append('file', file);
     formData.append('userEmail', userEmail);
 
-    const fileUploadResponse = await fetch('/api/upload', {
+    const fileUploadResponse = await fetch('/api/assistant/upload', {
       method: 'POST',
       body: formData,
     });

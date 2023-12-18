@@ -66,7 +66,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleAccept = async () => {
+  const handleCreate = async () => {
     let hasError = false;
     if (!name) {
       setError((prev) => ({ ...prev, name: true }));
@@ -76,10 +76,13 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       setError((prev) => ({ ...prev, description: true }));
       hasError = true;
     }
-    if (hasError) return;
+    if (hasError) {
+      return;
+    } else {
+      setError({ name: false, description: false });
+    }
 
     try {
-      onClose();
       setIsLoading(true);
       if (session) {
         const userEmail = session.user?.email as string;
@@ -110,6 +113,30 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleCloseClick = async () => {
+    try {
+      onClose();
+      setIsLoading(true);
+      if (isAssistantDefined) {
+        const userEmail = session?.user?.email as string;
+        const retrieveAssistantResponse = await retrieveAssistant({
+          userEmail,
+        });
+        setName(retrieveAssistantResponse.assistant.name);
+        setDescription(retrieveAssistantResponse.assistant.instructions);
+        setIsAssistantEnabled(retrieveAssistantResponse.isAssistantEnabled);
+      } else {
+        setName('');
+        setDescription('');
+        setIsAssistantEnabled(false);
+      }
+    } catch (error) {
+      console.error('Failed to close assistant dialog:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleReset = () => {
@@ -170,7 +197,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     const userEmail = session?.user?.email as string;
     try {
       setIsLoading(true);
-      onClose();
       await deleteAssistant({ userEmail });
       console.log('Assistant deleted successfully');
       files.splice(0, files.length);
@@ -201,39 +227,54 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       <DialogActions style={{ paddingTop: 0 }}>
         <Box
           display="flex"
-          justifyContent="center"
-          alignItems="center"
+          flexDirection="column"
+          alignItems="stretch"
           width="100%"
         >
-          <Button onClick={handleAccept}>Accept</Button>
-          <Button onClick={handleReset}>Reset</Button>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button
+            onClick={handleCreate}
+            style={{ marginBottom: '8px' }}
+            variant="outlined"
+            color="success"
+          >
+            {isAssistantDefined ? 'Update' : 'Create'}
+          </Button>
           <Button
             onClick={handleAssistantDelete}
             disabled={!isAssistantDefined}
+            style={{ marginBottom: '8px' }}
+            variant="outlined"
+            color="error"
           >
             Delete
           </Button>
-          <Button onClick={handleUploadClick}>Add File</Button>
-          <Typography variant="caption" sx={{ mx: 1 }}>
-            Off
-          </Typography>
-          <Switch
-            checked={isAssistantEnabled}
-            onChange={handleToggle}
-            name="activeAssistant"
-          />
-          <Typography variant="caption" sx={{ mx: 1 }}>
-            On
-          </Typography>
-          <input
-            type="file"
-            ref={fileInputRef}
-            style={{ display: 'none' }}
-            onChange={handleFileSelect}
-          />
+          <Box display="flex" justifyContent="center" alignItems="center">
+            <Button onClick={handleCloseClick}>Close Window</Button>
+            <Button onClick={handleUploadClick} disabled={!isAssistantDefined}>
+              Add File
+            </Button>
+            <Typography variant="caption" sx={{ mx: 1 }}>
+              Disable
+            </Typography>
+            <Switch
+              checked={isAssistantEnabled}
+              onChange={handleToggle}
+              name="activeAssistant"
+              disabled={!isAssistantDefined}
+            />
+            <Typography variant="caption" sx={{ mx: 1 }}>
+              Enable
+            </Typography>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              onChange={handleFileSelect}
+            />
+          </Box>
         </Box>
       </DialogActions>
+
       <ConfirmationDialog
         open={isConfirmDialogOpen}
         onClose={() => setIsConfirmDialogOpen(false)}

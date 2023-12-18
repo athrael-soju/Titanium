@@ -113,7 +113,7 @@ const Chat = () => {
       setIsLoading(false);
     }
   };
-  
+
   async function processResponse(
     response: ReadableStreamDefaultReader<Uint8Array> | Response,
     aiResponseId: string

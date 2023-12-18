@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'User not found' }, { status: 404 });
   }
 
-  if (user.isAssistantEnabled) {
+  if (user.assistantId) {
     try {
       const addFileToAssistantResponse = await processFileUpload(user, file);
       return NextResponse.json(
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     }
   } else {
     return NextResponse.json(
-      { message: 'Assistant must be enabled to upload files' },
+      { message: 'Assistant must be created before files can be uploaded' },
       { status: 400 }
     );
   }
