@@ -61,35 +61,27 @@ const Chat = () => {
       value?: Uint8Array;
     }): Promise<void> => {
       if (done) {
-        // Try parsing the final accumulated text after reading is done
-        try {
-          const finalJson = JSON.parse(aiResponseText);
-          if (finalJson?.choices[0].delta.content) {
-            aiResponseText = finalJson.choices[0].delta.content;
-          }
-        } catch (error) {
-          console.error('Failed to parse final JSON:', aiResponseText, error);
-        }
-        addAiMessageToState(aiResponseText, aiResponseId);
         return;
       }
 
       const chunk = value ? decoder.decode(value, { stream: true }) : '';
-      aiResponseText += chunk;
+      const lines = chunk.split('\n');
 
-      // Process the accumulated text only if it's a complete JSON object
-      if (aiResponseText.endsWith('}\n')) {
-        try {
-          const json = JSON.parse(aiResponseText);
-          if (json?.choices[0].delta.content) {
-            aiResponseText = json.choices[0].delta.content;
-            addAiMessageToState(aiResponseText, aiResponseId);
-            aiResponseText = ''; // Reset the accumulated text
+      lines.forEach((line) => {
+        console.log('line:', line);
+        if (line) {
+          try {
+            const json = JSON.parse(line);
+            if (json?.choices[0].delta.content) {
+              aiResponseText += json.choices[0].delta.content;
+            }
+          } catch (error) {
+            console.error('Failed to parse JSON:', line, error);
           }
-        } catch (error) {
-          console.error('Failed to parse JSON:', aiResponseText, error);
         }
-      }
+      });
+
+      addAiMessageToState(aiResponseText, aiResponseId);
 
       return reader.read().then(processText);
     };
