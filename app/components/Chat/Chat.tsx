@@ -1,5 +1,4 @@
 'use client';
-
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import MessagesField from './MessagesField';
@@ -7,15 +6,14 @@ import styles from './Chat.module.css';
 import Loader from './Loader';
 import { useSession } from 'next-auth/react';
 import CustomizedInputBase from './CustomizedInputBase';
+import { retrieveAIResponse } from '@/app/services/chatService';
 interface IMessage {
   text: string;
   sender: 'user' | 'ai';
   id: string;
 }
-
 const Chat = () => {
   const { data: session } = useSession();
-
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAssistantEnabled, setIsAssistantEnabled] = useState<boolean>(false);
@@ -26,7 +24,6 @@ const Chat = () => {
       { text: `🧑‍💻 ${message}`, sender: 'user', id: userMessageId },
     ]);
   };
-
   const addAiMessageToState = (
     aiResponseText: string,
     aiResponseId: string
@@ -36,26 +33,6 @@ const Chat = () => {
       { text: `🤖 ${aiResponseText}`, sender: 'ai', id: aiResponseId },
     ]);
   };
-
-  const handleAIResponse = async (userMessage: string) => {
-    try {
-      const userEmail = session?.user?.email;
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userMessage, userEmail }),
-      });
-      if (isAssistantEnabled) {
-        return response;
-      } else {
-        return response.body?.getReader();
-      }
-    } catch (error) {
-      console.error('Failed to fetch AI response:', error);
-      return undefined;
-    }
-  };
-
   const processAIResponseStream = async (
     reader: ReadableStreamDefaultReader<Uint8Array> | undefined,
     aiResponseId: string
@@ -66,10 +43,8 @@ const Chat = () => {
       );
       return;
     }
-
     const decoder = new TextDecoder();
     let aiResponseText = '';
-
     const processText = async ({
       done,
       value,
@@ -101,20 +76,66 @@ const Chat = () => {
 
       return reader.read().then(processText);
     };
+
     await reader.read().then(processText);
   };
-
   const sendUserMessage = async (message: string) => {
-    if (message.trim()) {
+    if (!message.trim()) return;
+    try {
+      setIsLoading(true);
       addUserMessageToState(message);
       const aiResponseId = uuidv4();
-      const reader = await handleAIResponse(message);
-      if (reader instanceof ReadableStreamDefaultReader) {
-        await processAIResponseStream(reader, aiResponseId);
+      const userEmail = session?.user?.email as string;
+      const response = await retrieveAIResponse(
+        message,
+        userEmail,
+        isAssistantEnabled
+      );
+      if (!response) return;
+      if (isAssistantEnabled) {
+        await processResponse(response, aiResponseId);
+      } else {
+        await processStream(response, aiResponseId);
       }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
-
+  async function processResponse(
+    response: ReadableStreamDefaultReader<Uint8Array> | Response,
+    aiResponseId: string
+  ) {
+    if (!(response instanceof Response)) {
+      console.error('Expected a Response object, received:', response);
+      return;
+    }
+    try {
+      const contentType = response.headers.get('Content-Type');
+      const data = await response.json();
+      addAiMessageToState(data, aiResponseId);
+    } catch (error) {
+      console.error('Error processing response:', error);
+    }
+  }
+  async function processStream(
+    stream: ReadableStreamDefaultReader<Uint8Array> | Response,
+    aiResponseId: string
+  ) {
+    if (!(stream instanceof ReadableStreamDefaultReader)) {
+      console.error(
+        'Expected a ReadableStreamDefaultReader object, received:',
+        stream
+      );
+      return;
+    }
+    try {
+      await processAIResponseStream(stream, aiResponseId);
+    } catch (error) {
+      console.error('Error processing stream:', error);
+    }
+  }
   if (session) {
     return (
       <>
