@@ -44,22 +44,29 @@ const Chat = () => {
       return;
     }
     const decoder = new TextDecoder();
+    let buffer = '';
     let aiResponseText = '';
-    const processText = async ({
-      done,
-      value,
-    }: {
-      done: boolean;
-      value?: Uint8Array;
-    }): Promise<void> => {
-      if (done) {
-        return;
-      }
 
-      const chunk = value ? decoder.decode(value, { stream: true }) : '';
-      const lines = chunk.split('\n');
-      lines.forEach((line) => {
-        console.log('lines:', line);
+    const processChunk = async () => {
+      const { done, value } = await reader.read();
+      if (done) {
+        // Process any remaining data in buffer
+        processBuffer();
+        return true; // Indicates the stream has ended
+      }
+      buffer += value ? decoder.decode(value, { stream: true }) : '';
+      processBuffer();
+      return false; // Indicates more data might be available
+    };
+
+    const processBuffer = () => {
+      let boundary = buffer.lastIndexOf('\n');
+      if (boundary === -1) return; // No complete JSON object to process
+
+      let completeData = buffer.substring(0, boundary);
+      buffer = buffer.substring(boundary + 1); // Keep incomplete part in buffer
+
+      completeData.split('\n').forEach((line) => {
         if (line) {
           try {
             const json = JSON.parse(line);
@@ -71,14 +78,15 @@ const Chat = () => {
           }
         }
       });
-
       addAiMessageToState(aiResponseText, aiResponseId);
-
-      return reader.read().then(processText);
     };
 
-    await reader.read().then(processText);
+    let isDone = false;
+    while (!isDone) {
+      isDone = await processChunk();
+    }
   };
+
   const sendUserMessage = async (message: string) => {
     if (!message.trim()) return;
     try {
