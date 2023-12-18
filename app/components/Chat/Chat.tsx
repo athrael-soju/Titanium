@@ -19,7 +19,6 @@ const Chat = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAssistantEnabled, setIsAssistantEnabled] = useState<boolean>(false);
-
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
     setMessages((prevMessages) => [
@@ -39,18 +38,13 @@ const Chat = () => {
   };
 
   const handleAIResponse = async (userMessage: string) => {
-    const userEmail = session?.user?.email as string;
     try {
-      setIsLoading(true);
+      const userEmail = session?.user?.email;
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userMessage, userEmail }),
       });
-      setIsLoading(false);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
       if (isAssistantEnabled) {
         return response;
       } else {
@@ -58,52 +52,17 @@ const Chat = () => {
       }
     } catch (error) {
       console.error('Failed to fetch AI response:', error);
+      return undefined;
     }
   };
 
-  const sendUserMessage = async (message: string) => {
-    if (!message.trim()) return;
-
-    addUserMessageToState(message);
-    const aiResponseId = uuidv4();
-    const response = await handleAIResponse(message);
-
-    if (!response) return;
-
-    if (isAssistantEnabled && response instanceof Response) {
-      await processResponse(response, aiResponseId);
-    } else if (response instanceof ReadableStreamDefaultReader) {
-      await processStream(response, aiResponseId);
-    }
-  };
-
-  async function processResponse(
-    response: ReadableStreamDefaultReader<Uint8Array> | Response,
+  const processAIResponseStream = async (
+    reader: ReadableStreamDefaultReader<Uint8Array> | undefined,
     aiResponseId: string
-  ) {
-    if (!(response instanceof Response)) {
-      console.error('Expected a Response object, received:', response);
-      return;
-    }
-
-    try {
-      const contentType = response.headers.get('Content-Type');
-      const data = contentType?.includes('application/json')
-        ? await response.json()
-        : await response.text();
-      addAiMessageToState(data, aiResponseId);
-    } catch (error) {
-      console.error('Error processing response:', error);
-    }
-  }
-
-  async function processStream(
-    stream: ReadableStreamDefaultReader<Uint8Array>,
-    aiResponseId: string
-  ) {
-    if (!stream) {
+  ) => {
+    if (!reader) {
       console.error(
-        'No stream available for processing the AI response stream.'
+        'No reader available for processing the AI response stream.'
       );
       return;
     }
@@ -140,10 +99,21 @@ const Chat = () => {
 
       addAiMessageToState(aiResponseText, aiResponseId);
 
-      return stream.read().then(processText);
+      return reader.read().then(processText);
     };
-    await stream.read().then(processText);
-  }
+    await reader.read().then(processText);
+  };
+
+  const sendUserMessage = async (message: string) => {
+    if (message.trim()) {
+      addUserMessageToState(message);
+      const aiResponseId = uuidv4();
+      const reader = await handleAIResponse(message);
+      if (reader instanceof ReadableStreamDefaultReader) {
+        await processAIResponseStream(reader, aiResponseId);
+      }
+    }
+  };
 
   if (session) {
     return (
