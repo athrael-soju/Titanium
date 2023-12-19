@@ -1,11 +1,11 @@
 'use client';
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import MessagesField from '../MessagesField/MessagesField';
-import styles from './Chat.module.css';
-import Loader from './Loader';
+import MessagesField from '../MessagesField';
+import styles from './index.module.css';
+import Loader from '../Loader';
 import { useSession } from 'next-auth/react';
-import CustomizedInputBase from './CustomizedInputBase';
+import CustomizedInputBase from '../CustomizedInputBase';
 import { retrieveAIResponse } from '@/app/services/chatService';
 interface IMessage {
   text: string;

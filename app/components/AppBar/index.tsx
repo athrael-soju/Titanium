@@ -13,7 +13,7 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import BlurOnRoundedIcon from '@mui/icons-material/BlurOnRounded';
-import styles from './ResponsiveAppBar.module.css';
+import styles from './index.module.css';
 const pages = ['About'];
 const settings = ['Account', 'Logout'];
 

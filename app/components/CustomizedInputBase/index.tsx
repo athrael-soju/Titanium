@@ -10,7 +10,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import AssistantDialog from '../Assistant/AssistantDialog';
+import AssistantDialog from '../Assistant';
 import { retrieveAssistant } from '@/app/services/assistantService';
 import { useSession } from 'next-auth/react';
 
