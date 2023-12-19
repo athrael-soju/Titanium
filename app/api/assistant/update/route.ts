@@ -9,7 +9,8 @@ async function createOrUpdateAssistant(
   name: string,
   description: string,
   isAssistantEnabled: boolean,
-  usersCollection: any
+  usersCollection: any,
+  files: { name: string; id: string; assistandId: string }[]
 ) {
   let assistant, thread;
   if (!user.assistantId) {
@@ -19,6 +20,7 @@ async function createOrUpdateAssistant(
       name: name,
       tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
       model: process.env.OPENAI_API_MODEL as string,
+      file_ids: files.map((file) => file.id),
     });
     thread = await openai.beta.threads.create();
     await usersCollection.updateOne(
@@ -38,7 +40,7 @@ async function createOrUpdateAssistant(
       name: name,
       tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
       model: process.env.OPENAI_API_MODEL as string,
-      file_ids: [],
+      file_ids: files.map((file) => file.id),
     });
     thread = await openai.beta.threads.retrieve(user.threadId as string);
     await usersCollection.updateOne(
@@ -53,7 +55,7 @@ export async function POST(req: NextRequest) {
   try {
     const client = await clientPromise;
     const db = client.db();
-    const { userEmail, name, description, isAssistantEnabled } =
+    const { userEmail, name, description, isAssistantEnabled, files } =
       await req.json();
 
     if (
@@ -79,7 +81,8 @@ export async function POST(req: NextRequest) {
       name,
       description,
       isAssistantEnabled,
-      usersCollection
+      usersCollection,
+      files
     );
 
     return NextResponse.json(
