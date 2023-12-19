@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import styles from './MessagesField.module.css';
+import styles from './index.module.css';
 
 interface IMessage {
   text: string;

@@ -1,11 +1,11 @@
 'use client';
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import MessagesField from './MessagesField';
-import styles from './Chat.module.css';
-import Loader from './Loader';
+import MessagesField from '../MessagesField';
+import styles from './index.module.css';
+import Loader from '../Loader';
 import { useSession } from 'next-auth/react';
-import CustomizedInputBase from './CustomizedInputBase';
+import CustomizedInputBase from '../CustomizedInputBase';
 import { retrieveAIResponse } from '@/app/services/chatService';
 interface IMessage {
   text: string;
@@ -51,40 +51,44 @@ const Chat = () => {
       const { done, value } = await reader.read();
       if (done) {
         // Process any remaining data in buffer
-        processBuffer();
+        processBuffer(buffer, aiResponseId, aiResponseText);
         return true; // Indicates the stream has ended
       }
       buffer += value ? decoder.decode(value, { stream: true }) : '';
-      processBuffer();
+      processBuffer(buffer, aiResponseId, aiResponseText);
       return false; // Indicates more data might be available
-    };
-
-    const processBuffer = () => {
-      let boundary = buffer.lastIndexOf('\n');
-      if (boundary === -1) return; // No complete JSON object to process
-
-      let completeData = buffer.substring(0, boundary);
-      buffer = buffer.substring(boundary + 1); // Keep incomplete part in buffer
-
-      completeData.split('\n').forEach((line) => {
-        if (line) {
-          try {
-            const json = JSON.parse(line);
-            if (json?.choices[0]?.delta?.content) {
-              aiResponseText += json.choices[0].delta.content;
-            }
-          } catch (error) {
-            console.error('Failed to parse JSON:', line, error);
-          }
-        }
-      });
-      addAiMessageToState(aiResponseText, aiResponseId);
     };
 
     let isDone = false;
     while (!isDone) {
       isDone = await processChunk();
     }
+  };
+
+  const processBuffer = (
+    buffer: string,
+    aiResponseId: string,
+    aiResponseText: string
+  ) => {
+    let boundary = buffer.lastIndexOf('\n');
+    if (boundary === -1) return;
+
+    let completeData = buffer.substring(0, boundary);
+    buffer = buffer.substring(boundary + 1); // Keep incomplete part in buffer
+
+    completeData.split('\n').forEach((line) => {
+      if (line) {
+        try {
+          const json = JSON.parse(line);
+          if (json?.choices[0]?.delta?.content) {
+            aiResponseText += json.choices[0].delta.content;
+          }
+        } catch (error) {
+          console.error('Failed to parse JSON:', line, error);
+        }
+      }
+    });
+    addAiMessageToState(aiResponseText, aiResponseId);
   };
 
   const sendUserMessage = async (message: string) => {
