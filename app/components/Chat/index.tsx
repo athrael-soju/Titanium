@@ -51,11 +51,11 @@ const Chat = () => {
       const { done, value } = await reader.read();
       if (done) {
         // Process any remaining data in buffer
-        processBuffer(buffer, aiResponseId, aiResponseText) as string;
+        processBuffer(buffer, aiResponseId, aiResponseText);
         return true; // Indicates the stream has ended
       }
       buffer += value ? decoder.decode(value, { stream: true }) : '';
-      processBuffer(buffer, aiResponseId, aiResponseText) as string;
+      processBuffer(buffer, aiResponseId, aiResponseText);
       return false; // Indicates more data might be available
     };
 
@@ -89,7 +89,6 @@ const Chat = () => {
       }
     });
     addAiMessageToState(aiResponseText, aiResponseId);
-    return buffer;
   };
 
   const sendUserMessage = async (message: string) => {
