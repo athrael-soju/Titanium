@@ -20,7 +20,7 @@ async function createOrUpdateAssistant(
       name: name,
       tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
       model: process.env.OPENAI_API_MODEL as string,
-      file_ids: files.map((file) => file.id),
+      file_ids: [],
     });
     thread = await openai.beta.threads.create();
     await usersCollection.updateOne(
