@@ -5,6 +5,7 @@ interface AssistantUpdateData {
   description: string;
   isAssistantEnabled: boolean;
   userEmail: string;
+  files: { name: string; id: string; assistandId: string }[];
 }
 
 interface AssistantRetrieveData {
@@ -16,6 +17,7 @@ const updateAssistant = async ({
   description,
   isAssistantEnabled,
   userEmail,
+  files,
 }: AssistantUpdateData): Promise<any> => {
   try {
     const response = await axios.post('/api/assistant/update', {
@@ -23,6 +25,7 @@ const updateAssistant = async ({
       description,
       isAssistantEnabled,
       userEmail,
+      files,
     });
     return response.data;
   } catch (error) {

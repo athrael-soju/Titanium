@@ -91,6 +91,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           description,
           isAssistantEnabled,
           userEmail,
+          files,
         });
         setIsAssistantDefined(true);
         console.log('Assistant updated successfully');
