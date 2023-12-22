@@ -8,9 +8,11 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import AssistantIcon from '@mui/icons-material/Assistant';
+import VisionIcon from '@mui/icons-material/Visibility';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import AssistantDialog from '../Assistant';
+import VisionDialog from '../Vision';
 import { retrieveAssistant } from '@/app/services/assistantService';
 import { useSession } from 'next-auth/react';
 
@@ -32,6 +34,7 @@ const CustomizedInputBase = ({
   const [inputValue, setInputValue] = useState('');
   const [isAssistantDefined, setIsAssistantDefined] = useState(false);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
+  const [isVisionDialogOpen, setIsVisionDialogOpen] = React.useState(false);
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const files = useRef<{ name: string; id: string; assistandId: string }[]>([]);
@@ -101,6 +104,11 @@ const CustomizedInputBase = ({
     handleMenuClose();
   };
 
+  const handleVisionClick = () => {
+    setIsVisionDialogOpen(true);
+    handleMenuClose();
+  };
+
   return (
     <>
       <Paper
@@ -139,6 +147,15 @@ const CustomizedInputBase = ({
             </ListItemIcon>
             Assistant
           </MenuItem>
+          <MenuItem onClick={handleVisionClick}>
+            {' '}
+            {/* Add this new menu item */}
+            <ListItemIcon>
+              <VisionIcon fontSize="small" />{' '}
+              {/* Replace with your actual Vision icon */}
+            </ListItemIcon>
+            Vision
+          </MenuItem>
         </Menu>
         <InputBase
           sx={{ ml: 1, flex: 1 }}
@@ -155,7 +172,6 @@ const CustomizedInputBase = ({
           <SendIcon />
         </IconButton>
       </Paper>
-
       <AssistantDialog
         open={isAssistantDialogOpen}
         onClose={() => setIsAssistantDialogOpen(false)}
@@ -171,6 +187,10 @@ const CustomizedInputBase = ({
         files={files.current}
         updateFiles={updateFiles}
       />
+      <VisionDialog
+        open={isVisionDialogOpen}
+        onClose={() => setIsVisionDialogOpen(false)}
+      />{' '}
     </>
   );
 };
