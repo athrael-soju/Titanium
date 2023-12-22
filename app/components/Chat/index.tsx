@@ -17,6 +17,7 @@ const Chat = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAssistantEnabled, setIsAssistantEnabled] = useState<boolean>(false);
+  const [isVisionEnabled, setIsVisionEnabled] = useState<boolean>(false);
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
     setMessages((prevMessages) => [
@@ -161,6 +162,8 @@ const Chat = () => {
             onSendMessage={sendUserMessage}
             isAssistantEnabled={isAssistantEnabled}
             setIsAssistantEnabled={setIsAssistantEnabled}
+            isVisionEnabled={isVisionEnabled}
+            setIsVisionEnabled={setIsVisionEnabled}
           />
         </div>
       </>

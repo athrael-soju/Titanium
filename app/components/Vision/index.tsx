@@ -11,7 +11,11 @@ import {
 } from '@mui/material';
 import VisionFileList from './VisionFileList';
 import { useSession } from 'next-auth/react';
-import { updateVision, retrieveVision, deleteVisionFile } from '@/app/services/visionService';
+import {
+  retrieveVision,
+  deleteVisionFile,
+  uploadVisionFile,
+} from '@/app/services/visionService';
 
 interface VisionDialogProps {
   open: boolean;
@@ -20,10 +24,8 @@ interface VisionDialogProps {
   setIsVisionEnabled: (isVisionEnabled: boolean) => void;
   onToggleVision?: (isVisionEnabled: boolean) => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  visionFiles: { name: string; id: string; visionId: string }[];
-  updateVisionFiles: (
-    newVisionFiles: { name: string; id: string; visionId: string }[]
-  ) => void;
+  visionFiles: { name: string; id: string }[];
+  updateVisionFiles: (newVisionFiles: { name: string; id: string }[]) => void;
 }
 
 const VisionDialog: React.FC<VisionDialogProps> = ({
@@ -88,12 +90,12 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       const userEmail = session?.user?.email as string;
       try {
         setIsLoading(true);
-        const fileUploadResponse = await uploadFile(file, userEmail);
+        const fileUploadResponse = await uploadVisionFile(file, userEmail);
         const retrieveAssistantResponse = await retrieveVision({
           userEmail,
         });
         if (retrieveAssistantResponse.assistant) {
-          updateFiles(retrieveAssistantResponse.VisionFileList);
+          updateVisionFiles(retrieveAssistantResponse.VisionFileList);
         }
         if (fileUploadResponse?.status === 200) {
           console.log('File uploaded successfully', fileUploadResponse);
@@ -106,43 +108,13 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     }
   };
 
-  const handleAssistantDelete = () => {
-    setIsConfirmDialogOpen(true);
-  };
-
-  const performAssistantDelete = async () => {
-    setIsConfirmDialogOpen(false);
-    const userEmail = session?.user?.email as string;
-    try {
-      setIsLoading(true);
-      await deleteAssistant({ userEmail });
-      console.log('Assistant deleted successfully');
-      files.splice(0, files.length);
-      handleReset();
-      setIsAssistantDefined(false);
-    } catch (error) {
-      console.error('Error deleting assistant:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle style={{ textAlign: 'center' }}>
-        {!isAssistantDefined
-          ? 'Create Assistant'
-          : `Customize Assistant: ${name}`}
+        Add Vision Images
       </DialogTitle>
       <DialogContent style={{ paddingBottom: 8 }}>
-        <AssistantForm
-          name={name}
-          setName={setName}
-          description={description}
-          setDescription={setDescription}
-          error={error}
-        />
-        <FileList files={files} onDelete={handleFileDelete} />
+        <VisionFileList files={visionFiles} onDelete={handleFileDelete} />
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box
@@ -151,55 +123,32 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           alignItems="stretch"
           width="100%"
         >
-          <Button
-            onClick={handleCreate}
-            style={{ marginBottom: '8px' }}
-            variant="outlined"
-            color="success"
-          >
-            {isAssistantDefined ? 'Update' : 'Create'}
-          </Button>
-          <Button
-            onClick={handleAssistantDelete}
-            disabled={!isAssistantDefined}
-            style={{ marginBottom: '8px' }}
-            variant="outlined"
-            color="error"
-          >
-            Delete
-          </Button>
           <Box display="flex" justifyContent="center" alignItems="center">
             <Button onClick={handleCloseClick}>Close Window</Button>
-            <Button onClick={handleUploadClick} disabled={!isAssistantDefined}>
+            <Button onClick={handleUploadClick} disabled={!isVisionEnabled}>
               Add File
             </Button>
             <Typography variant="caption" sx={{ mx: 1 }}>
               Disable
             </Typography>
             <Switch
-              checked={isAssistantEnabled}
+              checked={isVisionEnabled}
               onChange={handleToggle}
               name="activeAssistant"
-              disabled={!isAssistantDefined}
+              disabled={!isVisionEnabled}
             />
             <Typography variant="caption" sx={{ mx: 1 }}>
               Enable
             </Typography>
             <input
               type="file"
-              ref={fileInputRef}
+              ref={visionFileInputRef}
               style={{ display: 'none' }}
               onChange={handleFileSelect}
             />
           </Box>
         </Box>
       </DialogActions>
-
-      <ConfirmationDialog
-        open={isConfirmDialogOpen}
-        onClose={() => setIsConfirmDialogOpen(false)}
-        onConfirm={performAssistantDelete}
-      />
     </Dialog>
   );
 };

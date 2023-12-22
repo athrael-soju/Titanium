@@ -21,11 +21,15 @@ const CustomizedInputBase = ({
   onSendMessage,
   isAssistantEnabled,
   setIsAssistantEnabled,
+  isVisionEnabled,
+  setIsVisionEnabled,
 }: {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   onSendMessage: (message: string) => void;
   isAssistantEnabled: boolean;
   setIsAssistantEnabled: (isAssistantEnabled: boolean) => void;
+  isVisionEnabled: boolean;
+  setIsVisionEnabled: (isVisionEnabled: boolean) => void;
 }) => {
   const { data: session } = useSession();
   const theme = useTheme();
@@ -42,6 +46,12 @@ const CustomizedInputBase = ({
     newFiles: { name: string; id: string; assistandId: string }[]
   ) => {
     files.current = newFiles;
+  };
+  const visionFiles = useRef<{ name: string; id: string }[]>([]);
+  const updateVisionFiles = (
+    newVisionFiles: { name: string; id: string }[]
+  ) => {
+    visionFiles.current = newVisionFiles;
   };
   useEffect(() => {
     const prefetchAssistantData = async () => {
@@ -190,7 +200,12 @@ const CustomizedInputBase = ({
       <VisionDialog
         open={isVisionDialogOpen}
         onClose={() => setIsVisionDialogOpen(false)}
-      />{' '}
+        isVisionEnabled={isVisionEnabled}
+        setIsVisionEnabled={setIsVisionEnabled}
+        setIsLoading={setIsLoading}
+        visionFiles={visionFiles.current}
+        updateVisionFiles={updateVisionFiles}
+      />
     </>
   );
 };
