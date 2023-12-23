@@ -5,4 +5,5 @@ interface IUser {
   assistantId?: string | null;
   threadId?: string | null;
   isAssistantEnabled: boolean;
+  isVisionEnabled: boolean;
 }

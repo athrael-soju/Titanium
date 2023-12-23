@@ -29,7 +29,8 @@ async function createOrUpdateAssistant(
         $set: {
           assistantId: assistant.id,
           threadId: thread.id,
-          isAssistantEnabled,
+          isAssistantEnabled: isAssistantEnabled,
+          isVisionEnabled: false,
         },
       }
     );
@@ -45,7 +46,12 @@ async function createOrUpdateAssistant(
     thread = await openai.beta.threads.retrieve(user.threadId as string);
     await usersCollection.updateOne(
       { email: user.email },
-      { $set: { isAssistantEnabled } }
+      {
+        $set: {
+          isAssistantEnabled: isAssistantEnabled,
+          isVisionEnabled: false,
+        },
+      }
     );
   }
   return { assistant, thread };

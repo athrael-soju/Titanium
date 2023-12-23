@@ -12,6 +12,7 @@ import {
 import VisionFileList from './VisionFileList';
 import { useSession } from 'next-auth/react';
 import {
+  updateVision,
   retrieveVision,
   deleteVisionFile,
   uploadVisionFile,
@@ -64,6 +65,27 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       setIsVisionEnabled(retrieveVisionResponse.isVisionEnabled);
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      setIsLoading(true);
+      if (session) {
+        const userEmail = session.user?.email as string;
+        await updateVision({
+          isVisionEnabled,
+          userEmail,
+          visionFiles,
+        });
+        console.log('Vision updated successfully');
+      } else {
+        throw new Error('No session found');
+      }
+    } catch (error) {
+      console.error('Error updating Vision:', error);
     } finally {
       setIsLoading(false);
     }
@@ -123,6 +145,14 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           alignItems="stretch"
           width="100%"
         >
+          <Button
+            onClick={handleUpdate}
+            style={{ marginBottom: '8px' }}
+            variant="outlined"
+            color="success"
+          >
+            Update
+          </Button>
           <Box display="flex" justifyContent="center" alignItems="center">
             <Button onClick={handleCloseClick}>Close Window</Button>
             <Button onClick={handleUploadClick} disabled={!isVisionEnabled}>
@@ -135,7 +165,6 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
               checked={isVisionEnabled}
               onChange={handleToggle}
               name="activeAssistant"
-              disabled={!isVisionEnabled}
             />
             <Typography variant="caption" sx={{ mx: 1 }}>
               Enable

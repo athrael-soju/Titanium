@@ -33,6 +33,7 @@ const updateAssistant = async ({
     throw error;
   }
 };
+
 const retrieveAssistant = async ({
   userEmail,
 }: AssistantRetrieveData): Promise<any> => {

@@ -3,6 +3,29 @@ import axios from 'axios';
 interface VisionRetrieveData {
   userEmail: string;
 }
+interface VisionUpdateData {
+  isVisionEnabled: boolean;
+  userEmail: string;
+  visionFiles: { name: string; id: string }[];
+}
+
+const updateVision = async ({
+  isVisionEnabled,
+  userEmail,
+  visionFiles,
+}: VisionUpdateData): Promise<any> => {
+  try {
+    const response = await axios.post('/api/vision/update', {
+      isVisionEnabled,
+      userEmail,
+      visionFiles,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    throw error;
+  }
+};
 
 const retrieveVision = async ({
   userEmail,
@@ -50,4 +73,4 @@ const uploadVisionFile = async (
   }
 };
 
-export { retrieveVision, deleteVisionFile, uploadVisionFile };
+export { updateVision, retrieveVision, deleteVisionFile, uploadVisionFile };
