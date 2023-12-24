@@ -56,11 +56,13 @@ const deleteVisionFile = async ({ file }: { file: string }): Promise<any> => {
 
 const uploadVisionFile = async (
   file: File,
-  userEmail: string
+  userEmail: string,
+  type: string
 ): Promise<Response | undefined> => {
   try {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('type', type);
     formData.append('userEmail', userEmail);
 
     const fileUploadResponse = await fetch('/api/vision/upload', {

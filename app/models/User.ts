@@ -6,4 +6,5 @@ interface IUser {
   threadId?: string | null;
   isAssistantEnabled: boolean;
   isVisionEnabled: boolean;
+  visionFiles: { name: string; type: string; url: string }[];
 }
