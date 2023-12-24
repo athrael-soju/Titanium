@@ -47,10 +47,6 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
 
   const handleAddUrlClick = () => {
     setIsAddUrlDialogOpen(true);
-    visionFiles.push({
-      name: 'URL',
-      id: 'url',
-    });
   };
 
   const handleCloseClick = async () => {
@@ -88,7 +84,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     }
   };
 
-  const handleFileDelete = async (file: any) => {
+  const handleUrlRemove = async (file: any) => {
     try {
       setIsLoading(true);
       await deleteVisionFile({ file });
@@ -108,7 +104,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           Add Vision Images
         </DialogTitle>
         <DialogContent style={{ paddingBottom: 8 }}>
-          <VisionFileList files={visionFiles} onDelete={handleFileDelete} />
+          <VisionFileList files={visionFiles} onDelete={handleUrlRemove} />
         </DialogContent>
         <DialogActions style={{ paddingTop: 0 }}>
           <Box
@@ -134,7 +130,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
               <Switch
                 checked={isVisionEnabled}
                 onChange={handleToggle}
-                name="activeAssistant"
+                name="activeVision"
               />
               <Typography variant="caption" sx={{ mx: 1 }}>
                 Enable
@@ -158,6 +154,11 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
         onAddUrl={(url: string) => {
           console.log('URL added:', url);
           // Add your logic to handle the URL here
+          visionFiles.push({
+            name: 'URL',
+            id: 'url',
+          });
+          updateVisionFiles(visionFiles);
         }}
       />
     </>
