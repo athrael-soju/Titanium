@@ -52,6 +52,8 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    if (user.visionId) {
+    }
     return NextResponse.json(
       { message: 'No assistant found for the user' },
       { status: 200 }

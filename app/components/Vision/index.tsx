@@ -23,9 +23,25 @@ interface VisionDialogProps {
   onClose: () => void;
   isVisionEnabled: boolean;
   setIsVisionEnabled: (isVisionEnabled: boolean) => void;
+  isVisionDefined: boolean;
+  setIsVisionDefined: (isVisionDefined: boolean) => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  visionFiles: { name: string; id: string }[];
-  updateVisionFiles: (newVisionFiles: { name: string; id: string }[]) => void;
+  visionFiles: {
+    id: string;
+    visionId: string;
+    name: string;
+    type: string;
+    url: string;
+  }[];
+  updateVisionFiles: (
+    newVisionFiles: {
+      id: string;
+      visionId: string;
+      name: string;
+      type: string;
+      url: string;
+    }[]
+  ) => void;
 }
 
 const VisionDialog: React.FC<VisionDialogProps> = ({
@@ -33,6 +49,8 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   onClose,
   isVisionEnabled,
   setIsVisionEnabled,
+  isVisionDefined,
+  setIsVisionDefined,
   setIsLoading,
   visionFiles,
   updateVisionFiles,
@@ -53,9 +71,13 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     try {
       onClose();
       setIsLoading(true);
-      const userEmail = session?.user?.email as string;
-      const retrieveVisionResponse = await retrieveVision({ userEmail });
-      setIsVisionEnabled(retrieveVisionResponse.isVisionEnabled);
+      if (isVisionDefined) {
+        const userEmail = session?.user?.email as string;
+        const retrieveVisionResponse = await retrieveVision({ userEmail });
+        setIsVisionEnabled(retrieveVisionResponse.isVisionEnabled);
+      } else {
+        setIsVisionEnabled(false);
+      }
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);
     } finally {
@@ -155,8 +177,11 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           console.log('URL added:', url);
           // Add your logic to handle the URL here
           visionFiles.push({
-            name: 'URL',
-            id: 'url',
+            id: '2342342342342',
+            visionId: '2342342342342',
+            name: 'Just a URL',
+            type: 'url',
+            url: 'https://www.google.com',
           });
           updateVisionFiles(visionFiles);
         }}

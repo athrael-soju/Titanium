@@ -67,6 +67,9 @@ async function handlePostRequest(req: NextRequest) {
       }
 
       return new Response(assistantMessageContent.text.value);
+    } else if (user.isVisionEnabled && user.visionId) {
+      // Process and respond with the vision's message
+      return new Response('Vision is enabled, but not yet implemented');
     } else {
       const completion = openai.beta.chat.completions.stream({
         model: process.env.OPENAI_API_MODEL ?? 'gpt-4-1106-preview',

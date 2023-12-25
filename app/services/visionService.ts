@@ -6,7 +6,13 @@ interface VisionRetrieveData {
 interface VisionUpdateData {
   isVisionEnabled: boolean;
   userEmail: string;
-  visionFiles: { name: string; id: string }[];
+  visionFiles: {
+    id: string;
+    visionId: string;
+    name: string;
+    type: string;
+    url: string;
+  }[];
 }
 
 const updateVision = async ({

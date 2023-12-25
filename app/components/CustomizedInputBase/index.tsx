@@ -13,7 +13,7 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
-import { retrieveAssistant } from '@/app/services/assistantService';
+import { retrieveServices } from '@/app/services/commonService';
 import { useSession } from 'next-auth/react';
 
 const CustomizedInputBase = ({
@@ -37,6 +37,7 @@ const CustomizedInputBase = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [inputValue, setInputValue] = useState('');
   const [isAssistantDefined, setIsAssistantDefined] = useState(false);
+  const [isVisionDefined, setIsVisionDefined] = useState(false);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [isVisionDialogOpen, setIsVisionDialogOpen] = React.useState(false);
   const [name, setName] = useState<string>('');
@@ -47,9 +48,11 @@ const CustomizedInputBase = ({
   ) => {
     files.current = newFiles;
   };
-  const visionFiles = useRef<{ name: string; id: string }[]>([]);
+  const visionFiles = useRef<
+    { id: string; visionId: string, name: string; type: string; url: string }[]
+  >([]);
   const updateVisionFiles = (
-    newVisionFiles: { name: string; id: string }[]
+    newVisionFiles: { id: string; visionId: string, name: string; type: string; url: string }[]
   ) => {
     visionFiles.current = newVisionFiles;
   };
@@ -59,7 +62,7 @@ const CustomizedInputBase = ({
         try {
           setIsLoading(true);
           const userEmail = session.user?.email as string;
-          const response = await retrieveAssistant({ userEmail });
+          const response = await retrieveServices({ userEmail });
           if (response.assistant) {
             setName(response.assistant.name);
             setDescription(response.assistant.instructions);
@@ -68,6 +71,14 @@ const CustomizedInputBase = ({
             setIsAssistantDefined(true);
           } else {
             setIsAssistantDefined(false);
+          }
+
+          if (response.vision) {
+            setIsVisionEnabled(response.isVisionEnabled);
+            visionFiles.current = response.visionFileList;
+            setIsVisionDefined(true);
+          } else {
+            setIsVisionDefined(false);
           }
         } catch (error) {
           console.error('Error prefetching assistant:', error);
@@ -78,7 +89,7 @@ const CustomizedInputBase = ({
     };
 
     prefetchAssistantData();
-  }, [session, setIsAssistantEnabled, setIsLoading]);
+  }, [session, setIsAssistantEnabled, setIsLoading, setIsVisionEnabled]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -202,6 +213,8 @@ const CustomizedInputBase = ({
         onClose={() => setIsVisionDialogOpen(false)}
         isVisionEnabled={isVisionEnabled}
         setIsVisionEnabled={setIsVisionEnabled}
+        isVisionDefined={isVisionDefined}
+        setIsVisionDefined={setIsVisionDefined}
         setIsLoading={setIsLoading}
         visionFiles={visionFiles.current}
         updateVisionFiles={updateVisionFiles}

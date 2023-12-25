@@ -16,11 +16,10 @@ import { useSession } from 'next-auth/react';
 import {
   updateAssistant,
   deleteAssistantFile,
-  retrieveAssistant,
   deleteAssistant,
   uploadFile,
 } from '@/app/services/assistantService';
-
+import { retrieveServices } from '@/app/services/commonService';
 interface AssistantDialogProps {
   open: boolean;
   onClose: () => void;
@@ -122,7 +121,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       setIsLoading(true);
       if (isAssistantDefined) {
         const userEmail = session?.user?.email as string;
-        const retrieveAssistantResponse = await retrieveAssistant({
+        const retrieveAssistantResponse = await retrieveServices({
           userEmail,
         });
         setName(retrieveAssistantResponse.assistant.name);
@@ -172,7 +171,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       try {
         setIsLoading(true);
         const fileUploadResponse = await uploadFile(file, userEmail);
-        const retrieveAssistantResponse = await retrieveAssistant({
+        const retrieveAssistantResponse = await retrieveServices({
           userEmail,
         });
         if (retrieveAssistantResponse.assistant) {

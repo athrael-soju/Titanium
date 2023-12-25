@@ -102,11 +102,14 @@ const Chat = () => {
       const response = await retrieveAIResponse(
         message,
         userEmail,
-        isAssistantEnabled
+        isAssistantEnabled,
+        isVisionEnabled
       );
       if (!response) return;
       if (isAssistantEnabled) {
         await processResponse(response, aiResponseId);
+      } else if (isVisionEnabled) {
+        console.log('Vision enabled, but not implemented yet');
       } else {
         await processStream(response, aiResponseId);
       }

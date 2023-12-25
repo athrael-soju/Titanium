@@ -14,9 +14,9 @@ async function createOrUpdateAssistant(
 ) {
   let assistant,
     thread,
+    isVisionEnabled = user.isVisionEnabled;
+  if (isAssistantEnabled) {
     isVisionEnabled = false;
-  if (!isAssistantEnabled) {
-    isVisionEnabled = true;
   }
   if (!user.assistantId) {
     // Create a new assistant and thread
