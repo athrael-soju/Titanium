@@ -15,6 +15,7 @@ import { useSession } from 'next-auth/react';
 import {
   updateVision,
   retrieveVision,
+  addVisionUrl,
   deleteVisionFile,
 } from '@/app/services/visionService';
 
@@ -173,17 +174,20 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       <AddUrlDialog
         open={isAddUrlDialogOpen}
         onClose={() => setIsAddUrlDialogOpen(false)}
-        onAddUrl={(url: string) => {
-          console.log('URL added:', url);
-          // Add your logic to handle the URL here
-          visionFiles.push({
-            id: '2342342342342',
-            visionId: '2342342342342',
-            name: 'Just a URL',
+        onAddUrl={(urlInput: string, nameInput: string) => {
+          const user = session?.user as any;
+          const userEmail = user.email;
+          const newFile = {
+            id: crypto.randomUUID(),
+            visionId: user.visionId,
+            name: nameInput,
             type: 'url',
-            url: 'https://www.google.com',
-          });
-          updateVisionFiles(visionFiles);
+            url: urlInput,
+          };
+          const newVisionFiles = [...visionFiles, newFile];
+          updateVisionFiles(newVisionFiles);
+          let response = addVisionUrl(newFile, userEmail);
+          console.log('Response from addVisionUrl:', response);
         }}
       />
     </>
