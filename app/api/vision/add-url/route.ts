@@ -23,31 +23,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    const visionId = user.visionId;
+    const visionId = user.visionId as string;
     console.log('visionId', visionId);
     if (!visionId) {
-      return NextResponse.json(
-        { message: 'Vision ID not found for user' },
-        { status: 404 }
+      console.log('No visionId found. Creating a new one');
+      await usersCollection.updateOne(
+        { email: user.email },
+        {
+          $set: {
+            visionId: visionId,
+          },
+        }
       );
     }
 
-    // Check if a list for the visionId exists
-    const existingList = fileCollection.find({
-      visionId: visionId,
+    // Update the existing list with the new file
+    const insertFileResponse = await fileCollection.insertOne(file);
+
+    return NextResponse.json({
+      message: 'File processed successfully',
+      Response: insertFileResponse,
     });
-    console.log('existingList', existingList);
-    if (existingList) {
-      // Update the existing list with the new file
-      await fileCollection.updateOne(
-        { visionId: visionId },
-        { $push: { files: file } }
-      );
-    } else {
-      // Create a new list with the visionId
-    }
-
-    return NextResponse.json({ message: 'File processed successfully' });
   } catch (error) {
     console.error('Unexpected error:', error);
     return NextResponse.json(

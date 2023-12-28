@@ -61,22 +61,22 @@ const deleteVisionFile = async ({ file }: { file: string }): Promise<any> => {
 };
 
 const addVisionUrl = async (
-  file: { name: string; type: string; url: string },
+  file: {
+    id: string;
+    visionId: string;
+    name: string;
+    type: string;
+    url: string;
+  },
   userEmail: string
 ): Promise<Response | undefined> => {
   try {
-    const formData = new FormData();
-    formData.append(
-      'file',
-      new Blob([JSON.stringify(file)], { type: 'application/json' })
-    );
-    formData.append('userEmail', userEmail);
 
-    const fileUploadResponse = await fetch('/api/vision/add-url', {
-      method: 'POST',
-      body: formData,
+    const response = await axios.post('/api/vision/add-url', {
+      file,
+      userEmail,
     });
-    return fileUploadResponse;
+    return response.data;
   } catch (error) {
     console.error('Failed to upload file:', error);
   }

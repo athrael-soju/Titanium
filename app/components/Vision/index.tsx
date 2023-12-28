@@ -59,13 +59,35 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   const { data: session } = useSession();
   const visionFileInputRef = useRef<HTMLInputElement>(null);
   const [isAddUrlDialogOpen, setIsAddUrlDialogOpen] = useState(false);
-
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsVisionEnabled(event.target.checked);
   };
 
   const handleAddUrlClick = () => {
     setIsAddUrlDialogOpen(true);
+  };
+
+  const handleAddUrl = async (urlInput: string, nameInput: string) => {
+    const user = session?.user as any;
+    const userEmail = user.email;
+    let visionId = user.visionId;
+    if (visionId) {
+      console.error('No visionId found for user:', user),
+        'Creating new visionId';
+      visionId = crypto.randomUUID();
+    }
+    const newFile = {
+      id: crypto.randomUUID(),
+      visionId: visionId,
+      name: nameInput,
+      type: 'url',
+      url: urlInput,
+    };
+
+    const newVisionFiles = [...visionFiles, newFile];
+    updateVisionFiles(newVisionFiles);
+    let response = await addVisionUrl(newFile, userEmail);
+    console.log('Response from addVisionUrl:', response);
   };
 
   const handleCloseClick = async () => {
@@ -174,21 +196,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       <AddUrlDialog
         open={isAddUrlDialogOpen}
         onClose={() => setIsAddUrlDialogOpen(false)}
-        onAddUrl={(urlInput: string, nameInput: string) => {
-          const user = session?.user as any;
-          const userEmail = user.email;
-          const newFile = {
-            id: crypto.randomUUID(),
-            visionId: user.visionId,
-            name: nameInput,
-            type: 'url',
-            url: urlInput,
-          };
-          const newVisionFiles = [...visionFiles, newFile];
-          updateVisionFiles(newVisionFiles);
-          let response = addVisionUrl(newFile, userEmail);
-          console.log('Response from addVisionUrl:', response);
-        }}
+        onAddUrl={handleAddUrl}
       />
     </>
   );
