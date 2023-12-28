@@ -134,7 +134,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     }
   };
 
-  const handleUrlRemove = async (file: {
+  const handleRemoveUrl = async (file: {
     id: string;
     visionId: string;
     name: string;
@@ -143,7 +143,9 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   }) => {
     try {
       setIsLoading(true);
-      const response = await deleteVisionFile(file);
+      const user = session?.user as any;
+      const userEmail = user.email;
+      const response = await deleteVisionFile(file, userEmail);
       console.log('File successfully deleted from Vision:', response);
       visionFiles.splice(visionFiles.indexOf(file), 1);
     } catch (error) {
@@ -160,7 +162,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           Add Vision Images
         </DialogTitle>
         <DialogContent style={{ paddingBottom: 8 }}>
-          <VisionFileList files={visionFiles} onDelete={handleUrlRemove} />
+          <VisionFileList files={visionFiles} onDelete={handleRemoveUrl} />
         </DialogContent>
         <DialogActions style={{ paddingTop: 0 }}>
           <Box

@@ -23,13 +23,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    console.log('user', user);
-    console.log('file', file);
-    if (user.visionId) {
+    if (user.visionId === file.visionId) {
       // Update the existing list with the new file
       const deleteFileResponse = await fileCollection.deleteOne({
-        id: file.id,
-        visionId: user.visionId,
+        visionId: file.visionId,
       });
 
       return NextResponse.json({

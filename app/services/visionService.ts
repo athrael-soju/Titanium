@@ -58,16 +58,20 @@ const retrieveVision = async ({
   }
 };
 
-const deleteVisionFile = async (file: {
-  id: string;
-  visionId: string;
-  name: string;
-  type: string;
-  url: string;
-}): Promise<any> => {
+const deleteVisionFile = async (
+  file: {
+    id: string;
+    visionId: string;
+    name: string;
+    type: string;
+    url: string;
+  },
+  userEmail: string
+): Promise<any> => {
   try {
     const response = await axios.post('/api/vision/delete-url/', {
       file,
+      userEmail
     });
     return response.data;
   } catch (error) {
