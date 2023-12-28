@@ -23,15 +23,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    const visionId = user.visionId as string;
-    console.log('visionId', visionId);
-    if (!visionId) {
+    if (!user.visionId) {
       console.log('No visionId found. Creating a new one');
       await usersCollection.updateOne(
         { email: user.email },
         {
           $set: {
-            visionId: visionId,
+            visionId: user.visionId,
           },
         }
       );
