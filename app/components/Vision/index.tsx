@@ -68,26 +68,31 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   };
 
   const handleAddUrl = async (urlInput: string, nameInput: string) => {
-    const user = session?.user as any;
-    const userEmail = user.email;
-    let visionId = user.visionId;
-    if (visionId) {
-      console.error('No visionId found for user:', user),
-        'Creating new visionId';
-      visionId = crypto.randomUUID();
-    }
-    const newFile = {
-      id: crypto.randomUUID(),
-      visionId: visionId,
-      name: nameInput,
-      type: 'url',
-      url: urlInput,
-    };
+    try {
+      setIsLoading(true);
+      const user = session?.user as any;
+      const userEmail = user.email;
+      let id = crypto.randomUUID();
 
-    const newVisionFiles = [...visionFiles, newFile];
-    updateVisionFiles(newVisionFiles);
-    let response = await addVisionUrl(newFile, userEmail);
-    console.log('Response from addVisionUrl:', response);
+      const newFile = {
+        id: id,
+        visionId: '',
+        name: nameInput,
+        type: 'url',
+        url: urlInput,
+      };
+
+      const response = await addVisionUrl({ userEmail, file: newFile });
+
+      newFile.visionId = response.file.visionId;
+      const newVisionFiles = [...visionFiles, newFile];
+      updateVisionFiles(newVisionFiles);
+      console.log('URL successfully added to Vision:', response);
+    } catch (error) {
+      console.error('Failed to add URL to Vision:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCloseClick = async () => {
@@ -129,11 +134,17 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     }
   };
 
-  const handleUrlRemove = async (file: any) => {
+  const handleUrlRemove = async (file: {
+    id: string;
+    visionId: string;
+    name: string;
+    type: string;
+    url: string;
+  }) => {
     try {
       setIsLoading(true);
-      await deleteVisionFile({ file });
-      console.log('File successfully deleted from Vision:', file);
+      const response = await deleteVisionFile(file);
+      console.log('File successfully deleted from Vision:', response);
       visionFiles.splice(visionFiles.indexOf(file), 1);
     } catch (error) {
       console.error('Failed to remove file from Vision:', error);

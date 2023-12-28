@@ -23,30 +23,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    if (!user.visionId) {
-      console.log('No visionId found. Creating a new one');
-      await usersCollection.updateOne(
-        { email: user.email },
-        {
-          $set: {
-            visionId: file.visionId,
-          },
-        }
+    console.log('user', user);
+    console.log('file', file);
+    if (user.visionId) {
+      // Update the existing list with the new file
+      const deleteFileResponse = await fileCollection.deleteOne({
+        id: file.id,
+        visionId: user.visionId,
+      });
+
+      return NextResponse.json({
+        status: 200,
+        message: 'Url deleted successfully',
+        Response: deleteFileResponse,
+      });
+    } else {
+      return NextResponse.json(
+        { message: 'User VisionId not found' },
+        { status: 404 }
       );
     }
-    file.visionId = user.visionId;
-    // Update the existing list with the new file
-    const insertFileResponse = await fileCollection.insertOne(file);
-
-    return NextResponse.json({
-      message: 'File processed successfully',
-      Response: insertFileResponse,
-      file: file,
-    });
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Vision Url deletion unsuccessful:', error);
     return NextResponse.json(
-      { message: 'An error occurred', error: error },
+      {
+        message: 'Vision Url deletion unsuccessful',
+        error,
+      },
       { status: 500 }
     );
   }

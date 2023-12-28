@@ -15,6 +15,16 @@ interface VisionUpdateData {
   }[];
 }
 
+interface VisionAddUrlData {
+  userEmail: string;
+  file: {
+    id: string;
+    visionId: string;
+    name: string;
+    type: string;
+    url: string;
+  };
+}
 const updateVision = async ({
   isVisionEnabled,
   userEmail,
@@ -48,9 +58,15 @@ const retrieveVision = async ({
   }
 };
 
-const deleteVisionFile = async ({ file }: { file: string }): Promise<any> => {
+const deleteVisionFile = async (file: {
+  id: string;
+  visionId: string;
+  name: string;
+  type: string;
+  url: string;
+}): Promise<any> => {
   try {
-    const response = await axios.post('/api/vision/delete-file', {
+    const response = await axios.post('/api/vision/delete-url/', {
       file,
     });
     return response.data;
@@ -60,21 +76,14 @@ const deleteVisionFile = async ({ file }: { file: string }): Promise<any> => {
   }
 };
 
-const addVisionUrl = async (
-  file: {
-    id: string;
-    visionId: string;
-    name: string;
-    type: string;
-    url: string;
-  },
-  userEmail: string
-): Promise<Response | undefined> => {
+const addVisionUrl = async ({
+  userEmail,
+  file,
+}: VisionAddUrlData): Promise<any> => {
   try {
-
     const response = await axios.post('/api/vision/add-url', {
-      file,
       userEmail,
+      file,
     });
     return response.data;
   } catch (error) {
