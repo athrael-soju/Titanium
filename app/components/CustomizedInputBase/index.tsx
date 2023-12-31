@@ -142,6 +142,22 @@ const CustomizedInputBase = ({
     handleMenuClose();
   };
 
+  // Updated setIsVisionEnabled function
+  const handleSetIsVisionEnabled = (value: boolean) => {
+    setIsVisionEnabled(value);
+    if (value) {
+      setIsAssistantEnabled(false);
+    }
+  };
+
+  // Updated setIsAssistantEnabled function
+  const handleSetIsAssistantEnabled = (value: boolean) => {
+    setIsAssistantEnabled(value);
+    if (value) {
+      setIsVisionEnabled(false);
+    }
+  };
+
   return (
     <>
       <Paper
@@ -210,7 +226,7 @@ const CustomizedInputBase = ({
         description={description}
         setDescription={setDescription}
         isAssistantEnabled={isAssistantEnabled}
-        setIsAssistantEnabled={setIsAssistantEnabled}
+        setIsAssistantEnabled={handleSetIsAssistantEnabled}
         isAssistantDefined={isAssistantDefined}
         setIsAssistantDefined={setIsAssistantDefined}
         setIsLoading={setIsLoading}
@@ -223,7 +239,7 @@ const CustomizedInputBase = ({
         isVisionEnabled={isVisionEnabled}
         setIsVisionEnabled={setIsVisionEnabled}
         isVisionDefined={isVisionDefined}
-        setIsVisionDefined={setIsVisionDefined}
+        setIsVisionDefined={handleSetIsVisionEnabled}
         setIsLoading={setIsLoading}
         visionFiles={visionFiles.current}
         updateVisionFiles={updateVisionFiles}
