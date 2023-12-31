@@ -28,13 +28,6 @@ export async function POST(req: NextRequest) {
 
     const { isVisionEnabled, userEmail } = await req.json();
 
-    if (!userEmail || isVisionEnabled === undefined) {
-      return NextResponse.json(
-        { message: 'Missing required parameters' },
-        { status: 400 }
-      );
-    }
-
     const usersCollection = db.collection<IUser>('users');
     const user = await usersCollection.findOne({ email: userEmail });
     if (!user) {

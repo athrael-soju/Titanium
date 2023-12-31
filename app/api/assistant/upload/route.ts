@@ -37,13 +37,6 @@ export async function POST(request: NextRequest) {
   const file = data.get('file') as unknown as File;
   const userEmail = data.get('userEmail') as string;
 
-  if (!userEmail) {
-    return NextResponse.json(
-      { message: 'User email is required' },
-      { status: 400 }
-    );
-  }
-
   const client = await clientPromise;
   const db = client.db();
   const usersCollection = db.collection<IUser>('users');

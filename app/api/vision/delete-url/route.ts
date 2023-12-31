@@ -7,13 +7,6 @@ export async function POST(req: NextRequest) {
     const db = client.db();
     const { file, userEmail } = await req.json();
 
-    if (!userEmail || !file) {
-      return NextResponse.json(
-        { message: 'Missing required parameters' },
-        { status: 400 }
-      );
-    }
-
     const usersCollection = db.collection<IUser>('users');
     const fileCollection = db.collection<IFiles>('files');
 
