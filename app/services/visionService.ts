@@ -28,13 +28,11 @@ interface VisionAddUrlData {
 const updateVision = async ({
   isVisionEnabled,
   userEmail,
-  visionFiles,
 }: VisionUpdateData): Promise<any> => {
   try {
     const response = await axios.post('/api/vision/update', {
       isVisionEnabled,
       userEmail,
-      visionFiles,
     });
     return response.data;
   } catch (error) {
@@ -71,7 +69,7 @@ const deleteVisionFile = async (
   try {
     const response = await axios.post('/api/vision/delete-url/', {
       file,
-      userEmail
+      userEmail,
     });
     return response.data;
   } catch (error) {

@@ -87,6 +87,9 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       newFile.visionId = response.file.visionId;
       const newVisionFiles = [...visionFiles, newFile];
       updateVisionFiles(newVisionFiles);
+
+      await handleUpdate();
+
       console.log('URL successfully added to Vision:', response);
     } catch (error) {
       console.error('Failed to add URL to Vision:', error);
@@ -121,7 +124,6 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
         await updateVision({
           isVisionEnabled,
           userEmail,
-          visionFiles,
         });
         console.log('Vision updated successfully');
       } else {
