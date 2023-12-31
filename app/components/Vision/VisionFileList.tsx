@@ -14,7 +14,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FolderIcon from '@mui/icons-material/Folder';
 
 interface FileListProps {
-  files: { id: string, visionId: string, name: string; type: string; url: string }[];
+  files: {
+    id: string;
+    visionId: string;
+    name: string;
+    type: string;
+    url: string;
+  }[];
   onDelete: (file: any) => void;
 }
 

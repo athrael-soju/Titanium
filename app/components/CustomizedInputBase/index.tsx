@@ -49,20 +49,29 @@ const CustomizedInputBase = ({
     files.current = newFiles;
   };
   const visionFiles = useRef<
-    { id: string; visionId: string, name: string; type: string; url: string }[]
+    { id: string; visionId: string; name: string; type: string; url: string }[]
   >([]);
   const updateVisionFiles = (
-    newVisionFiles: { id: string; visionId: string, name: string; type: string; url: string }[]
+    newVisionFiles: {
+      id: string;
+      visionId: string;
+      name: string;
+      type: string;
+      url: string;
+    }[]
   ) => {
     visionFiles.current = newVisionFiles;
   };
   useEffect(() => {
-    const prefetchAssistantData = async () => {
+    const prefetchData = async () => {
       if (session) {
         try {
           setIsLoading(true);
           const userEmail = session.user?.email as string;
-          const response = await retrieveServices({ userEmail });
+          let response = await retrieveServices({
+            userEmail,
+            serviceName: 'assistant',
+          });
           if (response.assistant) {
             setName(response.assistant.name);
             setDescription(response.assistant.instructions);
@@ -72,8 +81,11 @@ const CustomizedInputBase = ({
           } else {
             setIsAssistantDefined(false);
           }
-
-          if (response.vision) {
+          response = await retrieveServices({
+            userEmail,
+            serviceName: 'vision',
+          });
+          if (response.visionId) {
             setIsVisionEnabled(response.isVisionEnabled);
             visionFiles.current = response.visionFileList;
             setIsVisionDefined(true);
@@ -88,7 +100,7 @@ const CustomizedInputBase = ({
       }
     };
 
-    prefetchAssistantData();
+    prefetchData();
   }, [session, setIsAssistantEnabled, setIsLoading, setIsVisionEnabled]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
@@ -169,11 +181,8 @@ const CustomizedInputBase = ({
             Assistant
           </MenuItem>
           <MenuItem onClick={handleVisionClick}>
-            {' '}
-            {/* Add this new menu item */}
             <ListItemIcon>
               <VisionIcon fontSize="small" />{' '}
-              {/* Replace with your actual Vision icon */}
             </ListItemIcon>
             Vision
           </MenuItem>

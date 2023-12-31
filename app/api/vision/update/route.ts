@@ -10,14 +10,6 @@ async function updateVision(
   if (isVisionEnabled) {
     isAssistantEnabled = false;
   }
-  const client = await clientPromise;
-  const db = client.db();
-  const fileCollection = db.collection<IFiles>('files');
-  const visionId = user.visionId as string;
-  const collectionFileList = await fileCollection
-    .find({ visionId: visionId })
-    .toArray();
-
   await usersCollection.updateOne(
     { email: user.email },
     {
@@ -27,8 +19,6 @@ async function updateVision(
       },
     }
   );
-
-  return { collectionFileList };
 }
 
 export async function POST(req: NextRequest) {
@@ -36,7 +26,7 @@ export async function POST(req: NextRequest) {
     const client = await clientPromise;
     const db = client.db();
 
-    const { isVisionEnabled, userEmail, visionFiles } = await req.json();
+    const { isVisionEnabled, userEmail } = await req.json();
 
     if (!userEmail || isVisionEnabled === undefined) {
       return NextResponse.json(
@@ -51,17 +41,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    const { collectionFileList } = await updateVision(
-      user,
-      usersCollection,
-      isVisionEnabled
-    );
+    await updateVision(user, usersCollection, isVisionEnabled);
 
     return NextResponse.json(
       {
         message: 'Vision updated',
         visionId: user.visionId,
-        collectionFileList,
+        isVisionEnabled: isVisionEnabled,
       },
       { status: 200 }
     );

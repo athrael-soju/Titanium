@@ -6,6 +6,7 @@ const openai = new OpenAI();
 
 export async function GET(req: NextRequest) {
   const userEmail = req.headers.get('userEmail');
+  const serviceName = req.headers.get('serviceName');
   if (!userEmail) {
     return NextResponse.json(
       { message: 'userEmail header is required' },
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    if (user.assistantId) {
+    if (serviceName === 'assistant' && user.assistantId) {
       const [assistant, thread, fileList] = await Promise.all([
         openai.beta.assistants.retrieve(user.assistantId),
         openai.beta.threads.retrieve(user.threadId as string),
@@ -50,9 +51,22 @@ export async function GET(req: NextRequest) {
         },
         { status: 200 }
       );
-    }
+    } else if (serviceName === 'vision' && user.visionId) {
+      const fileCollection = db.collection<IFiles>('files');
 
-    if (user.visionId) {
+      const visionFileList = await fileCollection
+        .find({ visionId: user.visionId })
+        .toArray();
+
+      return NextResponse.json(
+        {
+          message: 'Vision updated',
+          visionId: user.visionId,
+          visionFileList,
+          isVisionEnabled: user.isVisionEnabled,
+        },
+        { status: 200 }
+      );
     }
     return NextResponse.json(
       { message: 'No assistant found for the user' },

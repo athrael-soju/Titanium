@@ -3,16 +3,10 @@ import axios from 'axios';
 interface VisionRetrieveData {
   userEmail: string;
 }
+
 interface VisionUpdateData {
   isVisionEnabled: boolean;
   userEmail: string;
-  visionFiles: {
-    id: string;
-    visionId: string;
-    name: string;
-    type: string;
-    url: string;
-  }[];
 }
 
 interface VisionAddUrlData {
@@ -25,6 +19,7 @@ interface VisionAddUrlData {
     url: string;
   };
 }
+
 const updateVision = async ({
   isVisionEnabled,
   userEmail,
@@ -34,21 +29,6 @@ const updateVision = async ({
       isVisionEnabled,
       userEmail,
     });
-    return response.data;
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    throw error;
-  }
-};
-
-const retrieveVision = async ({
-  userEmail,
-}: VisionRetrieveData): Promise<any> => {
-  try {
-    const response = await axios.get(`/api/vision/retrieve/`, {
-      headers: { userEmail: userEmail },
-    });
-
     return response.data;
   } catch (error) {
     console.error('Unexpected error:', error);
@@ -93,4 +73,4 @@ const addVisionUrl = async ({
   }
 };
 
-export { updateVision, retrieveVision, deleteVisionFile, addVisionUrl };
+export { updateVision, deleteVisionFile, addVisionUrl };

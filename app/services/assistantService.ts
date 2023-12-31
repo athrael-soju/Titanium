@@ -1,7 +1,5 @@
 import axios from 'axios';
 
-import { retrieveServices } from './commonService';
-
 interface AssistantUpdateData {
   name: string;
   description: string;

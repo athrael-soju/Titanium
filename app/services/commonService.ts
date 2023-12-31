@@ -1,15 +1,17 @@
 import axios from 'axios';
 
-interface retrieveServicesData {
+interface RetrieveServicesData {
   userEmail: string;
+  serviceName: string;
 }
 
 const retrieveServices = async ({
   userEmail,
-}: retrieveServicesData): Promise<any> => {
+  serviceName,
+}: RetrieveServicesData): Promise<any> => {
   try {
     const response = await axios.get(`/api/common/retrieve/`, {
-      headers: { userEmail: userEmail },
+      headers: { userEmail: userEmail, serviceName: serviceName },
     });
 
     return response.data;

@@ -14,11 +14,10 @@ import AddUrlDialog from './AddUrlDialog';
 import { useSession } from 'next-auth/react';
 import {
   updateVision,
-  retrieveVision,
   addVisionUrl,
   deleteVisionFile,
 } from '@/app/services/visionService';
-
+import { retrieveServices } from '@/app/services/commonService';
 interface VisionDialogProps {
   open: boolean;
   onClose: () => void;
@@ -26,6 +25,7 @@ interface VisionDialogProps {
   setIsVisionEnabled: (isVisionEnabled: boolean) => void;
   isVisionDefined: boolean;
   setIsVisionDefined: (isVisionDefined: boolean) => void;
+  onToggleVision?: (isVisionEnabled: boolean) => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   visionFiles: {
     id: string;
@@ -52,6 +52,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   setIsVisionEnabled,
   isVisionDefined,
   setIsVisionDefined,
+  onToggleVision,
   setIsLoading,
   visionFiles,
   updateVisionFiles,
@@ -61,6 +62,9 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   const [isAddUrlDialogOpen, setIsAddUrlDialogOpen] = useState(false);
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsVisionEnabled(event.target.checked);
+    if (onToggleVision) {
+      onToggleVision(event.target.checked);
+    }
   };
 
   const handleAddUrlClick = () => {
@@ -104,7 +108,10 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       setIsLoading(true);
       if (isVisionDefined) {
         const userEmail = session?.user?.email as string;
-        const retrieveVisionResponse = await retrieveVision({ userEmail });
+        const retrieveVisionResponse = await retrieveServices({
+          userEmail,
+          serviceName: 'vision',
+        });
         setIsVisionEnabled(retrieveVisionResponse.isVisionEnabled);
       } else {
         setIsVisionEnabled(false);
@@ -125,6 +132,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           isVisionEnabled,
           userEmail,
         });
+        setIsVisionDefined(true);
         console.log('Vision updated successfully');
       } else {
         throw new Error('No session found');

@@ -123,6 +123,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
         const userEmail = session?.user?.email as string;
         const retrieveAssistantResponse = await retrieveServices({
           userEmail,
+          serviceName: 'assistant',
         });
         setName(retrieveAssistantResponse.assistant.name);
         setDescription(retrieveAssistantResponse.assistant.instructions);
@@ -173,6 +174,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
         const fileUploadResponse = await uploadFile(file, userEmail);
         const retrieveAssistantResponse = await retrieveServices({
           userEmail,
+          serviceName: 'assistant',
         });
         if (retrieveAssistantResponse.assistant) {
           updateFiles(retrieveAssistantResponse.fileList);
