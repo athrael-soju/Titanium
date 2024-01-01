@@ -6,7 +6,8 @@ Titanium is a modern web application built with Next.js, using MaterialUI for th
 - Customizable, Multipurpose Assistants with File Upload. ✅ (Also supports complete deletion of all Assistant related data)
 - Code Interpretation/Generation. ✅ (Supported as part of Assistants implementation)
 - Query/Discussion of uploaded documents. ✅ (Supported as part of Assistants implementation)
-- Image Analysis/Generation.
+- Vision via 'gpt-4-vision-preview'. ✅ (Currently supports Image Analysis for multiple url's. File uploads may come later, but not a priority)
+- Image Generationvia DALLE-3.
 - Traditional RAG, using Vector DB's.
 - Persistent multi-user memory.
 
