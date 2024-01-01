@@ -8,9 +8,6 @@ export async function POST(req: NextRequest) {
     const { file, userEmail } = await req.json();
 
     const usersCollection = db.collection<IUser>('users');
-    const fileCollection = db.collection<IFiles>('files');
-
-    // Retrieve the user's visionId
     const user = await usersCollection.findOne({ email: userEmail });
     if (!user) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
@@ -28,7 +25,7 @@ export async function POST(req: NextRequest) {
       );
     }
     file.visionId = user.visionId;
-    // Update the existing list with the new file
+    const fileCollection = db.collection<IFiles>('files');
     const insertFileResponse = await fileCollection.insertOne(file);
 
     return NextResponse.json({
