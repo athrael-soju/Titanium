@@ -67,6 +67,35 @@ async function handlePostRequest(req: NextRequest) {
       }
 
       return new Response(assistantMessageContent.text.value);
+    } else if (user.isVisionEnabled && user.visionId) {
+      const content = [{ type: 'text', text: userMessage }] as any[];
+      const fileCollection = db.collection<IFiles>('files');
+      const visionFileList = await fileCollection
+        .find({ visionId: user.visionId })
+        .toArray();
+
+      if (visionFileList) {
+        visionFileList.forEach((file: { url: any }) => {
+          content.push({
+            type: 'image_url',
+            image_url: {
+              url: file.url,
+            },
+          });
+        });
+      }
+      const response = openai.beta.chat.completions.stream({
+        model: 'gpt-4-vision-preview',
+        messages: [
+          {
+            role: 'user',
+            content: content,
+          },
+        ],
+        stream: true,
+        max_tokens: 1024,
+      });
+      return new Response(response.toReadableStream());
     } else {
       const completion = openai.beta.chat.completions.stream({
         model: process.env.OPENAI_API_MODEL ?? 'gpt-4-1106-preview',

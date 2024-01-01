@@ -17,6 +17,7 @@ const Chat = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAssistantEnabled, setIsAssistantEnabled] = useState<boolean>(false);
+  const [isVisionEnabled, setIsVisionEnabled] = useState<boolean>(false);
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
     setMessages((prevMessages) => [
@@ -101,11 +102,14 @@ const Chat = () => {
       const response = await retrieveAIResponse(
         message,
         userEmail,
-        isAssistantEnabled
+        isAssistantEnabled,
+        isVisionEnabled
       );
       if (!response) return;
       if (isAssistantEnabled) {
         await processResponse(response, aiResponseId);
+      } else if (isVisionEnabled) {
+        await processStream(response, aiResponseId);
       } else {
         await processStream(response, aiResponseId);
       }
@@ -161,6 +165,8 @@ const Chat = () => {
             onSendMessage={sendUserMessage}
             isAssistantEnabled={isAssistantEnabled}
             setIsAssistantEnabled={setIsAssistantEnabled}
+            isVisionEnabled={isVisionEnabled}
+            setIsVisionEnabled={setIsVisionEnabled}
           />
         </div>
       </>

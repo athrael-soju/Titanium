@@ -1,7 +1,8 @@
 const retrieveAIResponse = async (
   userMessage: string,
   userEmail: string,
-  isAssistantEnabled: boolean
+  isAssistantEnabled: boolean,
+  isVisionEnabled: boolean
 ): Promise<Response | ReadableStreamDefaultReader<Uint8Array> | undefined> => {
   try {
     const response = await fetch('/api/chat', {
@@ -11,6 +12,8 @@ const retrieveAIResponse = async (
     });
     if (isAssistantEnabled) {
       return response;
+    } else if (isVisionEnabled) {
+      return response.body?.getReader();
     } else {
       return response.body?.getReader();
     }

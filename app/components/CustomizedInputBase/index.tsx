@@ -8,10 +8,12 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import AssistantIcon from '@mui/icons-material/Assistant';
+import VisionIcon from '@mui/icons-material/Visibility';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import AssistantDialog from '../Assistant';
-import { retrieveAssistant } from '@/app/services/assistantService';
+import VisionDialog from '../Vision';
+import { retrieveServices } from '@/app/services/commonService';
 import { useSession } from 'next-auth/react';
 
 const CustomizedInputBase = ({
@@ -19,11 +21,15 @@ const CustomizedInputBase = ({
   onSendMessage,
   isAssistantEnabled,
   setIsAssistantEnabled,
+  isVisionEnabled,
+  setIsVisionEnabled,
 }: {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   onSendMessage: (message: string) => void;
   isAssistantEnabled: boolean;
   setIsAssistantEnabled: (isAssistantEnabled: boolean) => void;
+  isVisionEnabled: boolean;
+  setIsVisionEnabled: (isVisionEnabled: boolean) => void;
 }) => {
   const { data: session } = useSession();
   const theme = useTheme();
@@ -31,7 +37,9 @@ const CustomizedInputBase = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [inputValue, setInputValue] = useState('');
   const [isAssistantDefined, setIsAssistantDefined] = useState(false);
+  const [isVisionDefined, setIsVisionDefined] = useState(false);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
+  const [isVisionDialogOpen, setIsVisionDialogOpen] = React.useState(false);
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
   const files = useRef<{ name: string; id: string; assistandId: string }[]>([]);
@@ -40,13 +48,30 @@ const CustomizedInputBase = ({
   ) => {
     files.current = newFiles;
   };
+  const visionFiles = useRef<
+    { id: string; visionId: string; name: string; type: string; url: string }[]
+  >([]);
+  const updateVisionFiles = (
+    newVisionFiles: {
+      id: string;
+      visionId: string;
+      name: string;
+      type: string;
+      url: string;
+    }[]
+  ) => {
+    visionFiles.current = newVisionFiles;
+  };
   useEffect(() => {
-    const prefetchAssistantData = async () => {
+    const prefetchData = async () => {
       if (session) {
         try {
           setIsLoading(true);
           const userEmail = session.user?.email as string;
-          const response = await retrieveAssistant({ userEmail });
+          let response = await retrieveServices({
+            userEmail,
+            serviceName: 'assistant',
+          });
           if (response.assistant) {
             setName(response.assistant.name);
             setDescription(response.assistant.instructions);
@@ -56,6 +81,17 @@ const CustomizedInputBase = ({
           } else {
             setIsAssistantDefined(false);
           }
+          response = await retrieveServices({
+            userEmail,
+            serviceName: 'vision',
+          });
+          if (response.visionId) {
+            setIsVisionEnabled(response.isVisionEnabled);
+            visionFiles.current = response.visionFileList;
+            setIsVisionDefined(true);
+          } else {
+            setIsVisionDefined(false);
+          }
         } catch (error) {
           console.error('Error prefetching assistant:', error);
         } finally {
@@ -64,8 +100,8 @@ const CustomizedInputBase = ({
       }
     };
 
-    prefetchAssistantData();
-  }, [session, setIsAssistantEnabled, setIsLoading]);
+    prefetchData();
+  }, [session, setIsAssistantEnabled, setIsLoading, setIsVisionEnabled]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -99,6 +135,25 @@ const CustomizedInputBase = ({
   const handleAssistantsClick = async () => {
     setIsAssistantDialogOpen(true);
     handleMenuClose();
+  };
+
+  const handleVisionClick = () => {
+    setIsVisionDialogOpen(true);
+    handleMenuClose();
+  };
+
+  const handleSetIsVisionEnabled = (value: boolean) => {
+    setIsVisionEnabled(value);
+    if (value) {
+      setIsAssistantEnabled(false);
+    }
+  };
+
+  const handleSetIsAssistantEnabled = (value: boolean) => {
+    setIsAssistantEnabled(value);
+    if (value) {
+      setIsVisionEnabled(false);
+    }
   };
 
   return (
@@ -139,6 +194,12 @@ const CustomizedInputBase = ({
             </ListItemIcon>
             Assistant
           </MenuItem>
+          <MenuItem onClick={handleVisionClick}>
+            <ListItemIcon>
+              <VisionIcon fontSize="small" />{' '}
+            </ListItemIcon>
+            Vision
+          </MenuItem>
         </Menu>
         <InputBase
           sx={{ ml: 1, flex: 1 }}
@@ -155,7 +216,6 @@ const CustomizedInputBase = ({
           <SendIcon />
         </IconButton>
       </Paper>
-
       <AssistantDialog
         open={isAssistantDialogOpen}
         onClose={() => setIsAssistantDialogOpen(false)}
@@ -164,12 +224,23 @@ const CustomizedInputBase = ({
         description={description}
         setDescription={setDescription}
         isAssistantEnabled={isAssistantEnabled}
-        setIsAssistantEnabled={setIsAssistantEnabled}
+        setIsAssistantEnabled={handleSetIsAssistantEnabled}
         isAssistantDefined={isAssistantDefined}
         setIsAssistantDefined={setIsAssistantDefined}
         setIsLoading={setIsLoading}
         files={files.current}
         updateFiles={updateFiles}
+      />
+      <VisionDialog
+        open={isVisionDialogOpen}
+        onClose={() => setIsVisionDialogOpen(false)}
+        isVisionEnabled={isVisionEnabled}
+        setIsVisionEnabled={setIsVisionEnabled}
+        isVisionDefined={isVisionDefined}
+        setIsVisionDefined={handleSetIsVisionEnabled}
+        setIsLoading={setIsLoading}
+        visionFiles={visionFiles.current}
+        updateVisionFiles={updateVisionFiles}
       />
     </>
   );

@@ -1,4 +1,4 @@
-// FileList.js
+// VisionFileList.js
 import React from 'react';
 import {
   ListItem,
@@ -11,12 +11,18 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FolderIcon from '@mui/icons-material/Folder';
 import FilePaper from '../FileList';
 
-interface FileListProps {
-  files: { name: string; id: string; assistandId: string }[];
+interface VisionFileListProps {
+  files: {
+    id: string;
+    visionId: string;
+    name: string;
+    type: string;
+    url: string;
+  }[];
   onDelete: (file: any) => void;
 }
 
-const FileList: React.FC<FileListProps> = ({ files, onDelete }) => (
+const VisionFileList: React.FC<VisionFileListProps> = ({ files, onDelete }) => (
   <FilePaper
     files={files}
     renderFileItem={(file) => (
@@ -43,4 +49,4 @@ const FileList: React.FC<FileListProps> = ({ files, onDelete }) => (
   />
 );
 
-export default FileList;
+export default VisionFileList;

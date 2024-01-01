@@ -12,7 +12,12 @@ async function createOrUpdateAssistant(
   usersCollection: any,
   files: { name: string; id: string; assistandId: string }[]
 ) {
-  let assistant, thread;
+  let assistant,
+    thread,
+    isVisionEnabled = user.isVisionEnabled;
+  if (isAssistantEnabled) {
+    isVisionEnabled = false;
+  }
   if (!user.assistantId) {
     // Create a new assistant and thread
     assistant = await openai.beta.assistants.create({
@@ -29,7 +34,8 @@ async function createOrUpdateAssistant(
         $set: {
           assistantId: assistant.id,
           threadId: thread.id,
-          isAssistantEnabled,
+          isAssistantEnabled: isAssistantEnabled,
+          isVisionEnabled: isVisionEnabled,
         },
       }
     );
@@ -45,7 +51,12 @@ async function createOrUpdateAssistant(
     thread = await openai.beta.threads.retrieve(user.threadId as string);
     await usersCollection.updateOne(
       { email: user.email },
-      { $set: { isAssistantEnabled } }
+      {
+        $set: {
+          isAssistantEnabled: isAssistantEnabled,
+          isVisionEnabled: isVisionEnabled,
+        },
+      }
     );
   }
   return { assistant, thread };
