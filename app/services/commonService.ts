@@ -10,7 +10,8 @@ const retrieveServices = async ({
   serviceName,
 }: RetrieveServicesData): Promise<any> => {
   try {
-    const response = await axios.get(`/api/common/retrieve/`, {
+    let apiRoute = serviceName === 'vision' ? 'vision' : 'assistant';
+    const response = await axios.get(`/api/${apiRoute}/retrieve/`, {
       headers: { userEmail: userEmail, serviceName: serviceName },
     });
 
