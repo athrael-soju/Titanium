@@ -109,7 +109,7 @@ const Chat = () => {
       if (isAssistantEnabled) {
         await processResponse(response, aiResponseId);
       } else if (isVisionEnabled) {
-        console.log('Vision enabled, but not implemented yet');
+        await processStream(response, aiResponseId);
       } else {
         await processStream(response, aiResponseId);
       }

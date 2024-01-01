@@ -12,11 +12,9 @@ const retrieveAIResponse = async (
     });
     if (isAssistantEnabled) {
       return response;
-    } 
-    else if (isVisionEnabled) {
-      return response;
-    }
-    else {
+    } else if (isVisionEnabled) {
+      return response.body?.getReader();
+    } else {
       return response.body?.getReader();
     }
   } catch (error) {

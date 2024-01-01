@@ -142,7 +142,6 @@ const CustomizedInputBase = ({
     handleMenuClose();
   };
 
-  // Updated setIsVisionEnabled function
   const handleSetIsVisionEnabled = (value: boolean) => {
     setIsVisionEnabled(value);
     if (value) {
@@ -150,7 +149,6 @@ const CustomizedInputBase = ({
     }
   };
 
-  // Updated setIsAssistantEnabled function
   const handleSetIsAssistantEnabled = (value: boolean) => {
     setIsAssistantEnabled(value);
     if (value) {
