@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse, NextFetchEvent } from 'next/server';
+import { NextResponse } from 'next/server';
 import { Collection, Db } from 'mongodb';
 import clientPromise from '@/app/lib/client/mongodb';
 
