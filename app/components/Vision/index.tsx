@@ -128,12 +128,12 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       setIsLoading(true);
       if (session) {
         const userEmail = session.user?.email as string;
-        await updateVision({
+        const updateVisionResponse = await updateVision({
           isVisionEnabled,
           userEmail,
         });
         setIsVisionDefined(true);
-        console.log('Vision updated successfully');
+        console.log('Vision updated successfully', updateVisionResponse);
       } else {
         throw new Error('No session found');
       }

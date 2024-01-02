@@ -86,6 +86,7 @@ const CustomizedInputBase = ({
             serviceName: 'vision',
           });
           if (response.visionId) {
+            console.log('response.visionId', response);
             setIsVisionEnabled(response.isVisionEnabled);
             visionFiles.current = response.visionFileList;
             setIsVisionDefined(true);
@@ -235,9 +236,9 @@ const CustomizedInputBase = ({
         open={isVisionDialogOpen}
         onClose={() => setIsVisionDialogOpen(false)}
         isVisionEnabled={isVisionEnabled}
-        setIsVisionEnabled={setIsVisionEnabled}
+        setIsVisionEnabled={handleSetIsVisionEnabled}
         isVisionDefined={isVisionDefined}
-        setIsVisionDefined={handleSetIsVisionEnabled}
+        setIsVisionDefined={setIsVisionDefined}
         setIsLoading={setIsLoading}
         visionFiles={visionFiles.current}
         updateVisionFiles={updateVisionFiles}

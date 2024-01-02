@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '../../../lib/client/mongodb';
+import { getDb, getUserByEmail, sendErrorResponse } from '@/app/lib/utils';
+import { Collection } from 'mongodb';
 
 async function updateVision(
   user: IUser,
-  usersCollection: any,
+  usersCollection: Collection<IUser>,
   isVisionEnabled: boolean
-) {
-  let isAssistantEnabled = user.isAssistantEnabled;
-  if (isVisionEnabled) {
-    isAssistantEnabled = false;
-  }
+): Promise<void> {
+  let isAssistantEnabled = isVisionEnabled ? false : user.isAssistantEnabled;
+
   await usersCollection.updateOne(
     { email: user.email },
     {
@@ -21,17 +20,19 @@ async function updateVision(
   );
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const client = await clientPromise;
-    const db = client.db();
-
-    const { isVisionEnabled, userEmail } = await req.json();
+    const db = await getDb();
+    const { isVisionEnabled, userEmail } = (await req.json()) as {
+      isVisionEnabled: boolean;
+      userEmail: string;
+    };
 
     const usersCollection = db.collection<IUser>('users');
-    const user = await usersCollection.findOne({ email: userEmail });
+    const user = await getUserByEmail(usersCollection, userEmail);
+
     if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+      return sendErrorResponse('User not found', 404);
     }
 
     await updateVision(user, usersCollection, isVisionEnabled);
@@ -45,10 +46,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('Error in assistant update:', error);
-    return NextResponse.json(
-      { message: 'Error in assistant update', error: error.message },
-      { status: 500 }
-    );
+    console.error('Error in vision update:', error);
+    return sendErrorResponse('Error in vision update', 500);
   }
 }

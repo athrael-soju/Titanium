@@ -1,31 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '@/app/lib/client/mongodb';
-import OpenAI from 'openai';
+import { getDb, getUserByEmail, sendErrorResponse } from '@/app/lib/utils';
 
-const openai = new OpenAI();
-
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const userEmail = req.headers.get('userEmail');
   const serviceName = req.headers.get('serviceName');
+
   if (!userEmail) {
-    return NextResponse.json(
-      { message: 'userEmail header is required' },
-      { status: 400 }
-    );
+    return sendErrorResponse('userEmail header is required', 400);
   }
 
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDb();
     const usersCollection = db.collection<IUser>('users');
-    const user = await usersCollection.findOne({ email: userEmail });
+    const user = await getUserByEmail(usersCollection, userEmail);
+
     if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+      return sendErrorResponse('User not found', 404);
     }
 
     if (serviceName === 'vision' && user.visionId) {
-      const fileCollection = db.collection<IFiles>('files');
-
+      const fileCollection = db.collection<IFile>('files');
       const visionFileList = await fileCollection
         .find({ visionId: user.visionId })
         .toArray();
@@ -40,15 +34,10 @@ export async function GET(req: NextRequest) {
         { status: 200 }
       );
     }
-    return NextResponse.json(
-      { message: 'Vision not configured for the user' },
-      { status: 200 }
-    );
+
+    return sendErrorResponse('Vision not configured for the user', 200);
   } catch (error: any) {
-    console.error('Error retrieving assistant:', error);
-    return NextResponse.json(
-      { message: 'Error retrieving assistant', error: error.message },
-      { status: 500 }
-    );
+    console.error('Error retrieving vision:', error);
+    return sendErrorResponse('Error retrieving vision', 500);
   }
 }

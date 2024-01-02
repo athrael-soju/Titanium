@@ -1,4 +1,4 @@
-interface IFiles {
+interface IFile {
   visionId: string;
   name: string;
   type: string;
