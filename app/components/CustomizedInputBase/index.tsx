@@ -93,7 +93,7 @@ const CustomizedInputBase = ({
             setIsVisionDefined(false);
           }
         } catch (error) {
-          console.error('Error prefetching assistant:', error);
+          console.error('Error prefetching services:', error);
         } finally {
           setIsLoading(false);
         }

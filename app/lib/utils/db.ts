@@ -1,6 +1,6 @@
+import { NextRequest, NextResponse, NextFetchEvent } from 'next/server';
 import { Collection, Db } from 'mongodb';
 import clientPromise from '@/app/lib/client/mongodb';
-import { NextRequest, NextResponse } from 'next/server';
 
 export const getDb = async (): Promise<Db> => {
   const client = await clientPromise;
@@ -22,12 +22,13 @@ export const sendErrorResponse = (
   return NextResponse.json({ message }, { status });
 };
 
-export async function getDatabaseAndUser(req: NextRequest) {
-  const db = await getDb();
-  const { file, userEmail } = (await req.json()) as {
-    file: IFile;
-    userEmail: string;
-  };
+export async function getDatabaseAndUser(
+  db: Db,
+  userEmail: string
+): Promise<{ db: Db; user: IUser }> {
+  if (!userEmail) {
+    throw new Error('User email is required');
+  }
 
   const usersCollection = db.collection<IUser>('users');
   const user = await getUserByEmail(usersCollection, userEmail);
@@ -36,5 +37,15 @@ export async function getDatabaseAndUser(req: NextRequest) {
     throw new Error('User not found');
   }
 
-  return { db, user, file };
+  return { db, user };
+}
+
+export function handleErrorResponse(error: Error): NextResponse {
+  console.error('Error:', error.message);
+  const status =
+    error.message === 'User not found' ||
+    error.message === 'User email is required'
+      ? 404
+      : 500;
+  return sendErrorResponse(error.message, status);
 }

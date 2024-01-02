@@ -1,25 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, sendErrorResponse, getUserByEmail } from '@/app/lib/utils/db';
+import {
+  getDatabaseAndUser,
+  getDb,
+  handleErrorResponse,
+  sendErrorResponse,
+} from '@/app/lib/utils/db';
 import OpenAI from 'openai';
 
 const openai = new OpenAI();
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  const userEmail = req.headers.get('userEmail');
-  const serviceName = req.headers.get('serviceName');
-
-  if (!userEmail) {
-    return sendErrorResponse('userEmail header is required', 400);
-  }
-
   try {
     const db = await getDb();
-    const usersCollection = db.collection<IUser>('users');
-    const user = await getUserByEmail(usersCollection, userEmail);
-
-    if (!user) {
-      return sendErrorResponse('User not found', 404);
-    }
+    const userEmail = req.headers.get('userEmail') as string;
+    const serviceName = req.headers.get('serviceName');
+    const { user } = await getDatabaseAndUser(db, userEmail);
 
     if (serviceName === 'assistant' && user.assistantId) {
       const [assistant, thread, fileList] = await Promise.all([
@@ -53,6 +48,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     return sendErrorResponse('Assistant not configured for the user', 200);
   } catch (error: any) {
-    return sendErrorResponse('Error retrieving assistant', 500);
+    return handleErrorResponse(error);
   }
 }
