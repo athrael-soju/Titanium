@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 interface RetrieveServicesData {
   userEmail: string;
   serviceName: string;
@@ -10,11 +8,17 @@ const retrieveServices = async ({
   serviceName,
 }: RetrieveServicesData): Promise<any> => {
   try {
-    const response = await axios.get(`/api/common/retrieve/`, {
+    let apiRoute = serviceName === 'vision' ? 'vision' : 'assistant';
+    const response = await fetch(`/api/${apiRoute}/retrieve/`, {
+      method: 'GET',
       headers: { userEmail: userEmail, serviceName: serviceName },
     });
 
-    return response.data;
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return response.json();
   } catch (error) {
     console.error('Unexpected error:', error);
     throw error;

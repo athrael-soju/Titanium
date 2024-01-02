@@ -1,23 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '../../../lib/client/mongodb';
 import OpenAI from 'openai';
+import { Collection } from 'mongodb';
 
 const openai = new OpenAI();
+
+interface AssistantUpdateRequest {
+  userEmail: string;
+  name: string;
+  description: string;
+  isAssistantEnabled: boolean;
+  files: { name: string; id: string; assistantId: string }[];
+}
 
 async function createOrUpdateAssistant(
   user: IUser,
   name: string,
   description: string,
   isAssistantEnabled: boolean,
-  usersCollection: any,
-  files: { name: string; id: string; assistandId: string }[]
-) {
-  let assistant,
-    thread,
-    isVisionEnabled = user.isVisionEnabled;
-  if (isAssistantEnabled) {
-    isVisionEnabled = false;
-  }
+  usersCollection: Collection<IUser>,
+  files: { name: string; id: string; assistantId: string }[]
+): Promise<{ assistant: any; thread: any }> {
+  let assistant, thread;
+  const isVisionEnabled = isAssistantEnabled ? false : user.isVisionEnabled;
+
   if (!user.assistantId) {
     // Create a new assistant and thread
     assistant = await openai.beta.assistants.create({
@@ -25,20 +31,9 @@ async function createOrUpdateAssistant(
       name: name,
       tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
       model: process.env.OPENAI_API_MODEL as string,
-      file_ids: [],
+      file_ids: files.map((file) => file.id),
     });
     thread = await openai.beta.threads.create();
-    await usersCollection.updateOne(
-      { email: user.email },
-      {
-        $set: {
-          assistantId: assistant.id,
-          threadId: thread.id,
-          isAssistantEnabled: isAssistantEnabled,
-          isVisionEnabled: isVisionEnabled,
-        },
-      }
-    );
   } else {
     // Update an existing assistant
     assistant = await openai.beta.assistants.update(user.assistantId, {
@@ -49,25 +44,30 @@ async function createOrUpdateAssistant(
       file_ids: files.map((file) => file.id),
     });
     thread = await openai.beta.threads.retrieve(user.threadId as string);
-    await usersCollection.updateOne(
-      { email: user.email },
-      {
-        $set: {
-          isAssistantEnabled: isAssistantEnabled,
-          isVisionEnabled: isVisionEnabled,
-        },
-      }
-    );
   }
+
+  await usersCollection.updateOne(
+    { email: user.email },
+    {
+      $set: {
+        assistantId: assistant.id,
+        threadId: thread.id,
+        isAssistantEnabled: isAssistantEnabled,
+        isVisionEnabled: isVisionEnabled,
+      },
+    }
+  );
+
   return { assistant, thread };
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const client = await clientPromise;
     const db = client.db();
+    const requestBody = await req.json();
     const { userEmail, name, description, isAssistantEnabled, files } =
-      await req.json();
+      requestBody as AssistantUpdateRequest;
 
     if (
       !userEmail ||
@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
 
     const usersCollection = db.collection<IUser>('users');
     const user = await usersCollection.findOne({ email: userEmail });
+
     if (!user) {
       return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
@@ -108,7 +109,10 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Error in assistant update:', error);
     return NextResponse.json(
-      { message: 'Error in assistant update', error: error.message },
+      {
+        message: 'Error in assistant update',
+        error: error.message,
+      },
       { status: 500 }
     );
   }

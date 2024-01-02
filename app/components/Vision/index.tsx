@@ -91,10 +91,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       newFile.visionId = response.file.visionId;
       const newVisionFiles = [...visionFiles, newFile];
       updateVisionFiles(newVisionFiles);
-
       await handleUpdate();
-
-      console.log('URL successfully added to Vision:', response);
     } catch (error) {
       console.error('Failed to add URL to Vision:', error);
     } finally {
@@ -128,12 +125,12 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       setIsLoading(true);
       if (session) {
         const userEmail = session.user?.email as string;
-        await updateVision({
+        const updateVisionResponse = await updateVision({
           isVisionEnabled,
           userEmail,
         });
         setIsVisionDefined(true);
-        console.log('Vision updated successfully');
+        console.log('Vision updated successfully', updateVisionResponse);
       } else {
         throw new Error('No session found');
       }

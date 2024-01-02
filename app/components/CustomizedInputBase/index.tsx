@@ -93,7 +93,7 @@ const CustomizedInputBase = ({
             setIsVisionDefined(false);
           }
         } catch (error) {
-          console.error('Error prefetching assistant:', error);
+          console.error('Error prefetching services:', error);
         } finally {
           setIsLoading(false);
         }
@@ -235,9 +235,9 @@ const CustomizedInputBase = ({
         open={isVisionDialogOpen}
         onClose={() => setIsVisionDialogOpen(false)}
         isVisionEnabled={isVisionEnabled}
-        setIsVisionEnabled={setIsVisionEnabled}
+        setIsVisionEnabled={handleSetIsVisionEnabled}
         isVisionDefined={isVisionDefined}
-        setIsVisionDefined={handleSetIsVisionEnabled}
+        setIsVisionDefined={setIsVisionDefined}
         setIsLoading={setIsLoading}
         visionFiles={visionFiles.current}
         updateVisionFiles={updateVisionFiles}

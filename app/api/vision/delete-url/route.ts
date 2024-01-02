@@ -1,43 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '../../../lib/client/mongodb';
-
-export async function POST(req: NextRequest) {
+import {
+  getDatabaseAndUser,
+  getDb,
+  sendErrorResponse,
+} from '@/app/lib/utils/db';
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const client = await clientPromise;
-    const db = client.db();
+    const db = await getDb();
     const { file, userEmail } = await req.json();
-
-    const usersCollection = db.collection<IUser>('users');
-    const user = await usersCollection.findOne({ email: userEmail });
-    if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+    const { user } = await getDatabaseAndUser(db, userEmail);
+    if (user.visionId !== file.visionId) {
+      return sendErrorResponse('User VisionId not found', 404);
     }
 
-    if (user.visionId === file.visionId) {
-      const fileCollection = db.collection<IFiles>('files');
-      const deleteFileResponse = await fileCollection.deleteOne({
-        visionId: file.visionId,
-      });
+    const fileCollection = db.collection<IFile>('files');
+    const deleteFileResponse = await fileCollection.deleteOne({
+      visionId: file.visionId,
+    });
 
-      return NextResponse.json({
-        status: 200,
-        message: 'Url deleted successfully',
-        Response: deleteFileResponse,
-      });
-    } else {
-      return NextResponse.json(
-        { message: 'User VisionId not found' },
-        { status: 404 }
-      );
-    }
+    return NextResponse.json({
+      status: 200,
+      message: 'Url deleted successfully',
+      response: deleteFileResponse,
+    });
   } catch (error) {
-    console.error('Vision Url deletion unsuccessful:', error);
-    return NextResponse.json(
-      {
-        message: 'Vision Url deletion unsuccessful',
-        error,
-      },
-      { status: 500 }
-    );
+    return sendErrorResponse('Error deleting file', 500);
   }
 }
