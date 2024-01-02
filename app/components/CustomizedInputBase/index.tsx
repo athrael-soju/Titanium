@@ -86,7 +86,6 @@ const CustomizedInputBase = ({
             serviceName: 'vision',
           });
           if (response.visionId) {
-            console.log('response.visionId', response);
             setIsVisionEnabled(response.isVisionEnabled);
             visionFiles.current = response.visionFileList;
             setIsVisionDefined(true);

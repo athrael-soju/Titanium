@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, getUserByEmail, sendErrorResponse } from '@/app/lib/utils';
+import { getDb, getUserByEmail, sendErrorResponse } from '@/app/lib/utils/db';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const userEmail = req.headers.get('userEmail');

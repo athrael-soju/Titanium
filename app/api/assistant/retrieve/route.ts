@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, sendErrorResponse, getUserByEmail } from '@/app/lib/utils';
+import { getDb, sendErrorResponse, getUserByEmail } from '@/app/lib/utils/db';
 import OpenAI from 'openai';
 
 const openai = new OpenAI();
