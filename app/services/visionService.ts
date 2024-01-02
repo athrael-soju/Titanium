@@ -1,9 +1,3 @@
-import axios from 'axios';
-
-interface VisionRetrieveData {
-  userEmail: string;
-}
-
 interface VisionUpdateData {
   isVisionEnabled: boolean;
   userEmail: string;
@@ -19,17 +13,22 @@ interface VisionAddUrlData {
     url: string;
   };
 }
-
 const updateVision = async ({
   isVisionEnabled,
   userEmail,
 }: VisionUpdateData): Promise<any> => {
   try {
-    const response = await axios.post('/api/vision/update', {
-      isVisionEnabled,
-      userEmail,
+    const response = await fetch('/api/vision/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        isVisionEnabled,
+        userEmail,
+      }),
     });
-    return response.data;
+    return response.json();
   } catch (error) {
     console.error('Unexpected error:', error);
     throw error;
@@ -47,11 +46,14 @@ const deleteVisionFile = async (
   userEmail: string
 ): Promise<any> => {
   try {
-    const response = await axios.post('/api/vision/delete-url/', {
-      file,
-      userEmail,
+    const response = await fetch('/api/vision/delete-url/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ file, userEmail }),
     });
-    return response.data;
+    return response.json();
   } catch (error) {
     console.error('Unexpected error:', error);
     throw error;
@@ -63,11 +65,17 @@ const addVisionUrl = async ({
   file,
 }: VisionAddUrlData): Promise<any> => {
   try {
-    const response = await axios.post('/api/vision/add-url', {
-      userEmail,
-      file,
+    const response = await fetch('/api/vision/add-url', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userEmail,
+        file,
+      }),
     });
-    return response.data;
+    return response.json();
   } catch (error) {
     console.error('Failed to upload file:', error);
   }

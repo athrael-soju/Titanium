@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 interface AssistantUpdateData {
   name: string;
   description: string;
@@ -7,7 +5,6 @@ interface AssistantUpdateData {
   userEmail: string;
   files: { name: string; id: string; assistandId: string }[];
 }
-
 const updateAssistant = async ({
   name,
   description,
@@ -16,14 +13,20 @@ const updateAssistant = async ({
   files,
 }: AssistantUpdateData): Promise<any> => {
   try {
-    const response = await axios.post('/api/assistant/update', {
-      name,
-      description,
-      isAssistantEnabled,
-      userEmail,
-      files,
+    const response = await fetch('/api/assistant/update', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name,
+        description,
+        isAssistantEnabled,
+        userEmail,
+        files,
+      }),
     });
-    return response.data;
+    return response.json();
   } catch (error) {
     console.error('Unexpected error:', error);
     throw error;
@@ -36,10 +39,14 @@ const deleteAssistantFile = async ({
   file: string;
 }): Promise<any> => {
   try {
-    const response = await axios.post('/api/assistant/delete-file', {
-      file,
+    const response = await fetch('/api/assistant/delete-file', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ file }),
     });
-    return response.data;
+    return response.json();
   } catch (error) {
     console.error('Unexpected error:', error);
     throw error;
@@ -52,10 +59,14 @@ const deleteAssistant = async ({
   userEmail: string;
 }): Promise<any> => {
   try {
-    const response = await axios.post('/api/assistant/delete', {
-      userEmail,
+    const response = await fetch('/api/assistant/delete', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userEmail }),
     });
-    return response.data;
+    return response.json();
   } catch (error) {
     console.error('Unexpected error:', error);
     throw error;
