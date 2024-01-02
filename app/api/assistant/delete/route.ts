@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {getDb, sendErrorResponse, getUserByEmail } from '@/app/lib/utils/db';
+import { getDb, sendErrorResponse, getUserByEmail } from '@/app/lib/utils/db';
 import OpenAI from 'openai';
 import { Collection } from 'mongodb';
 
 const openai = new OpenAI();
-
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const { userEmail } = await req.json();
 
