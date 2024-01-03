@@ -11,25 +11,18 @@ import AssistantIcon from '@mui/icons-material/Assistant';
 import VisionIcon from '@mui/icons-material/Visibility';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useSession } from 'next-auth/react';
+import { useFormContext } from 'react-hook-form';
 import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
 import { retrieveServices } from '@/app/services/commonService';
-import { useSession } from 'next-auth/react';
 
 const CustomizedInputBase = ({
   setIsLoading,
   onSendMessage,
-  isAssistantEnabled,
-  setIsAssistantEnabled,
-  isVisionEnabled,
-  setIsVisionEnabled,
 }: {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   onSendMessage: (message: string) => void;
-  isAssistantEnabled: boolean;
-  setIsAssistantEnabled: (isAssistantEnabled: boolean) => void;
-  isVisionEnabled: boolean;
-  setIsVisionEnabled: (isVisionEnabled: boolean) => void;
 }) => {
   const { data: session } = useSession();
   const theme = useTheme();
@@ -42,6 +35,12 @@ const CustomizedInputBase = ({
   const [isVisionDialogOpen, setIsVisionDialogOpen] = React.useState(false);
   const [name, setName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
+
+  const formContext = useFormContext();
+  const { setValue, watch } = formContext;
+  const isAssistantEnabled = watch('isAssistantEnabled');
+  const isVisionEnabled = watch('isVisionEnabled');
+
   const files = useRef<{ name: string; id: string; assistandId: string }[]>([]);
   const updateFiles = (
     newFiles: { name: string; id: string; assistandId: string }[]
@@ -75,7 +74,7 @@ const CustomizedInputBase = ({
           if (response.assistant) {
             setName(response.assistant.name);
             setDescription(response.assistant.instructions);
-            setIsAssistantEnabled(response.isAssistantEnabled);
+            setValue('IsAssistantEnabled', response.isAssistantEnabled);
             files.current = response.fileList;
             setIsAssistantDefined(true);
           } else {
@@ -86,7 +85,7 @@ const CustomizedInputBase = ({
             serviceName: 'vision',
           });
           if (response.visionId) {
-            setIsVisionEnabled(response.isVisionEnabled);
+            setValue('isVisionEnabled', response.isVisionEnabled);
             visionFiles.current = response.visionFileList;
             setIsVisionDefined(true);
           } else {
@@ -101,7 +100,7 @@ const CustomizedInputBase = ({
     };
 
     prefetchData();
-  }, [session, setIsAssistantEnabled, setIsLoading, setIsVisionEnabled]);
+  }, [session, setIsLoading, isVisionEnabled, setValue]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -143,16 +142,16 @@ const CustomizedInputBase = ({
   };
 
   const handleSetIsVisionEnabled = (value: boolean) => {
-    setIsVisionEnabled(value);
+    setValue('isVisionEnabled', value);
     if (value) {
-      setIsAssistantEnabled(false);
+      setValue('isAssistantEnabled', false);
     }
   };
 
   const handleSetIsAssistantEnabled = (value: boolean) => {
-    setIsAssistantEnabled(value);
+    setValue('isAssistantEnabled', value);
     if (value) {
-      setIsVisionEnabled(false);
+      setValue('isVisionEnabled', false);
     }
   };
 
