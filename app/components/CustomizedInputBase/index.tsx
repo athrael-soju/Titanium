@@ -37,9 +37,7 @@ const CustomizedInputBase = ({
   const [description, setDescription] = useState<string>('');
 
   const formContext = useFormContext();
-  const { setValue, watch } = formContext;
-  const isAssistantEnabled = watch('isAssistantEnabled');
-  const isVisionEnabled = watch('isVisionEnabled');
+  const { setValue } = formContext;
 
   const files = useRef<{ name: string; id: string; assistandId: string }[]>([]);
   const updateFiles = (
@@ -74,11 +72,12 @@ const CustomizedInputBase = ({
           if (response.assistant) {
             setName(response.assistant.name);
             setDescription(response.assistant.instructions);
-            setValue('IsAssistantEnabled', response.isAssistantEnabled);
+            setValue('isAssistantEnabled', response.isAssistantEnabled);
             files.current = response.fileList;
             setIsAssistantDefined(true);
           } else {
             setIsAssistantDefined(false);
+            setValue('isAssistantEnabled', false);
           }
           response = await retrieveServices({
             userEmail,
@@ -90,6 +89,7 @@ const CustomizedInputBase = ({
             setIsVisionDefined(true);
           } else {
             setIsVisionDefined(false);
+            setValue('isVisionEnabled', false);
           }
         } catch (error) {
           console.error('Error prefetching services:', error);
@@ -100,7 +100,7 @@ const CustomizedInputBase = ({
     };
 
     prefetchData();
-  }, [session, setIsLoading, isVisionEnabled, setValue]);
+  }, [session, setIsLoading, setValue]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -139,20 +139,6 @@ const CustomizedInputBase = ({
   const handleVisionClick = () => {
     setIsVisionDialogOpen(true);
     handleMenuClose();
-  };
-
-  const handleSetIsVisionEnabled = (value: boolean) => {
-    setValue('isVisionEnabled', value);
-    if (value) {
-      setValue('isAssistantEnabled', false);
-    }
-  };
-
-  const handleSetIsAssistantEnabled = (value: boolean) => {
-    setValue('isAssistantEnabled', value);
-    if (value) {
-      setValue('isVisionEnabled', false);
-    }
   };
 
   return (
@@ -222,8 +208,6 @@ const CustomizedInputBase = ({
         setName={setName}
         description={description}
         setDescription={setDescription}
-        isAssistantEnabled={isAssistantEnabled}
-        setIsAssistantEnabled={handleSetIsAssistantEnabled}
         isAssistantDefined={isAssistantDefined}
         setIsAssistantDefined={setIsAssistantDefined}
         setIsLoading={setIsLoading}
@@ -233,8 +217,6 @@ const CustomizedInputBase = ({
       <VisionDialog
         open={isVisionDialogOpen}
         onClose={() => setIsVisionDialogOpen(false)}
-        isVisionEnabled={isVisionEnabled}
-        setIsVisionEnabled={handleSetIsVisionEnabled}
         isVisionDefined={isVisionDefined}
         setIsVisionDefined={setIsVisionDefined}
         setIsLoading={setIsLoading}

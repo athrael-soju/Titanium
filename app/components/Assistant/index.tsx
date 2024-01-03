@@ -20,6 +20,7 @@ import {
   uploadFile,
 } from '@/app/services/assistantService';
 import { retrieveServices } from '@/app/services/commonService';
+import { useFormContext } from 'react-hook-form';
 interface AssistantDialogProps {
   open: boolean;
   onClose: () => void;
@@ -27,8 +28,6 @@ interface AssistantDialogProps {
   setName: (name: string) => void;
   description: string;
   setDescription: (description: string) => void;
-  isAssistantEnabled: boolean;
-  setIsAssistantEnabled: (isAssistantEnabled: boolean) => void;
   isAssistantDefined: boolean;
   setIsAssistantDefined: (isAssistantDefined: boolean) => void;
   onToggleAssistant?: (isAssistantEnabled: boolean) => void;
@@ -47,8 +46,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   setName,
   description,
   setDescription,
-  isAssistantEnabled,
-  setIsAssistantEnabled,
   isAssistantDefined,
   setIsAssistantDefined,
   onToggleAssistant,
@@ -64,6 +61,22 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   });
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const formContext = useFormContext();
+  const { setValue, watch } = formContext;
+  const isAssistantEnabled = watch('isAssistantEnabled');
+
+  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const enabled = event.target.checked;
+    setValue('isAssistantEnabled', enabled);
+    if (enabled) {
+      setValue('isVisionEnabled', false);
+    }
+
+    if (onToggleAssistant) {
+      onToggleAssistant(enabled);
+    }
+  };
 
   const handleCreate = async () => {
     let hasError = false;
@@ -85,7 +98,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       setIsLoading(true);
       if (session) {
         const userEmail = session.user?.email as string;
-        await updateAssistant({
+        const updateAssistantResponse = await updateAssistant({
           name,
           description,
           isAssistantEnabled,
@@ -93,7 +106,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           files,
         });
         setIsAssistantDefined(true);
-        console.log('Assistant updated successfully');
+        console.log('Assistant updated successfully', updateAssistantResponse);
       } else {
         throw new Error('No session found');
       }
@@ -101,13 +114,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       console.error('Error updating assistant:', error);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsAssistantEnabled(event.target.checked);
-    if (onToggleAssistant) {
-      onToggleAssistant(event.target.checked);
     }
   };
 
@@ -127,11 +133,14 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
         });
         setName(retrieveAssistantResponse.assistant.name);
         setDescription(retrieveAssistantResponse.assistant.instructions);
-        setIsAssistantEnabled(retrieveAssistantResponse.isAssistantEnabled);
+        setValue(
+          'isAssistantEnabled',
+          retrieveAssistantResponse.isAssistantEnabled
+        );
       } else {
         setName('');
         setDescription('');
-        setIsAssistantEnabled(false);
+        setValue('isAssistantEnabled', false);
       }
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);
@@ -143,7 +152,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   const handleReset = () => {
     setName('');
     setDescription('');
-    setIsAssistantEnabled(false);
+    setValue('isAssistantEnabled', false);
     setError({ name: false, description: false });
     if (onReset) {
       onReset();

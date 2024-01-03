@@ -18,11 +18,10 @@ import {
   deleteVisionFile,
 } from '@/app/services/visionService';
 import { retrieveServices } from '@/app/services/commonService';
+import { useFormContext } from 'react-hook-form';
 interface VisionDialogProps {
   open: boolean;
   onClose: () => void;
-  isVisionEnabled: boolean;
-  setIsVisionEnabled: (isVisionEnabled: boolean) => void;
   isVisionDefined: boolean;
   setIsVisionDefined: (isVisionDefined: boolean) => void;
   onToggleVision?: (isVisionEnabled: boolean) => void;
@@ -48,8 +47,6 @@ interface VisionDialogProps {
 const VisionDialog: React.FC<VisionDialogProps> = ({
   open,
   onClose,
-  isVisionEnabled,
-  setIsVisionEnabled,
   isVisionDefined,
   setIsVisionDefined,
   onToggleVision,
@@ -60,10 +57,20 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   const { data: session } = useSession();
   const visionFileInputRef = useRef<HTMLInputElement>(null);
   const [isAddUrlDialogOpen, setIsAddUrlDialogOpen] = useState(false);
+
+  const formContext = useFormContext();
+  const { setValue, watch } = formContext;
+  const isVisionEnabled = watch('isVisionEnabled');
+
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsVisionEnabled(event.target.checked);
+    const enabled = event.target.checked;
+    setValue('isVisionEnabled', enabled);
+    if (enabled) {
+      setValue('isAssistantEnabled', false);
+    }
+
     if (onToggleVision) {
-      onToggleVision(event.target.checked);
+      onToggleVision(enabled);
     }
   };
 
@@ -109,9 +116,9 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           userEmail,
           serviceName: 'vision',
         });
-        setIsVisionEnabled(retrieveVisionResponse.isVisionEnabled);
+        setValue('isVisionEnabled', retrieveVisionResponse.isVisionEnabled);
       } else {
-        setIsVisionEnabled(false);
+        setValue('isVisionEnabled', false);
       }
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);
@@ -204,9 +211,6 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
                 type="file"
                 ref={visionFileInputRef}
                 style={{ display: 'none' }}
-                onChange={() => {
-                  /* Handle file change */
-                }}
               />
             </Box>
           </Box>
