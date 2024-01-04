@@ -16,8 +16,12 @@ const Chat = () => {
 
   const formMethods = useForm({
     defaultValues: {
+      name: '',
+      description: '',
       isAssistantEnabled: false,
+      isAssistantDefined: false,
       isVisionEnabled: false,
+      isVisionDefined: false,
     },
   });
 
@@ -106,7 +110,6 @@ const Chat = () => {
       // Retrieve values from the form's state
       const formState = formMethods.getValues();
       const { isAssistantEnabled, isVisionEnabled } = formState;
-
       const response = await retrieveAIResponse(
         message,
         userEmail,

@@ -22,8 +22,6 @@ import { useFormContext } from 'react-hook-form';
 interface VisionDialogProps {
   open: boolean;
   onClose: () => void;
-  isVisionDefined: boolean;
-  setIsVisionDefined: (isVisionDefined: boolean) => void;
   onToggleVision?: (isVisionEnabled: boolean) => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   visionFiles: {
@@ -47,8 +45,6 @@ interface VisionDialogProps {
 const VisionDialog: React.FC<VisionDialogProps> = ({
   open,
   onClose,
-  isVisionDefined,
-  setIsVisionDefined,
   onToggleVision,
   setIsLoading,
   visionFiles,
@@ -58,9 +54,9 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   const visionFileInputRef = useRef<HTMLInputElement>(null);
   const [isAddUrlDialogOpen, setIsAddUrlDialogOpen] = useState(false);
 
-  const formContext = useFormContext();
-  const { setValue, watch } = formContext;
+  const { setValue, watch } = useFormContext();
   const isVisionEnabled = watch('isVisionEnabled');
+  const isVisionDefined = watch('isVisionDefined');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
@@ -136,7 +132,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           isVisionEnabled,
           userEmail,
         });
-        setIsVisionDefined(true);
+        setValue('setIsVisionDefined', true);
         console.log('Vision updated successfully', updateVisionResponse);
       } else {
         throw new Error('No session found');

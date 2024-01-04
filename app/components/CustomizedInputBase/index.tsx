@@ -12,7 +12,7 @@ import VisionIcon from '@mui/icons-material/Visibility';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSession } from 'next-auth/react';
-import { useFormContext } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
 import { retrieveServices } from '@/app/services/commonService';
@@ -29,15 +29,17 @@ const CustomizedInputBase = ({
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [inputValue, setInputValue] = useState('');
-  const [isAssistantDefined, setIsAssistantDefined] = useState(false);
-  const [isVisionDefined, setIsVisionDefined] = useState(false);
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [isVisionDialogOpen, setIsVisionDialogOpen] = React.useState(false);
-  const [name, setName] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
 
-  const formContext = useFormContext();
-  const { setValue } = formContext;
+  const { setValue, watch, getValues } = useFormContext();
+
+  // const name = getValues('name');
+  // const description = getValues('description');
+  // const isAssistantEnabled = watch('isAssistantEnabled');
+  // const isAssistantDefined = watch('isAssistantDefined');
+  // const isVisionEnabled = watch('isVisionEnabled');
+  // const isVisionDefined = watch('isVisionDefined');
 
   const files = useRef<{ name: string; id: string; assistandId: string }[]>([]);
   const updateFiles = (
@@ -70,13 +72,13 @@ const CustomizedInputBase = ({
             serviceName: 'assistant',
           });
           if (response.assistant) {
-            setName(response.assistant.name);
-            setDescription(response.assistant.instructions);
+            setValue('name', response.assistant.name);
+            setValue('description', response.assistant.instructions);
             setValue('isAssistantEnabled', response.isAssistantEnabled);
             files.current = response.fileList;
-            setIsAssistantDefined(true);
+            setValue('isAssistantDefined', true);
           } else {
-            setIsAssistantDefined(false);
+            setValue('isAssistantDefined', false);
             setValue('isAssistantEnabled', false);
           }
           response = await retrieveServices({
@@ -86,9 +88,8 @@ const CustomizedInputBase = ({
           if (response.visionId) {
             setValue('isVisionEnabled', response.isVisionEnabled);
             visionFiles.current = response.visionFileList;
-            setIsVisionDefined(true);
+            setValue('isVisionDefined', true);
           } else {
-            setIsVisionDefined(false);
             setValue('isVisionEnabled', false);
           }
         } catch (error) {
@@ -201,24 +202,18 @@ const CustomizedInputBase = ({
           <SendIcon />
         </IconButton>
       </Paper>
+
       <AssistantDialog
         open={isAssistantDialogOpen}
         onClose={() => setIsAssistantDialogOpen(false)}
-        name={name}
-        setName={setName}
-        description={description}
-        setDescription={setDescription}
-        isAssistantDefined={isAssistantDefined}
-        setIsAssistantDefined={setIsAssistantDefined}
         setIsLoading={setIsLoading}
         files={files.current}
         updateFiles={updateFiles}
       />
+
       <VisionDialog
         open={isVisionDialogOpen}
         onClose={() => setIsVisionDialogOpen(false)}
-        isVisionDefined={isVisionDefined}
-        setIsVisionDefined={setIsVisionDefined}
         setIsLoading={setIsLoading}
         visionFiles={visionFiles.current}
         updateVisionFiles={updateVisionFiles}

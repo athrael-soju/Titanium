@@ -24,12 +24,6 @@ import { useFormContext } from 'react-hook-form';
 interface AssistantDialogProps {
   open: boolean;
   onClose: () => void;
-  name: string;
-  setName: (name: string) => void;
-  description: string;
-  setDescription: (description: string) => void;
-  isAssistantDefined: boolean;
-  setIsAssistantDefined: (isAssistantDefined: boolean) => void;
   onToggleAssistant?: (isAssistantEnabled: boolean) => void;
   onReset?: () => void;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -42,12 +36,6 @@ interface AssistantDialogProps {
 const AssistantDialog: React.FC<AssistantDialogProps> = ({
   open,
   onClose,
-  name,
-  setName,
-  description,
-  setDescription,
-  isAssistantDefined,
-  setIsAssistantDefined,
   onToggleAssistant,
   onReset,
   setIsLoading,
@@ -62,9 +50,12 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const formContext = useFormContext();
-  const { setValue, watch } = formContext;
+  const { getValues, setValue, watch } = useFormContext();
+
+  const name = getValues('name');
+  const description = getValues('description');
   const isAssistantEnabled = watch('isAssistantEnabled');
+  const isAssistantDefined = watch('isAssistantDefined');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
@@ -105,7 +96,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           userEmail,
           files,
         });
-        setIsAssistantDefined(true);
+        setValue('isAssistantDefined', true);
         console.log('Assistant updated successfully', updateAssistantResponse);
       } else {
         throw new Error('No session found');
@@ -131,15 +122,18 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           userEmail,
           serviceName: 'assistant',
         });
-        setName(retrieveAssistantResponse.assistant.name);
-        setDescription(retrieveAssistantResponse.assistant.instructions);
+        setValue('name', retrieveAssistantResponse.assistant.name);
+        setValue(
+          'description',
+          retrieveAssistantResponse.assistant.instructions
+        );
         setValue(
           'isAssistantEnabled',
           retrieveAssistantResponse.isAssistantEnabled
         );
       } else {
-        setName('');
-        setDescription('');
+        setValue('name', '');
+        setValue('description', '');
         setValue('isAssistantEnabled', false);
       }
     } catch (error) {
@@ -150,8 +144,8 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   };
 
   const handleReset = () => {
-    setName('');
-    setDescription('');
+    setValue('name', '');
+    setValue('description', '');
     setValue('isAssistantEnabled', false);
     setError({ name: false, description: false });
     if (onReset) {
@@ -212,7 +206,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       console.log('Assistant deleted successfully');
       files.splice(0, files.length);
       handleReset();
-      setIsAssistantDefined(false);
+      setValue('isAssistantDefined', false);
     } catch (error) {
       console.error('Error deleting assistant:', error);
     } finally {
@@ -228,13 +222,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           : `Customize Assistant: ${name}`}
       </DialogTitle>
       <DialogContent style={{ paddingBottom: 8 }}>
-        <AssistantForm
-          name={name}
-          setName={setName}
-          description={description}
-          setDescription={setDescription}
-          error={error}
-        />
+        <AssistantForm error={error} />
         <FileList files={files} onDelete={handleFileDelete} />
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
