@@ -12,16 +12,14 @@ import VisionIcon from '@mui/icons-material/Visibility';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSession } from 'next-auth/react';
-import { FormProvider, useForm, useFormContext } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
 import { retrieveServices } from '@/app/services/commonService';
 
 const CustomizedInputBase = ({
-  setIsLoading,
   onSendMessage,
 }: {
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   onSendMessage: (message: string) => void;
 }) => {
   const { data: session } = useSession();
@@ -31,16 +29,6 @@ const CustomizedInputBase = ({
   const [inputValue, setInputValue] = useState('');
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [isVisionDialogOpen, setIsVisionDialogOpen] = React.useState(false);
-
-  const { setValue, watch, getValues } = useFormContext();
-
-  // const name = getValues('name');
-  // const description = getValues('description');
-  // const isAssistantEnabled = watch('isAssistantEnabled');
-  // const isAssistantDefined = watch('isAssistantDefined');
-  // const isVisionEnabled = watch('isVisionEnabled');
-  // const isVisionDefined = watch('isVisionDefined');
-
   const files = useRef<{ name: string; id: string; assistandId: string }[]>([]);
   const updateFiles = (
     newFiles: { name: string; id: string; assistandId: string }[]
@@ -61,11 +49,14 @@ const CustomizedInputBase = ({
   ) => {
     visionFiles.current = newVisionFiles;
   };
+
+  const { setValue } = useFormContext();
+
   useEffect(() => {
     const prefetchData = async () => {
       if (session) {
         try {
-          setIsLoading(true);
+          setValue('isLoading', true);
           const userEmail = session.user?.email as string;
           let response = await retrieveServices({
             userEmail,
@@ -95,13 +86,13 @@ const CustomizedInputBase = ({
         } catch (error) {
           console.error('Error prefetching services:', error);
         } finally {
-          setIsLoading(false);
+          setValue('isLoading', false);
         }
       }
     };
 
     prefetchData();
-  }, [session, setIsLoading, setValue]);
+  }, [session, setValue]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
     if (event.key === 'Enter') {
@@ -206,7 +197,6 @@ const CustomizedInputBase = ({
       <AssistantDialog
         open={isAssistantDialogOpen}
         onClose={() => setIsAssistantDialogOpen(false)}
-        setIsLoading={setIsLoading}
         files={files.current}
         updateFiles={updateFiles}
       />
@@ -214,7 +204,6 @@ const CustomizedInputBase = ({
       <VisionDialog
         open={isVisionDialogOpen}
         onClose={() => setIsVisionDialogOpen(false)}
-        setIsLoading={setIsLoading}
         visionFiles={visionFiles.current}
         updateVisionFiles={updateVisionFiles}
       />

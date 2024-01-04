@@ -26,7 +26,6 @@ interface AssistantDialogProps {
   onClose: () => void;
   onToggleAssistant?: (isAssistantEnabled: boolean) => void;
   onReset?: () => void;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   files: { name: string; id: string; assistandId: string }[];
   updateFiles: (
     newFiles: { name: string; id: string; assistandId: string }[]
@@ -38,7 +37,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   onClose,
   onToggleAssistant,
   onReset,
-  setIsLoading,
   files,
   updateFiles,
 }) => {
@@ -86,7 +84,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     }
 
     try {
-      setIsLoading(true);
+      setValue('isLoading', true);
       if (session) {
         const userEmail = session.user?.email as string;
         const updateAssistantResponse = await updateAssistant({
@@ -104,7 +102,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     } catch (error) {
       console.error('Error updating assistant:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 
@@ -115,7 +113,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   const handleCloseClick = async () => {
     try {
       onClose();
-      setIsLoading(true);
+      setValue('isLoading', true);
       if (isAssistantDefined) {
         const userEmail = session?.user?.email as string;
         const retrieveAssistantResponse = await retrieveServices({
@@ -139,7 +137,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 
@@ -155,14 +153,14 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
 
   const handleFileDelete = async (file: any) => {
     try {
-      setIsLoading(true);
+      setValue('isLoading', true);
       await deleteAssistantFile({ file });
       console.log('File successfully deleted from the assistant:', file);
       files.splice(files.indexOf(file), 1);
     } catch (error) {
       console.error('Failed to remove file from the assistant:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 
@@ -173,7 +171,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     if (file) {
       const userEmail = session?.user?.email as string;
       try {
-        setIsLoading(true);
+        setValue('isLoading', true);
         const fileUploadResponse = await uploadFile(file, userEmail);
         const retrieveAssistantResponse = await retrieveServices({
           userEmail,
@@ -188,7 +186,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       } catch (error) {
         console.error('Failed to upload file:', error);
       } finally {
-        setIsLoading(false);
+        setValue('isLoading', false);
       }
     }
   };
@@ -201,7 +199,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     setIsConfirmDialogOpen(false);
     const userEmail = session?.user?.email as string;
     try {
-      setIsLoading(true);
+      setValue('isLoading', true);
       await deleteAssistant({ userEmail });
       console.log('Assistant deleted successfully');
       files.splice(0, files.length);
@@ -210,7 +208,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     } catch (error) {
       console.error('Error deleting assistant:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 

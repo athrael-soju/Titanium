@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useSession } from 'next-auth/react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, useFormContext } from 'react-hook-form';
 import MessagesField from '../MessagesField';
 import styles from './index.module.css';
 import Loader from '../Loader';
@@ -12,7 +12,6 @@ import { retrieveAIResponse } from '@/app/services/chatService';
 const Chat = () => {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const formMethods = useForm({
     defaultValues: {
@@ -22,8 +21,13 @@ const Chat = () => {
       isAssistantDefined: false,
       isVisionEnabled: false,
       isVisionDefined: false,
+      isLoading: false,
     },
   });
+
+  // Retrieve values from the form's state
+  const formState = formMethods.watch();
+  const { isAssistantEnabled, isVisionEnabled, isLoading } = formState;
 
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
@@ -101,15 +105,12 @@ const Chat = () => {
 
   const sendUserMessage = async (message: string) => {
     if (!message.trim()) return;
+
     try {
-      setIsLoading(true);
+      formMethods.setValue('isLoading', true);
       addUserMessageToState(message);
       const aiResponseId = uuidv4();
       const userEmail = session?.user?.email as string;
-
-      // Retrieve values from the form's state
-      const formState = formMethods.getValues();
-      const { isAssistantEnabled, isVisionEnabled } = formState;
       const response = await retrieveAIResponse(
         message,
         userEmail,
@@ -130,7 +131,7 @@ const Chat = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      setIsLoading(false);
+      formMethods.setValue('isLoading', false);
     }
   };
 
@@ -175,10 +176,7 @@ const Chat = () => {
         {isLoading && <Loader />}
         <MessagesField messages={messages} />
         <div className={styles.inputArea}>
-          <CustomizedInputBase
-            setIsLoading={setIsLoading}
-            onSendMessage={sendUserMessage}
-          />
+          <CustomizedInputBase onSendMessage={sendUserMessage} />
         </div>
       </FormProvider>
     );
