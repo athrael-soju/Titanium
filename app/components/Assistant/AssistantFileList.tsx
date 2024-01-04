@@ -10,12 +10,15 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FolderIcon from '@mui/icons-material/Folder';
 import FilePaper from '../FileList';
 
-interface FileListProps {
+interface AssistantFileListProps {
   files: { name: string; id: string; assistandId: string }[];
   onDelete: (file: any) => void;
 }
 
-const FileList: React.FC<FileListProps> = ({ files, onDelete }) => (
+const AssistantFileList: React.FC<AssistantFileListProps> = ({
+  files,
+  onDelete,
+}) => (
   <FilePaper
     files={files}
     renderFileItem={(file) => (
@@ -42,4 +45,4 @@ const FileList: React.FC<FileListProps> = ({ files, onDelete }) => (
   />
 );
 
-export default FileList;
+export default AssistantFileList;

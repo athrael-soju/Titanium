@@ -10,7 +10,7 @@ import {
   Box,
 } from '@mui/material';
 import AssistantForm from './AssistantForm';
-import FileList from './FileList';
+import AssistantFileList from './AssistantFileList';
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSession } from 'next-auth/react';
 import {
@@ -216,7 +216,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       </DialogTitle>
       <DialogContent style={{ paddingBottom: 8 }}>
         <AssistantForm error={error} />
-        <FileList files={files} onDelete={handleFileDelete} />
+        <AssistantFileList files={files} onDelete={handleFileDelete} />
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box

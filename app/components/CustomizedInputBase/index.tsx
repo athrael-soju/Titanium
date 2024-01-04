@@ -50,7 +50,6 @@ const CustomizedInputBase = ({
             setValue('isAssistantDefined', true);
           } else {
             setValue('isAssistantDefined', false);
-            setValue('isAssistantEnabled', false);
           }
           response = await retrieveServices({
             userEmail,
@@ -61,7 +60,7 @@ const CustomizedInputBase = ({
             setValue('visionFiles', response.visionFileList);
             setValue('isVisionDefined', true);
           } else {
-            setValue('isVisionEnabled', false);
+            setValue('isVisionDefined', false);
           }
         } catch (error) {
           console.error('Error prefetching services:', error);
