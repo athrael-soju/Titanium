@@ -23,30 +23,12 @@ interface VisionDialogProps {
   open: boolean;
   onClose: () => void;
   onToggleVision?: (isVisionEnabled: boolean) => void;
-  visionFiles: {
-    id: string;
-    visionId: string;
-    name: string;
-    type: string;
-    url: string;
-  }[];
-  updateVisionFiles: (
-    newVisionFiles: {
-      id: string;
-      visionId: string;
-      name: string;
-      type: string;
-      url: string;
-    }[]
-  ) => void;
 }
 
 const VisionDialog: React.FC<VisionDialogProps> = ({
   open,
   onClose,
   onToggleVision,
-  visionFiles,
-  updateVisionFiles,
 }) => {
   const { data: session } = useSession();
   const visionFileInputRef = useRef<HTMLInputElement>(null);
@@ -55,6 +37,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   const { setValue, watch } = useFormContext();
   const isVisionEnabled = watch('isVisionEnabled');
   const isVisionDefined = watch('isVisionDefined');
+  const visionFiles = watch('visionFiles');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
@@ -91,7 +74,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
 
       newFile.visionId = response.file.visionId;
       const newVisionFiles = [...visionFiles, newFile];
-      updateVisionFiles(newVisionFiles);
+      setValue('visionFiles', newVisionFiles);
       await handleUpdate();
     } catch (error) {
       console.error('Failed to add URL to Vision:', error);

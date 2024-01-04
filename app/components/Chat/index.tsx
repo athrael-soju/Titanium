@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useSession } from 'next-auth/react';
-import { useForm, FormProvider, useFormContext } from 'react-hook-form';
+import { useForm, FormProvider } from 'react-hook-form';
 import MessagesField from '../MessagesField';
 import styles from './index.module.css';
 import Loader from '../Loader';
@@ -22,6 +22,8 @@ const Chat = () => {
       isVisionEnabled: false,
       isVisionDefined: false,
       isLoading: false,
+      assistantFiles: [],
+      visionFiles: [],
     },
   });
 

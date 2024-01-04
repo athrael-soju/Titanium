@@ -29,26 +29,6 @@ const CustomizedInputBase = ({
   const [inputValue, setInputValue] = useState('');
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [isVisionDialogOpen, setIsVisionDialogOpen] = React.useState(false);
-  const files = useRef<{ name: string; id: string; assistandId: string }[]>([]);
-  const updateFiles = (
-    newFiles: { name: string; id: string; assistandId: string }[]
-  ) => {
-    files.current = newFiles;
-  };
-  const visionFiles = useRef<
-    { id: string; visionId: string; name: string; type: string; url: string }[]
-  >([]);
-  const updateVisionFiles = (
-    newVisionFiles: {
-      id: string;
-      visionId: string;
-      name: string;
-      type: string;
-      url: string;
-    }[]
-  ) => {
-    visionFiles.current = newVisionFiles;
-  };
 
   const { setValue } = useFormContext();
 
@@ -66,7 +46,7 @@ const CustomizedInputBase = ({
             setValue('name', response.assistant.name);
             setValue('description', response.assistant.instructions);
             setValue('isAssistantEnabled', response.isAssistantEnabled);
-            files.current = response.fileList;
+            setValue('assistantFiles', response.fileList);
             setValue('isAssistantDefined', true);
           } else {
             setValue('isAssistantDefined', false);
@@ -78,7 +58,7 @@ const CustomizedInputBase = ({
           });
           if (response.visionId) {
             setValue('isVisionEnabled', response.isVisionEnabled);
-            visionFiles.current = response.visionFileList;
+            setValue('visionFiles', response.visionFileList);
             setValue('isVisionDefined', true);
           } else {
             setValue('isVisionEnabled', false);
@@ -197,15 +177,11 @@ const CustomizedInputBase = ({
       <AssistantDialog
         open={isAssistantDialogOpen}
         onClose={() => setIsAssistantDialogOpen(false)}
-        files={files.current}
-        updateFiles={updateFiles}
       />
 
       <VisionDialog
         open={isVisionDialogOpen}
         onClose={() => setIsVisionDialogOpen(false)}
-        visionFiles={visionFiles.current}
-        updateVisionFiles={updateVisionFiles}
       />
     </>
   );

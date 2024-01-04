@@ -26,10 +26,6 @@ interface AssistantDialogProps {
   onClose: () => void;
   onToggleAssistant?: (isAssistantEnabled: boolean) => void;
   onReset?: () => void;
-  files: { name: string; id: string; assistandId: string }[];
-  updateFiles: (
-    newFiles: { name: string; id: string; assistandId: string }[]
-  ) => void;
 }
 
 const AssistantDialog: React.FC<AssistantDialogProps> = ({
@@ -37,8 +33,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   onClose,
   onToggleAssistant,
   onReset,
-  files,
-  updateFiles,
 }) => {
   const { data: session } = useSession();
   const [error, setError] = useState<{ name: boolean; description: boolean }>({
@@ -54,6 +48,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   const description = getValues('description');
   const isAssistantEnabled = watch('isAssistantEnabled');
   const isAssistantDefined = watch('isAssistantDefined');
+  const files = watch('assistantFiles');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
@@ -178,7 +173,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           serviceName: 'assistant',
         });
         if (retrieveAssistantResponse.assistant) {
-          updateFiles(retrieveAssistantResponse.fileList);
+          setValue('assistantFiles', retrieveAssistantResponse.fileList);
         }
         if (fileUploadResponse?.status === 200) {
           console.log('File uploaded successfully', fileUploadResponse);
