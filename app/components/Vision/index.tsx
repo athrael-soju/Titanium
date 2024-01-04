@@ -18,52 +18,36 @@ import {
   deleteVisionFile,
 } from '@/app/services/visionService';
 import { retrieveServices } from '@/app/services/commonService';
+import { useFormContext } from 'react-hook-form';
 interface VisionDialogProps {
   open: boolean;
   onClose: () => void;
-  isVisionEnabled: boolean;
-  setIsVisionEnabled: (isVisionEnabled: boolean) => void;
-  isVisionDefined: boolean;
-  setIsVisionDefined: (isVisionDefined: boolean) => void;
   onToggleVision?: (isVisionEnabled: boolean) => void;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  visionFiles: {
-    id: string;
-    visionId: string;
-    name: string;
-    type: string;
-    url: string;
-  }[];
-  updateVisionFiles: (
-    newVisionFiles: {
-      id: string;
-      visionId: string;
-      name: string;
-      type: string;
-      url: string;
-    }[]
-  ) => void;
 }
 
 const VisionDialog: React.FC<VisionDialogProps> = ({
   open,
   onClose,
-  isVisionEnabled,
-  setIsVisionEnabled,
-  isVisionDefined,
-  setIsVisionDefined,
   onToggleVision,
-  setIsLoading,
-  visionFiles,
-  updateVisionFiles,
 }) => {
   const { data: session } = useSession();
   const visionFileInputRef = useRef<HTMLInputElement>(null);
   const [isAddUrlDialogOpen, setIsAddUrlDialogOpen] = useState(false);
+
+  const { setValue, watch } = useFormContext();
+  const isVisionEnabled = watch('isVisionEnabled');
+  const isVisionDefined = watch('isVisionDefined');
+  const visionFiles = watch('visionFiles');
+
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsVisionEnabled(event.target.checked);
+    const enabled = event.target.checked;
+    setValue('isVisionEnabled', enabled);
+    if (enabled) {
+      setValue('isAssistantEnabled', false);
+    }
+
     if (onToggleVision) {
-      onToggleVision(event.target.checked);
+      onToggleVision(enabled);
     }
   };
 
@@ -73,7 +57,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
 
   const handleAddUrl = async (urlInput: string, nameInput: string) => {
     try {
-      setIsLoading(true);
+      setValue('isLoading', true);
       const user = session?.user as any;
       const userEmail = user.email;
       let id = crypto.randomUUID();
@@ -90,46 +74,46 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
 
       newFile.visionId = response.file.visionId;
       const newVisionFiles = [...visionFiles, newFile];
-      updateVisionFiles(newVisionFiles);
+      setValue('visionFiles', newVisionFiles);
       await handleUpdate();
     } catch (error) {
       console.error('Failed to add URL to Vision:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 
   const handleCloseClick = async () => {
     try {
       onClose();
-      setIsLoading(true);
+      setValue('isLoading', true);
       if (isVisionDefined) {
         const userEmail = session?.user?.email as string;
         const retrieveVisionResponse = await retrieveServices({
           userEmail,
           serviceName: 'vision',
         });
-        setIsVisionEnabled(retrieveVisionResponse.isVisionEnabled);
+        setValue('isVisionEnabled', retrieveVisionResponse.isVisionEnabled);
       } else {
-        setIsVisionEnabled(false);
+        setValue('isVisionEnabled', false);
       }
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 
   const handleUpdate = async () => {
     try {
-      setIsLoading(true);
+      setValue('isLoading', true);
       if (session) {
         const userEmail = session.user?.email as string;
         const updateVisionResponse = await updateVision({
           isVisionEnabled,
           userEmail,
         });
-        setIsVisionDefined(true);
+        setValue('setIsVisionDefined', true);
         console.log('Vision updated successfully', updateVisionResponse);
       } else {
         throw new Error('No session found');
@@ -137,7 +121,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     } catch (error) {
       console.error('Error updating Vision:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 
@@ -149,7 +133,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     url: string;
   }) => {
     try {
-      setIsLoading(true);
+      setValue('isLoading', true);
       const user = session?.user as any;
       const userEmail = user.email;
       const response = await deleteVisionFile(file, userEmail);
@@ -158,7 +142,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     } catch (error) {
       console.error('Failed to remove file from Vision:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 
@@ -204,9 +188,6 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
                 type="file"
                 ref={visionFileInputRef}
                 style={{ display: 'none' }}
-                onChange={() => {
-                  /* Handle file change */
-                }}
               />
             </Box>
           </Box>

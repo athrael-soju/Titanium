@@ -10,7 +10,7 @@ import {
   Box,
 } from '@mui/material';
 import AssistantForm from './AssistantForm';
-import FileList from './FileList';
+import AssistantFileList from './AssistantFileList';
 import ConfirmationDialog from './ConfirmationDialog';
 import { useSession } from 'next-auth/react';
 import {
@@ -20,42 +20,19 @@ import {
   uploadFile,
 } from '@/app/services/assistantService';
 import { retrieveServices } from '@/app/services/commonService';
+import { useFormContext } from 'react-hook-form';
 interface AssistantDialogProps {
   open: boolean;
   onClose: () => void;
-  name: string;
-  setName: (name: string) => void;
-  description: string;
-  setDescription: (description: string) => void;
-  isAssistantEnabled: boolean;
-  setIsAssistantEnabled: (isAssistantEnabled: boolean) => void;
-  isAssistantDefined: boolean;
-  setIsAssistantDefined: (isAssistantDefined: boolean) => void;
   onToggleAssistant?: (isAssistantEnabled: boolean) => void;
   onReset?: () => void;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  files: { name: string; id: string; assistandId: string }[];
-  updateFiles: (
-    newFiles: { name: string; id: string; assistandId: string }[]
-  ) => void;
 }
 
 const AssistantDialog: React.FC<AssistantDialogProps> = ({
   open,
   onClose,
-  name,
-  setName,
-  description,
-  setDescription,
-  isAssistantEnabled,
-  setIsAssistantEnabled,
-  isAssistantDefined,
-  setIsAssistantDefined,
   onToggleAssistant,
   onReset,
-  setIsLoading,
-  files,
-  updateFiles,
 }) => {
   const { data: session } = useSession();
   const [error, setError] = useState<{ name: boolean; description: boolean }>({
@@ -64,6 +41,26 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   });
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { getValues, setValue, watch } = useFormContext();
+
+  const name = getValues('name');
+  const description = getValues('description');
+  const isAssistantEnabled = watch('isAssistantEnabled');
+  const isAssistantDefined = watch('isAssistantDefined');
+  const files = watch('assistantFiles');
+
+  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const enabled = event.target.checked;
+    setValue('isAssistantEnabled', enabled);
+    if (enabled) {
+      setValue('isVisionEnabled', false);
+    }
+
+    if (onToggleAssistant) {
+      onToggleAssistant(enabled);
+    }
+  };
 
   const handleCreate = async () => {
     let hasError = false;
@@ -82,32 +79,25 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     }
 
     try {
-      setIsLoading(true);
+      setValue('isLoading', true);
       if (session) {
         const userEmail = session.user?.email as string;
-        await updateAssistant({
+        const updateAssistantResponse = await updateAssistant({
           name,
           description,
           isAssistantEnabled,
           userEmail,
           files,
         });
-        setIsAssistantDefined(true);
-        console.log('Assistant updated successfully');
+        setValue('isAssistantDefined', true);
+        console.log('Assistant updated successfully', updateAssistantResponse);
       } else {
         throw new Error('No session found');
       }
     } catch (error) {
       console.error('Error updating assistant:', error);
     } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsAssistantEnabled(event.target.checked);
-    if (onToggleAssistant) {
-      onToggleAssistant(event.target.checked);
+      setValue('isLoading', false);
     }
   };
 
@@ -118,32 +108,38 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
   const handleCloseClick = async () => {
     try {
       onClose();
-      setIsLoading(true);
+      setValue('isLoading', true);
       if (isAssistantDefined) {
         const userEmail = session?.user?.email as string;
         const retrieveAssistantResponse = await retrieveServices({
           userEmail,
           serviceName: 'assistant',
         });
-        setName(retrieveAssistantResponse.assistant.name);
-        setDescription(retrieveAssistantResponse.assistant.instructions);
-        setIsAssistantEnabled(retrieveAssistantResponse.isAssistantEnabled);
+        setValue('name', retrieveAssistantResponse.assistant.name);
+        setValue(
+          'description',
+          retrieveAssistantResponse.assistant.instructions
+        );
+        setValue(
+          'isAssistantEnabled',
+          retrieveAssistantResponse.isAssistantEnabled
+        );
       } else {
-        setName('');
-        setDescription('');
-        setIsAssistantEnabled(false);
+        setValue('name', '');
+        setValue('description', '');
+        setValue('isAssistantEnabled', false);
       }
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 
   const handleReset = () => {
-    setName('');
-    setDescription('');
-    setIsAssistantEnabled(false);
+    setValue('name', '');
+    setValue('description', '');
+    setValue('isAssistantEnabled', false);
     setError({ name: false, description: false });
     if (onReset) {
       onReset();
@@ -152,14 +148,14 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
 
   const handleFileDelete = async (file: any) => {
     try {
-      setIsLoading(true);
+      setValue('isLoading', true);
       await deleteAssistantFile({ file });
       console.log('File successfully deleted from the assistant:', file);
       files.splice(files.indexOf(file), 1);
     } catch (error) {
       console.error('Failed to remove file from the assistant:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 
@@ -170,14 +166,14 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     if (file) {
       const userEmail = session?.user?.email as string;
       try {
-        setIsLoading(true);
+        setValue('isLoading', true);
         const fileUploadResponse = await uploadFile(file, userEmail);
         const retrieveAssistantResponse = await retrieveServices({
           userEmail,
           serviceName: 'assistant',
         });
         if (retrieveAssistantResponse.assistant) {
-          updateFiles(retrieveAssistantResponse.fileList);
+          setValue('assistantFiles', retrieveAssistantResponse.fileList);
         }
         if (fileUploadResponse?.status === 200) {
           console.log('File uploaded successfully', fileUploadResponse);
@@ -185,7 +181,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       } catch (error) {
         console.error('Failed to upload file:', error);
       } finally {
-        setIsLoading(false);
+        setValue('isLoading', false);
       }
     }
   };
@@ -198,16 +194,16 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     setIsConfirmDialogOpen(false);
     const userEmail = session?.user?.email as string;
     try {
-      setIsLoading(true);
+      setValue('isLoading', true);
       await deleteAssistant({ userEmail });
       console.log('Assistant deleted successfully');
       files.splice(0, files.length);
       handleReset();
-      setIsAssistantDefined(false);
+      setValue('isAssistantDefined', false);
     } catch (error) {
       console.error('Error deleting assistant:', error);
     } finally {
-      setIsLoading(false);
+      setValue('isLoading', false);
     }
   };
 
@@ -219,14 +215,8 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           : `Customize Assistant: ${name}`}
       </DialogTitle>
       <DialogContent style={{ paddingBottom: 8 }}>
-        <AssistantForm
-          name={name}
-          setName={setName}
-          description={description}
-          setDescription={setDescription}
-          error={error}
-        />
-        <FileList files={files} onDelete={handleFileDelete} />
+        <AssistantForm error={error} />
+        <AssistantFileList files={files} onDelete={handleFileDelete} />
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box

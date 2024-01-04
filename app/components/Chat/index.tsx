@@ -1,23 +1,23 @@
 'use client';
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import { useSession } from 'next-auth/react';
+import { FormProvider } from 'react-hook-form';
 import MessagesField from '../MessagesField';
 import styles from './index.module.css';
 import Loader from '../Loader';
-import { useSession } from 'next-auth/react';
 import CustomizedInputBase from '../CustomizedInputBase';
 import { retrieveAIResponse } from '@/app/services/chatService';
-interface IMessage {
-  text: string;
-  sender: 'user' | 'ai';
-  id: string;
-}
+import { useChatForm } from '@/app/hooks/useChatForm'; // Adjust the import path as needed
+
 const Chat = () => {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isAssistantEnabled, setIsAssistantEnabled] = useState<boolean>(false);
-  const [isVisionEnabled, setIsVisionEnabled] = useState<boolean>(false);
+
+  const formMethods = useChatForm();
+  const { isAssistantEnabled, isVisionEnabled, isLoading } =
+    formMethods.watch();
+
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
     setMessages((prevMessages) => [
@@ -94,8 +94,9 @@ const Chat = () => {
 
   const sendUserMessage = async (message: string) => {
     if (!message.trim()) return;
+
     try {
-      setIsLoading(true);
+      formMethods.setValue('isLoading', true);
       addUserMessageToState(message);
       const aiResponseId = uuidv4();
       const userEmail = session?.user?.email as string;
@@ -105,7 +106,10 @@ const Chat = () => {
         isAssistantEnabled,
         isVisionEnabled
       );
-      if (!response) return;
+
+      if (!response) {
+        return;
+      }
       if (isAssistantEnabled) {
         await processResponse(response, aiResponseId);
       } else if (isVisionEnabled) {
@@ -114,11 +118,12 @@ const Chat = () => {
         await processStream(response, aiResponseId);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
-      setIsLoading(false);
+      formMethods.setValue('isLoading', false);
     }
   };
+
   async function processResponse(
     response: ReadableStreamDefaultReader<Uint8Array> | Response,
     aiResponseId: string
@@ -156,20 +161,13 @@ const Chat = () => {
   }
   if (session) {
     return (
-      <>
+      <FormProvider {...formMethods}>
         {isLoading && <Loader />}
         <MessagesField messages={messages} />
         <div className={styles.inputArea}>
-          <CustomizedInputBase
-            setIsLoading={setIsLoading}
-            onSendMessage={sendUserMessage}
-            isAssistantEnabled={isAssistantEnabled}
-            setIsAssistantEnabled={setIsAssistantEnabled}
-            isVisionEnabled={isVisionEnabled}
-            setIsVisionEnabled={setIsVisionEnabled}
-          />
+          <CustomizedInputBase onSendMessage={sendUserMessage} />
         </div>
-      </>
+      </FormProvider>
     );
   }
   return (
