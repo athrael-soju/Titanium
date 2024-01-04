@@ -46,7 +46,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    return sendErrorResponse('Assistant not configured for the user', 200);
+    return NextResponse.json(
+      {
+        message: 'Assistant cannot be retrieved, as it has not been created',
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     return handleErrorResponse(error);
   }
