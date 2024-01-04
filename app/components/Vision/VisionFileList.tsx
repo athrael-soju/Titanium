@@ -1,4 +1,3 @@
-// VisionFileList.js
 import React from 'react';
 import {
   ListItem,

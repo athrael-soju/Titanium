@@ -2,34 +2,21 @@
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useSession } from 'next-auth/react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { FormProvider } from 'react-hook-form';
 import MessagesField from '../MessagesField';
 import styles from './index.module.css';
 import Loader from '../Loader';
 import CustomizedInputBase from '../CustomizedInputBase';
 import { retrieveAIResponse } from '@/app/services/chatService';
+import { useChatForm } from '@/app/hooks/useChatForm'; // Adjust the import path as needed
 
 const Chat = () => {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<IMessage[]>([]);
 
-  const formMethods = useForm({
-    defaultValues: {
-      name: '',
-      description: '',
-      isAssistantEnabled: false,
-      isAssistantDefined: false,
-      isVisionEnabled: false,
-      isVisionDefined: false,
-      isLoading: false,
-      assistantFiles: [],
-      visionFiles: [],
-    },
-  });
-
-  // Retrieve values from the form's state
-  const formState = formMethods.watch();
-  const { isAssistantEnabled, isVisionEnabled, isLoading } = formState;
+  const formMethods = useChatForm();
+  const { isAssistantEnabled, isVisionEnabled, isLoading } =
+    formMethods.watch();
 
   const addUserMessageToState = (message: string) => {
     const userMessageId = uuidv4();
@@ -120,9 +107,9 @@ const Chat = () => {
         isVisionEnabled
       );
 
-      if (!response) return;
-
-      // Process the response based on the form's state
+      if (!response) {
+        return;
+      }
       if (isAssistantEnabled) {
         await processResponse(response, aiResponseId);
       } else if (isVisionEnabled) {
