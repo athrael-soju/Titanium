@@ -20,48 +20,6 @@ const Chat = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
 
   const sentences = useRef<string[]>([]);
-  const speechIndex = useRef<number>(0);
-  const audioQueue = useRef<string[]>([]);
-  const audioPlaying = useRef(false);
-
-  const processNextAudioItem = useCallback(async () => {
-    if (audioQueue.current.length > 0 && !audioPlaying.current) {
-      const textToSpeak = audioQueue.current.shift()!;
-      audioPlaying.current = true;
-      try {
-        const response = await fetch('/api/speech/tts', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: textToSpeak }),
-        });
-        if (!response.ok) {
-          throw new Error('Failed to convert text to speech');
-        }
-        const blob = await response.blob();
-        const audioUrl = URL.createObjectURL(blob);
-        const audio = new Audio(audioUrl);
-        audio.play();
-        audio.onended = () => {
-          audioPlaying.current = false;
-          processNextAudioItem();
-        };
-      } catch (error) {
-        console.error('TTS playback error:', error);
-        audioPlaying.current = false;
-        processNextAudioItem();
-      }
-    }
-  }, []);
-
-  const speak = useCallback(
-    (text: string) => {
-      audioQueue.current.push(text);
-      if (!audioPlaying.current) {
-        processNextAudioItem();
-      }
-    },
-    [processNextAudioItem]
-  );
 
   const formMethods = useChatForm();
   const { isAssistantEnabled, isVisionEnabled, isLoading } =
@@ -114,22 +72,6 @@ const Chat = () => {
       isDone = await processChunk();
     }
   };
-
-  useEffect(() => {
-    if (sentences.current.length > 0 && speechIndex.current !== 0) {
-      speak(sentences.current[speechIndex.current]);
-
-      speechIndex.current = 0;
-      sentences.current = [];
-    }
-  }, [isLoading, speak]);
-
-  useEffect(() => {
-    if (sentences.current.length > 1) {
-      speak(sentences.current[speechIndex.current]);
-      speechIndex.current++;
-    }
-  }, [sentences.current.length, speak]);
 
   const processBuffer = (
     buffer: string,
