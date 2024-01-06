@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useSession } from 'next-auth/react';
 import { FormProvider } from 'react-hook-form';
@@ -11,7 +11,7 @@ import styles from './index.module.css';
 import Loader from '../Loader';
 import CustomizedInputBase from '../CustomizedInputBase';
 import { retrieveAIResponse } from '@/app/services/chatService';
-import { useChatForm } from '@/app/hooks/useChatForm'; // Adjust the import path as needed
+import { useChatForm } from '@/app/hooks/useChatForm';
 
 const nlp = winkNLP(model);
 
@@ -21,43 +21,47 @@ const Chat = () => {
 
   const sentences = useRef<string[]>([]);
   const speechIndex = useRef<number>(0);
-  const audioQueue = useRef<HTMLAudioElement[]>([]);
+  const audioQueue = useRef<string[]>([]);
   const audioPlaying = useRef(false);
 
-  const playNextAudio = () => {
-    if (audioQueue.current.length > 0) {
-      const nextAudio = audioQueue.current.shift()!;
-      nextAudio.play();
-      nextAudio.onended = () => {
-        audioPlaying.current = false;
-        playNextAudio();
-      };
+  const processNextAudioItem = useCallback(async () => {
+    if (audioQueue.current.length > 0 && !audioPlaying.current) {
+      const textToSpeak = audioQueue.current.shift()!;
       audioPlaying.current = true;
-    }
-  };
-
-  const speak = async (text: string) => {
-    try {
-      const response = await fetch('/api/speech/tts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to convert text to speech');
+      try {
+        const response = await fetch('/api/speech/tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: textToSpeak }),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to convert text to speech');
+        }
+        const blob = await response.blob();
+        const audioUrl = URL.createObjectURL(blob);
+        const audio = new Audio(audioUrl);
+        audio.play();
+        audio.onended = () => {
+          audioPlaying.current = false;
+          processNextAudioItem();
+        };
+      } catch (error) {
+        console.error('TTS playback error:', error);
+        audioPlaying.current = false;
+        processNextAudioItem();
       }
-      const blob = await response.blob();
-      const audioUrl = URL.createObjectURL(blob);
-      const audio = new Audio(audioUrl);
+    }
+  }, []);
 
-      audioQueue.current.push(audio);
+  const speak = useCallback(
+    (text: string) => {
+      audioQueue.current.push(text);
       if (!audioPlaying.current) {
-        playNextAudio();
+        processNextAudioItem();
       }
-    } catch (error) {
-      console.error('TTS playback error:', error);
-    }
-  };
+    },
+    [processNextAudioItem]
+  );
 
   const formMethods = useChatForm();
   const { isAssistantEnabled, isVisionEnabled, isLoading } =
@@ -97,13 +101,12 @@ const Chat = () => {
     const processChunk = async () => {
       const { done, value } = await reader.read();
       if (done) {
-        // Process any remaining data in buffer
         processBuffer(buffer, aiResponseId, aiResponseText);
-        return true; // Indicates the stream has ended
+        return true;
       }
       buffer += value ? decoder.decode(value, { stream: true }) : '';
       processBuffer(buffer, aiResponseId, aiResponseText);
-      return false; // Indicates more data might be available
+      return false;
     };
 
     let isDone = false;
@@ -119,14 +122,14 @@ const Chat = () => {
       speechIndex.current = 0;
       sentences.current = [];
     }
-  }, [isLoading]);
+  }, [isLoading, speak]);
 
   useEffect(() => {
     if (sentences.current.length > 1) {
       speak(sentences.current[speechIndex.current]);
       speechIndex.current++;
     }
-  }, [sentences.current.length]);
+  }, [sentences.current.length, speak]);
 
   const processBuffer = (
     buffer: string,
@@ -147,7 +150,6 @@ const Chat = () => {
 
             const doc = nlp.readDoc(aiResponseText);
             sentences.current = doc.sentences().out();
-            // Check here for sentences and add create a buffer to send to the API
           }
         } catch (error) {
           console.error('Failed to parse JSON:', line, error);
