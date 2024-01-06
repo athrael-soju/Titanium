@@ -18,15 +18,11 @@ const nlp = winkNLP(model);
 const Chat = () => {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<IMessage[]>([]);
-
-  const sentences = useRef<string[]>([]);
-
   const formMethods = useChatForm();
   const { isAssistantEnabled, isVisionEnabled, isLoading } =
     formMethods.watch();
 
   const addUserMessageToState = (message: string) => {
-    sentences.current = [];
     const userMessageId = uuidv4();
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -89,9 +85,6 @@ const Chat = () => {
           const json = JSON.parse(line);
           if (json?.choices[0]?.delta?.content) {
             aiResponseText += json.choices[0].delta.content;
-
-            const doc = nlp.readDoc(aiResponseText);
-            sentences.current = doc.sentences().out();
           }
         } catch (error) {
           console.error('Failed to parse JSON:', line, error);
