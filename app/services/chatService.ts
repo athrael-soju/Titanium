@@ -1,3 +1,6 @@
+let isPlaying = false;
+let audioQueue: Blob[] = [];
+
 const retrieveAIResponse = async (
   userMessage: string,
   userEmail: string,
@@ -23,26 +26,38 @@ const retrieveAIResponse = async (
   }
 };
 
-const retrieveTextFromSpeech = async (
-  text: string
-): Promise<string | undefined> => {
-  try {
-    const response = await fetch('/api/speech/tts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to convert text to speech');
-    }
-    const blob = await response.blob();
-    const audioUrl = URL.createObjectURL(blob);
-    const audio = new Audio(audioUrl);
-    audio.play();
-  } catch (error) {
-    console.error('STT conversion error:', error);
-    return undefined;
+const retrieveTextFromSpeech = async (text: string) => {
+  const response = await fetch('/api/speech/tts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to convert text to speech');
   }
+  const blob = await response.blob();
+  audioQueue.push(blob);
+  playNextInQueue();
+};
+
+const playNextInQueue = () => {
+  if (isPlaying || audioQueue.length === 0) {
+    return;
+  }
+
+  isPlaying = true;
+  const audioBlob = audioQueue.shift();
+  if (!audioBlob) {
+    return;
+  }
+  const audioUrl = URL.createObjectURL(audioBlob);
+  const audio = new Audio(audioUrl);
+
+  audio.onended = () => {
+    isPlaying = false;
+    playNextInQueue();
+  };
+  audio.play();
 };
 
 export { retrieveAIResponse, retrieveTextFromSpeech };
