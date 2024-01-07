@@ -155,6 +155,7 @@ const Chat = () => {
         ? await response.json()
         : await response.text();
       addAiMessageToState(data, aiResponseId);
+      await retrieveTextFromSpeech(data);
     } catch (error) {
       console.error('Error processing response:', error);
     }
