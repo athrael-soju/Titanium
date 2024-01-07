@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
       input: text,
     });
     const buffer = Buffer.from(await response.arrayBuffer());
-    return new Response(buffer);
+    return new NextResponse(buffer);
   } catch (error) {
     console.error('TTS error:', error);
     return NextResponse.json(

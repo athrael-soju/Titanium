@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useSession } from 'next-auth/react';
 import { FormProvider } from 'react-hook-form';
@@ -12,6 +12,7 @@ import Loader from '../Loader';
 import CustomizedInputBase from '../CustomizedInputBase';
 import { retrieveAIResponse } from '@/app/services/chatService';
 import { useChatForm } from '@/app/hooks/useChatForm';
+import { retrieveTextFromSpeech } from '@/app/services/chatService';
 
 const nlp = winkNLP(model);
 
@@ -21,8 +22,12 @@ const Chat = () => {
   const formMethods = useChatForm();
   const { isAssistantEnabled, isVisionEnabled, isLoading } =
     formMethods.watch();
+  const sentences = useRef<string[]>([]);
+  const sentenceIndex = useRef<number>(0);
 
   const addUserMessageToState = (message: string) => {
+    sentences.current = [];
+    sentenceIndex.current = 0;
     const userMessageId = uuidv4();
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -55,11 +60,11 @@ const Chat = () => {
     const processChunk = async () => {
       const { done, value } = await reader.read();
       if (done) {
-        processBuffer(buffer, aiResponseId, aiResponseText);
+        await processBuffer(buffer, aiResponseId, aiResponseText);
         return true;
       }
       buffer += value ? decoder.decode(value, { stream: true }) : '';
-      processBuffer(buffer, aiResponseId, aiResponseText);
+      await processBuffer(buffer, aiResponseId, aiResponseText);
       return false;
     };
 
@@ -67,9 +72,13 @@ const Chat = () => {
     while (!isDone) {
       isDone = await processChunk();
     }
+
+    await retrieveTextFromSpeech(
+      sentences.current[sentences.current.length - 1]
+    );
   };
 
-  const processBuffer = (
+  const processBuffer = async (
     buffer: string,
     aiResponseId: string,
     aiResponseText: string
@@ -78,7 +87,7 @@ const Chat = () => {
     if (boundary === -1) return;
 
     let completeData = buffer.substring(0, boundary);
-
+    buffer = buffer.substring(boundary + 1); // Keep incomplete part in buffer
     completeData.split('\n').forEach((line) => {
       if (line) {
         try {
@@ -91,7 +100,13 @@ const Chat = () => {
         }
       }
     });
+
+    const doc = nlp.readDoc(aiResponseText);
+    sentences.current = doc.sentences().out();
     addAiMessageToState(aiResponseText, aiResponseId);
+    if (sentences.current.length > sentenceIndex.current + 1) {
+      await retrieveTextFromSpeech(sentences.current[sentenceIndex.current++]);
+    }
   };
 
   const sendUserMessage = async (message: string) => {
