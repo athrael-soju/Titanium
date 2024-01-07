@@ -1,5 +1,44 @@
+let audioQueue: string[] = [];
 let isPlaying = false;
-let audioQueue: Blob[] = [];
+
+const delay = (ms: number | undefined) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
+const playNextAudio = () => {
+  if (audioQueue.length > 0 && !isPlaying) {
+    const audioUrl = audioQueue.shift();
+    const audio = new Audio(audioUrl);
+    isPlaying = true;
+    audio.play();
+    audio.onended = async () => {
+      await delay(250);
+      isPlaying = false;
+      playNextAudio();
+    };
+  }
+};
+
+const retrieveTextFromSpeech = async (text: string) => {
+  try {
+    const response = await fetch('/api/speech/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to convert text to speech');
+    }
+    const blob = await response.blob();
+    const audioUrl = URL.createObjectURL(blob);
+    audioQueue.push(audioUrl);
+    if (!isPlaying) {
+      playNextAudio();
+    }
+  } catch (error) {
+    console.error('STT conversion error:', error);
+    return undefined;
+  }
+};
 
 const retrieveAIResponse = async (
   userMessage: string,
@@ -24,40 +63,6 @@ const retrieveAIResponse = async (
     console.error('Failed to fetch AI response:', error);
     return undefined;
   }
-};
-
-const retrieveTextFromSpeech = async (text: string) => {
-  const response = await fetch('/api/speech/tts', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text }),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to convert text to speech');
-  }
-  const blob = await response.blob();
-  audioQueue.push(blob);
-  playNextInQueue();
-};
-
-const playNextInQueue = () => {
-  if (isPlaying || audioQueue.length === 0) {
-    return;
-  }
-
-  isPlaying = true;
-  const audioBlob = audioQueue.shift();
-  if (!audioBlob) {
-    return;
-  }
-  const audioUrl = URL.createObjectURL(audioBlob);
-  const audio = new Audio(audioUrl);
-
-  audio.onended = () => {
-    isPlaying = false;
-    playNextInQueue();
-  };
-  audio.play();
 };
 
 export { retrieveAIResponse, retrieveTextFromSpeech };
