@@ -3,7 +3,6 @@ import {
   getDatabaseAndUser,
   getDb,
   handleErrorResponse,
-  sendErrorResponse,
 } from '@/app/lib/utils/db';
 import OpenAI from 'openai';
 

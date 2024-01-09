@@ -6,10 +6,10 @@ const openai = new OpenAI(options);
 
 export async function POST(req: NextRequest) {
   try {
-    const { text } = await req.json();
+    const { text, model, voice } = await req.json();
     const response = await openai.audio.speech.create({
-      model: 'tts-1', // Replace 'model' with one of the supported options: 'tts-1' or 'tts-1-hd'
-      voice: 'nova', // Replace 'voice' with one of the supported options: 'alloy', 'echo', 'fable', 'onyx', 'nova', or 'shimmer'
+      model: model,
+      voice: voice,
       input: text,
     });
     const buffer = Buffer.from(await response.arrayBuffer());
