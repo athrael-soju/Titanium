@@ -18,12 +18,16 @@ const playNextAudio = () => {
   }
 };
 
-const retrieveTextFromSpeech = async (text: string) => {
+const retrieveTextFromSpeech = async (
+  text: string,
+  model: string,
+  voice: string
+): Promise<void> => {
   try {
     const response = await fetch('/api/speech/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, model, voice }),
     });
     if (!response.ok) {
       throw new Error('Failed to convert text to speech');

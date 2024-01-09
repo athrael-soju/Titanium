@@ -1,11 +1,15 @@
 interface SpeechUpdateData {
   isSpeechEnabled: boolean;
   userEmail: string;
+  model: string;
+  voice: string;
 }
 
 const updateSpeech = async ({
   isSpeechEnabled,
   userEmail,
+  model,
+  voice,
 }: SpeechUpdateData): Promise<any> => {
   try {
     const response = await fetch('/api/speech/update', {
@@ -16,6 +20,8 @@ const updateSpeech = async ({
       body: JSON.stringify({
         isSpeechEnabled,
         userEmail,
+        model,
+        voice,
       }),
     });
     return response.json();

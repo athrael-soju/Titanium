@@ -64,6 +64,19 @@ const CustomizedInputBase = ({
           } else {
             setValue('isVisionDefined', false);
           }
+
+          response = await retrieveServices({
+            userEmail,
+            serviceName: 'speech',
+          });
+          console.log('response', response);
+          setValue('isSpeechEnabled', response.isSpeechEnabled);
+          if (response.model) {
+            setValue('model', response.model);
+          }
+          if (response.voice) {
+            setValue('voice', response.voice);
+          }
         } catch (error) {
           console.error('Error prefetching services:', error);
         } finally {

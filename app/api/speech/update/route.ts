@@ -24,9 +24,11 @@ async function updateSpeech(
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
-    const { isSpeechEnabled, userEmail } = (await req.json()) as {
+    const { isSpeechEnabled, userEmail, model, voice } = (await req.json()) as {
       isSpeechEnabled: boolean;
       userEmail: string;
+      model: string;
+      voice: string;
     };
 
     const usersCollection = db.collection<IUser>('users');
@@ -36,20 +38,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return sendErrorResponse('User not found', 404);
     }
 
-    await updateSpeech(
-      user,
-      usersCollection,
-      isSpeechEnabled,
-      user.model,
-      user.voice
-    );
+    await updateSpeech(user, usersCollection, isSpeechEnabled, model, voice);
 
     return NextResponse.json(
       {
         message: 'Speech updated',
         isSpeechEnabled: isSpeechEnabled,
-        model: user.model,
-        voice: user.voice,
+        model: model,
+        voice: voice,
       },
       { status: 200 }
     );

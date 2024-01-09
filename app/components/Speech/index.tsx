@@ -19,7 +19,7 @@ import SpeechForm from './SpeechForm';
 interface SpeechDialogProps {
   open: boolean;
   onClose: () => void;
-  onToggleSpeech?: (isVisionEnabled: boolean) => void;
+  onToggleSpeech?: (isSpeechEnabled: boolean) => void;
 }
 
 const SpeechDialog: React.FC<SpeechDialogProps> = ({
@@ -59,8 +59,12 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
           serviceName: 'speech',
         });
         setValue('isSpeechEnabled', retrieveSpeechResponse.isSpeechEnabled);
+        setValue('model', retrieveSpeechResponse.model);
+        setValue('voice', retrieveSpeechResponse.voice);
       } else {
         setValue('isSpeechEnabled', false);
+        setValue('model', '');
+        setValue('voice', '');
       }
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);
@@ -91,6 +95,8 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
         const updateSpeechResponse = await updateSpeech({
           isSpeechEnabled,
           userEmail,
+          model,
+          voice,
         });
         console.log('Speech updated successfully', updateSpeechResponse);
       } else {
@@ -106,7 +112,7 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle style={{ textAlign: 'center' }}>Speech Settings</DialogTitle>
-      <DialogContent style={{ paddingBottom: 8 }}>
+      <DialogContent style={{ paddingTop: 5, paddingBottom: 5 }}>
         <SpeechForm error={error} />
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
