@@ -1,10 +1,13 @@
 interface IUser {
   email: string;
   name: string;
+  model: string;
+  voice: string;
   description: string;
   assistantId?: string | null;
   threadId?: string | null;
   visionId?: string | null;
   isAssistantEnabled: boolean;
   isVisionEnabled: boolean;
+  isSpeechEnabled: boolean;
 }

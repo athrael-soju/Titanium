@@ -8,8 +8,7 @@ const retrieveServices = async ({
   serviceName,
 }: RetrieveServicesData): Promise<any> => {
   try {
-    let apiRoute = serviceName === 'vision' ? 'vision' : 'assistant';
-    const response = await fetch(`/api/${apiRoute}/retrieve/`, {
+    const response = await fetch(`/api/${serviceName}/retrieve/`, {
       method: 'GET',
       headers: { userEmail: userEmail, serviceName: serviceName },
     });

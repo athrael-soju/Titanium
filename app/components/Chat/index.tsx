@@ -1,24 +1,35 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useSession } from 'next-auth/react';
 import { FormProvider } from 'react-hook-form';
+import winkNLP from 'wink-nlp';
+import model from 'wink-eng-lite-web-model';
 import MessagesField from '../MessagesField';
 import styles from './index.module.css';
 import Loader from '../Loader';
 import CustomizedInputBase from '../CustomizedInputBase';
-import { retrieveAIResponse } from '@/app/services/chatService';
-import { useChatForm } from '@/app/hooks/useChatForm'; // Adjust the import path as needed
+import {
+  retrieveAIResponse,
+  retrieveTextFromSpeech,
+} from '@/app/services/chatService';
+import { useChatForm } from '@/app/hooks/useChatForm';
+
+const nlp = winkNLP(model);
 
 const Chat = () => {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<IMessage[]>([]);
-
   const formMethods = useChatForm();
-  const { isAssistantEnabled, isVisionEnabled, isLoading } =
+  const { isAssistantEnabled, isVisionEnabled, isSpeechEnabled, isLoading } =
     formMethods.watch();
+  const { model, voice } = formMethods.getValues();
+  const sentences = useRef<string[]>([]);
+  const sentenceIndex = useRef<number>(0);
 
   const addUserMessageToState = (message: string) => {
+    sentences.current = [];
+    sentenceIndex.current = 0;
     const userMessageId = uuidv4();
     setMessages((prevMessages) => [
       ...prevMessages,
@@ -51,22 +62,28 @@ const Chat = () => {
     const processChunk = async () => {
       const { done, value } = await reader.read();
       if (done) {
-        // Process any remaining data in buffer
-        processBuffer(buffer, aiResponseId, aiResponseText);
-        return true; // Indicates the stream has ended
+        await processBuffer(buffer, aiResponseId, aiResponseText);
+        return true;
       }
       buffer += value ? decoder.decode(value, { stream: true }) : '';
-      processBuffer(buffer, aiResponseId, aiResponseText);
-      return false; // Indicates more data might be available
+      await processBuffer(buffer, aiResponseId, aiResponseText);
+      return false;
     };
 
     let isDone = false;
     while (!isDone) {
       isDone = await processChunk();
     }
+    if (isSpeechEnabled) {
+      await retrieveTextFromSpeech(
+        sentences.current[sentences.current.length - 1],
+        model,
+        voice
+      );
+    }
   };
 
-  const processBuffer = (
+  const processBuffer = async (
     buffer: string,
     aiResponseId: string,
     aiResponseText: string
@@ -76,7 +93,6 @@ const Chat = () => {
 
     let completeData = buffer.substring(0, boundary);
     buffer = buffer.substring(boundary + 1); // Keep incomplete part in buffer
-
     completeData.split('\n').forEach((line) => {
       if (line) {
         try {
@@ -89,7 +105,19 @@ const Chat = () => {
         }
       }
     });
+
+    const doc = nlp.readDoc(aiResponseText);
+    sentences.current = doc.sentences().out();
     addAiMessageToState(aiResponseText, aiResponseId);
+    if (isSpeechEnabled) {
+      if (sentences.current.length > sentenceIndex.current + 1) {
+        await retrieveTextFromSpeech(
+          sentences.current[sentenceIndex.current++],
+          model,
+          voice
+        );
+      }
+    }
   };
 
   const sendUserMessage = async (message: string) => {
@@ -138,6 +166,9 @@ const Chat = () => {
         ? await response.json()
         : await response.text();
       addAiMessageToState(data, aiResponseId);
+      if (isSpeechEnabled) {
+        await retrieveTextFromSpeech(data, model, voice);
+      }
     } catch (error) {
       console.error('Error processing response:', error);
     }
