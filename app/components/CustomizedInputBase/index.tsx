@@ -9,12 +9,14 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import VisionIcon from '@mui/icons-material/Visibility';
+import RecordVoiceOver from '@mui/icons-material/RecordVoiceOver';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useSession } from 'next-auth/react';
 import { useFormContext } from 'react-hook-form';
 import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
+import SpeechDialog from '../Speech';
 import { retrieveServices } from '@/app/services/commonService';
 
 const CustomizedInputBase = ({
@@ -29,7 +31,7 @@ const CustomizedInputBase = ({
   const [inputValue, setInputValue] = useState('');
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [isVisionDialogOpen, setIsVisionDialogOpen] = React.useState(false);
-
+  const [isSpeechDialogOpen, setIsSpeechDialogOpen] = React.useState(false);
   const { setValue } = useFormContext();
 
   useEffect(() => {
@@ -112,6 +114,11 @@ const CustomizedInputBase = ({
     handleMenuClose();
   };
 
+  const handleSpeechClick = () => {
+    setIsSpeechDialogOpen(true);
+    handleMenuClose();
+  };
+
   return (
     <>
       <Paper
@@ -156,6 +163,12 @@ const CustomizedInputBase = ({
             </ListItemIcon>
             Vision
           </MenuItem>
+          <MenuItem onClick={handleSpeechClick}>
+            <ListItemIcon>
+              <RecordVoiceOver />
+            </ListItemIcon>
+            Speech
+          </MenuItem>
         </Menu>
         <InputBase
           sx={{ ml: 1, flex: 1 }}
@@ -181,6 +194,11 @@ const CustomizedInputBase = ({
       <VisionDialog
         open={isVisionDialogOpen}
         onClose={() => setIsVisionDialogOpen(false)}
+      />
+
+      <SpeechDialog
+        open={isSpeechDialogOpen}
+        onClose={() => setIsSpeechDialogOpen(false)}
       />
     </>
   );

@@ -5,14 +5,15 @@ import { useSession } from 'next-auth/react';
 import { FormProvider } from 'react-hook-form';
 import winkNLP from 'wink-nlp';
 import model from 'wink-eng-lite-web-model';
-
 import MessagesField from '../MessagesField';
 import styles from './index.module.css';
 import Loader from '../Loader';
 import CustomizedInputBase from '../CustomizedInputBase';
-import { retrieveAIResponse } from '@/app/services/chatService';
+import {
+  retrieveAIResponse,
+  retrieveTextFromSpeech,
+} from '@/app/services/chatService';
 import { useChatForm } from '@/app/hooks/useChatForm';
-import { retrieveTextFromSpeech } from '@/app/services/chatService';
 
 const nlp = winkNLP(model);
 

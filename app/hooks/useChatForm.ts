@@ -3,10 +3,13 @@ import { useForm } from 'react-hook-form';
 interface ChatFormValues {
   name: string;
   description: string;
+  model: string;
+  voice: string;
   isAssistantEnabled: boolean;
   isAssistantDefined: boolean;
   isVisionEnabled: boolean;
   isVisionDefined: boolean;
+  isSpeechEnabled: boolean;
   isLoading: boolean;
   assistantFiles: { name: string; id: string; assistandId: string }[];
   visionFiles: {
@@ -23,10 +26,13 @@ export const useChatForm = () => {
     defaultValues: {
       name: '',
       description: '',
+      model: '',
+      voice: '',
       isAssistantEnabled: false,
       isAssistantDefined: false,
       isVisionEnabled: false,
       isVisionDefined: false,
+      isSpeechEnabled: false,
       isLoading: false,
       assistantFiles: [],
       visionFiles: [],
