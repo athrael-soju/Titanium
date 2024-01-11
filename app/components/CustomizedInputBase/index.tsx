@@ -1,4 +1,3 @@
-import React, { useState, useEffect } from 'react';
 import Paper from '@mui/material/Paper';
 import InputBase from '@mui/material/InputBase';
 import IconButton from '@mui/material/IconButton';
@@ -9,108 +8,39 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import VisionIcon from '@mui/icons-material/Visibility';
+import RecordVoiceOver from '@mui/icons-material/RecordVoiceOver';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useSession } from 'next-auth/react';
-import { useFormContext } from 'react-hook-form';
+import { useCustomInput } from '@/app/hooks/useCustomInput';
 import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
-import { retrieveServices } from '@/app/services/commonService';
+import SpeechDialog from '../Speech';
 
 const CustomizedInputBase = ({
   onSendMessage,
 }: {
-  onSendMessage: (message: string) => void;
+  onSendMessage: (message: string) => Promise<void>;
 }) => {
-  const { data: session } = useSession();
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [inputValue, setInputValue] = useState('');
-  const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
-  const [isVisionDialogOpen, setIsVisionDialogOpen] = React.useState(false);
 
-  const { setValue } = useFormContext();
-
-  useEffect(() => {
-    const prefetchData = async () => {
-      if (session) {
-        try {
-          setValue('isLoading', true);
-          const userEmail = session.user?.email as string;
-          let response = await retrieveServices({
-            userEmail,
-            serviceName: 'assistant',
-          });
-          if (response.assistant) {
-            setValue('name', response.assistant.name);
-            setValue('description', response.assistant.instructions);
-            setValue('isAssistantEnabled', response.isAssistantEnabled);
-            setValue('assistantFiles', response.fileList);
-            setValue('isAssistantDefined', true);
-          } else {
-            setValue('isAssistantDefined', false);
-          }
-          response = await retrieveServices({
-            userEmail,
-            serviceName: 'vision',
-          });
-          if (response.visionId) {
-            setValue('isVisionEnabled', response.isVisionEnabled);
-            setValue('visionFiles', response.visionFileList);
-            setValue('isVisionDefined', true);
-          } else {
-            setValue('isVisionDefined', false);
-          }
-        } catch (error) {
-          console.error('Error prefetching services:', error);
-        } finally {
-          setValue('isLoading', false);
-        }
-      }
-    };
-
-    prefetchData();
-  }, [session, setValue]);
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLFormElement>) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      if (inputValue.trim()) {
-        onSendMessage(inputValue);
-        setInputValue('');
-      }
-    }
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
-  };
-
-  const handleSendClick = () => {
-    if (inputValue.trim()) {
-      onSendMessage(inputValue);
-      setInputValue('');
-    }
-  };
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleAssistantsClick = async () => {
-    setIsAssistantDialogOpen(true);
-    handleMenuClose();
-  };
-
-  const handleVisionClick = () => {
-    setIsVisionDialogOpen(true);
-    handleMenuClose();
-  };
+  const {
+    inputValue,
+    handleInputChange,
+    handleSendClick,
+    isAssistantDialogOpen,
+    isVisionDialogOpen,
+    isSpeechDialogOpen,
+    handleAssistantsClick,
+    handleVisionClick,
+    handleSpeechClick,
+    handleMenuOpen,
+    handleMenuClose,
+    anchorEl,
+    setIsAssistantDialogOpen,
+    setIsVisionDialogOpen,
+    setIsSpeechDialogOpen,
+  } = useCustomInput({ onSendMessage });
 
   return (
     <>
@@ -122,7 +52,12 @@ const CustomizedInputBase = ({
           alignItems: 'center',
           width: isSmallScreen ? '100%' : 600,
         }}
-        onKeyDown={handleKeyDown}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter') {
+            event.preventDefault();
+            handleSendClick();
+          }
+        }}
       >
         <IconButton
           sx={{ p: '10px' }}
@@ -140,7 +75,7 @@ const CustomizedInputBase = ({
             horizontal: 'right',
           }}
           transformOrigin={{
-            vertical: 'bottom',
+            vertical: 'top',
             horizontal: 'right',
           }}
         >
@@ -152,9 +87,15 @@ const CustomizedInputBase = ({
           </MenuItem>
           <MenuItem onClick={handleVisionClick}>
             <ListItemIcon>
-              <VisionIcon fontSize="small" />{' '}
+              <VisionIcon fontSize="small" />
             </ListItemIcon>
             Vision
+          </MenuItem>
+          <MenuItem onClick={handleSpeechClick}>
+            <ListItemIcon>
+              <RecordVoiceOver />
+            </ListItemIcon>
+            Speech
           </MenuItem>
         </Menu>
         <InputBase
@@ -181,6 +122,11 @@ const CustomizedInputBase = ({
       <VisionDialog
         open={isVisionDialogOpen}
         onClose={() => setIsVisionDialogOpen(false)}
+      />
+
+      <SpeechDialog
+        open={isSpeechDialogOpen}
+        onClose={() => setIsSpeechDialogOpen(false)}
       />
     </>
   );

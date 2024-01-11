@@ -113,7 +113,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           isVisionEnabled,
           userEmail,
         });
-        setValue('setIsVisionDefined', true);
+        setValue('isVisionDefined', true);
         console.log('Vision updated successfully', updateVisionResponse);
       } else {
         throw new Error('No session found');
