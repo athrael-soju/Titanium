@@ -17,58 +17,69 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   useEffect(() => {
-    const prefetchData = async () => {
+    if (session) {
+      prefetchData();
+    }
+  }, [session]);
+
+  const prefetchData = async () => {
+    try {
+      setValue('isLoading', true);
       if (session) {
-        try {
-          setValue('isLoading', true);
-          const userEmail = session.user?.email as string;
-          let response = await retrieveServices({
-            userEmail,
-            serviceName: 'assistant',
-          });
-          if (response.assistant) {
-            setValue('name', response.assistant.name);
-            setValue('description', response.assistant.instructions);
-            setValue('isAssistantEnabled', response.isAssistantEnabled);
-            setValue('assistantFiles', response.fileList);
-            setValue('isAssistantDefined', true);
-          } else {
-            setValue('isAssistantDefined', false);
-          }
-          response = await retrieveServices({
-            userEmail,
-            serviceName: 'vision',
-          });
-          if (response.visionId) {
-            setValue('isVisionEnabled', response.isVisionEnabled);
-            setValue('visionFiles', response.visionFileList);
-            setValue('isVisionDefined', true);
-          } else {
-            setValue('isVisionDefined', false);
-          }
-
-          response = await retrieveServices({
-            userEmail,
-            serviceName: 'speech',
-          });
-          console.log('response', response);
-          setValue('isSpeechEnabled', response.isSpeechEnabled);
-          if (response.model) {
-            setValue('model', response.model);
-          }
-          if (response.voice) {
-            setValue('voice', response.voice);
-          }
-        } catch (error) {
-          console.error('Error prefetching services:', error);
-        } finally {
-          setValue('isLoading', false);
-        }
+        await prefetchAssistant(session.user?.email as string);
+        await prefetchVision(session.user?.email as string);
+        await prefetchSpeech(session.user?.email as string);
       }
-    };
+    } catch (error) {
+      console.error('Error prefetching services:', error);
+    } finally {
+      setValue('isLoading', false);
+    }
+  };
 
-    prefetchData();
-  }, [session, setValue]);
+  const prefetchAssistant = async (userEmail: string) => {
+    const response = await retrieveServices({
+      userEmail,
+      serviceName: 'assistant',
+    });
+    if (response.assistant) {
+      setValue('name', response.assistant.name);
+      setValue('description', response.assistant.instructions);
+      setValue('isAssistantEnabled', response.isAssistantEnabled);
+      setValue('assistantFiles', response.fileList);
+      setValue('isAssistantDefined', true);
+    } else {
+      setValue('isAssistantDefined', false);
+    }
+  };
+
+  const prefetchVision = async (userEmail: string) => {
+    const response = await retrieveServices({
+      userEmail,
+      serviceName: 'vision',
+    });
+    if (response.visionId) {
+      setValue('isVisionEnabled', response.isVisionEnabled);
+      setValue('visionFiles', response.visionFileList);
+      setValue('isVisionDefined', true);
+    } else {
+      setValue('isVisionDefined', false);
+    }
+  };
+
+  const prefetchSpeech = async (userEmail: string) => {
+    const response = await retrieveServices({
+      userEmail,
+      serviceName: 'speech',
+    });
+    setValue('isSpeechEnabled', response.isSpeechEnabled);
+    if (response.model) {
+      setValue('model', response.model);
+    }
+    if (response.voice) {
+      setValue('voice', response.voice);
+    }
+  };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
