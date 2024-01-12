@@ -30,7 +30,9 @@
     "unique-names-generator": "^4.7.1",
     "uuid": "^9.0.1",
     "wink-eng-lite-web-model": "^1.5.2",
-    "wink-nlp": "^1.14.3"
+    "wink-nlp": "^1.14.3",
+    "zod": "^3.22.4",
+    "zod-to-json-schema": "^3.22.3"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
