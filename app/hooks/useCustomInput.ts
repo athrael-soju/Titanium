@@ -94,7 +94,6 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
   };
 
   const appendText = (text: string) => {
-    console.log('Appending text:', text);
     setInputValue((prevValue) => `${prevValue} ${text}`.trim());
   };
 

@@ -10,6 +10,7 @@ async function updateVision(
   let isAssistantEnabled = isVisionEnabled ? false : user.isAssistantEnabled;
   let visionId = user.visionId;
   if (!visionId) {
+    console.log('No visionId found. Creating a new one');
     visionId = crypto.randomUUID();
   }
   await usersCollection.updateOne(
