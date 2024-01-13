@@ -95,6 +95,11 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
     setInputValue(event.target.value);
   };
 
+  const appendText = (text: string) => {
+    console.log('Appending text:', text);
+    setInputValue((prevValue) => `${prevValue} ${text}`.trim());
+  };
+
   const handleSendClick = async () => {
     if (inputValue.trim()) {
       onSendMessage(inputValue);
@@ -127,6 +132,7 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
 
   return {
     inputValue,
+    appendText,
     handleInputChange,
     handleSendClick,
     isAssistantDialogOpen,

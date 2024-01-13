@@ -6,8 +6,6 @@ import SendIcon from '@mui/icons-material/Send';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import MicIcon from '@mui/icons-material/Mic';
-import MicOffIcon from '@mui/icons-material/MicOff';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import VisionIcon from '@mui/icons-material/Visibility';
 import RecordVoiceOver from '@mui/icons-material/RecordVoiceOver';
@@ -17,6 +15,7 @@ import { useCustomInput } from '@/app/hooks/useCustomInput';
 import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
 import SpeechDialog from '../Speech';
+import { Microphone } from '../Speech/stt';
 
 const CustomizedInputBase = ({
   onSendMessage,
@@ -28,6 +27,7 @@ const CustomizedInputBase = ({
 
   const {
     inputValue,
+    appendText,
     handleInputChange,
     handleSendClick,
     isAssistantDialogOpen,
@@ -61,13 +61,7 @@ const CustomizedInputBase = ({
           }
         }}
       >
-        <IconButton
-          sx={{ p: '10px' }}
-          aria-label="menu"
-          //onClick={activateSpeechToText} 
-        >
-          {/* <MicIcon />  or MicOffIcon*/}
-        </IconButton>
+        <Microphone onAppendText={appendText} />
         <IconButton
           sx={{ p: '10px' }}
           aria-label="menu"

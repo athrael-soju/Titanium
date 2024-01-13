@@ -12,7 +12,7 @@ import {
 import { useSession } from 'next-auth/react';
 
 import { retrieveServices } from '@/app/services/commonService';
-import { updateSpeech } from '@/app/services/speechService';
+import { updateSpeech } from '@/app/services/textToSpeechService';
 import { useFormContext } from 'react-hook-form';
 import SpeechForm from './SpeechForm';
 
