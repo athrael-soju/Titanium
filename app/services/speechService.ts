@@ -1,12 +1,12 @@
 interface SpeechUpdateData {
-  isSpeechEnabled: boolean;
+  isTextToSpeechEnabled: boolean;
   userEmail: string;
   model: string;
   voice: string;
 }
 
 const updateSpeech = async ({
-  isSpeechEnabled,
+  isTextToSpeechEnabled,
   userEmail,
   model,
   voice,
@@ -18,7 +18,7 @@ const updateSpeech = async ({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        isSpeechEnabled,
+        isTextToSpeechEnabled,
         userEmail,
         model,
         voice,

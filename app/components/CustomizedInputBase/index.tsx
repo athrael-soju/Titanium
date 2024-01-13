@@ -6,6 +6,8 @@ import SendIcon from '@mui/icons-material/Send';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import MicIcon from '@mui/icons-material/Mic';
+import MicOffIcon from '@mui/icons-material/MicOff';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import VisionIcon from '@mui/icons-material/Visibility';
 import RecordVoiceOver from '@mui/icons-material/RecordVoiceOver';
@@ -50,7 +52,7 @@ const CustomizedInputBase = ({
           p: '2px 4px',
           display: 'flex',
           alignItems: 'center',
-          width: isSmallScreen ? '100%' : 600,
+          width: isSmallScreen ? '100%' : 650,
         }}
         onKeyDown={(event) => {
           if (event.key === 'Enter') {
@@ -59,6 +61,13 @@ const CustomizedInputBase = ({
           }
         }}
       >
+        <IconButton
+          sx={{ p: '10px' }}
+          aria-label="menu"
+          //onClick={activateSpeechToText} 
+        >
+          {/* <MicIcon />  or MicOffIcon*/}
+        </IconButton>
         <IconButton
           sx={{ p: '10px' }}
           aria-label="menu"

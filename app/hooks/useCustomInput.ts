@@ -57,7 +57,7 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
         userEmail,
         serviceName: 'speech',
       });
-      setValue('isSpeechEnabled', response.isSpeechEnabled);
+      setValue('isTextToSpeechEnabled', response.isTextToSpeechEnabled);
       if (response.model) {
         setValue('model', response.model);
       }

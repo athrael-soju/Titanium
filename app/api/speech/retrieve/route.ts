@@ -14,12 +14,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const { user } = await getDatabaseAndUser(db, userEmail);
 
     if (serviceName === 'speech') {
-      const { isSpeechEnabled, model, voice } = user;
+      const { isTextToSpeechEnabled, model, voice } = user;
 
       return NextResponse.json(
         {
           message: 'Speech retrieved',
-          isSpeechEnabled,
+          isTextToSpeechEnabled,
           model,
           voice,
         },
