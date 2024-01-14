@@ -5,7 +5,7 @@ import { Collection } from 'mongodb';
 async function updateSpeech(
   user: IUser,
   usersCollection: Collection<IUser>,
-  isSpeechEnabled: boolean,
+  isTextToSpeechEnabled: boolean,
   model: string,
   voice: string
 ): Promise<void> {
@@ -13,7 +13,7 @@ async function updateSpeech(
     { email: user.email },
     {
       $set: {
-        isSpeechEnabled: isSpeechEnabled,
+        isTextToSpeechEnabled: isTextToSpeechEnabled,
         model: model,
         voice: voice,
       },
@@ -24,8 +24,8 @@ async function updateSpeech(
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
-    const { isSpeechEnabled, userEmail, model, voice } = (await req.json()) as {
-      isSpeechEnabled: boolean;
+    const { isTextToSpeechEnabled, userEmail, model, voice } = (await req.json()) as {
+      isTextToSpeechEnabled: boolean;
       userEmail: string;
       model: string;
       voice: string;
@@ -38,12 +38,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return sendErrorResponse('User not found', 404);
     }
 
-    await updateSpeech(user, usersCollection, isSpeechEnabled, model, voice);
+    await updateSpeech(user, usersCollection, isTextToSpeechEnabled, model, voice);
 
     return NextResponse.json(
       {
         message: 'Speech updated',
-        isSpeechEnabled: isSpeechEnabled,
+        isTextToSpeechEnabled: isTextToSpeechEnabled,
         model: model,
         voice: voice,
       },

@@ -57,11 +57,9 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
         userEmail,
         serviceName: 'speech',
       });
-      setValue('isSpeechEnabled', response.isSpeechEnabled);
-      if (response.model) {
+      if (response.isTextToSpeechEnabled !== undefined) {
+        setValue('isTextToSpeechEnabled', response.isTextToSpeechEnabled);
         setValue('model', response.model);
-      }
-      if (response.voice) {
         setValue('voice', response.voice);
       }
     },
@@ -93,6 +91,10 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
+  };
+
+  const appendText = (text: string) => {
+    setInputValue((prevValue) => `${prevValue} ${text}`.trim());
   };
 
   const handleSendClick = async () => {
@@ -127,6 +129,7 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
 
   return {
     inputValue,
+    appendText,
     handleInputChange,
     handleSendClick,
     isAssistantDialogOpen,

@@ -12,14 +12,14 @@ import {
 import { useSession } from 'next-auth/react';
 
 import { retrieveServices } from '@/app/services/commonService';
-import { updateSpeech } from '@/app/services/speechService';
+import { updateSpeech } from '@/app/services/textToSpeechService';
 import { useFormContext } from 'react-hook-form';
 import SpeechForm from './SpeechForm';
 
 interface SpeechDialogProps {
   open: boolean;
   onClose: () => void;
-  onToggleSpeech?: (isSpeechEnabled: boolean) => void;
+  onToggleSpeech?: (isTextToSpeechEnabled: boolean) => void;
 }
 
 const SpeechDialog: React.FC<SpeechDialogProps> = ({
@@ -37,11 +37,11 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
 
   const model = getValues('model');
   const voice = getValues('voice');
-  const isSpeechEnabled = watch('isSpeechEnabled');
+  const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
-    setValue('isSpeechEnabled', enabled);
+    setValue('isTextToSpeechEnabled', enabled);
 
     if (onToggleSpeech) {
       onToggleSpeech(enabled);
@@ -52,17 +52,17 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
     try {
       onClose();
       setValue('isLoading', true);
-      if (isSpeechEnabled) {
+      if (isTextToSpeechEnabled) {
         const userEmail = session?.user?.email as string;
         const retrieveSpeechResponse = await retrieveServices({
           userEmail,
           serviceName: 'speech',
         });
-        setValue('isSpeechEnabled', retrieveSpeechResponse.isSpeechEnabled);
+        setValue('isTextToSpeechEnabled', retrieveSpeechResponse.isTextToSpeechEnabled);
         setValue('model', retrieveSpeechResponse.model);
         setValue('voice', retrieveSpeechResponse.voice);
       } else {
-        setValue('isSpeechEnabled', false);
+        setValue('isTextToSpeechEnabled', false);
         setValue('model', '');
         setValue('voice', '');
       }
@@ -93,7 +93,7 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
       if (session) {
         const userEmail = session.user?.email as string;
         const updateSpeechResponse = await updateSpeech({
-          isSpeechEnabled,
+          isTextToSpeechEnabled,
           userEmail,
           model,
           voice,
@@ -136,7 +136,7 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
               Disable
             </Typography>
             <Switch
-              checked={isSpeechEnabled}
+              checked={isTextToSpeechEnabled}
               onChange={handleToggle}
               name="activeVision"
             />

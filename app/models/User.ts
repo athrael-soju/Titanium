@@ -9,5 +9,5 @@ interface IUser {
   visionId?: string | null;
   isAssistantEnabled: boolean;
   isVisionEnabled: boolean;
-  isSpeechEnabled: boolean;
+  isTextToSpeechEnabled: boolean;
 }

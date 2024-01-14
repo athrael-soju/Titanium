@@ -14,7 +14,8 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useCustomInput } from '@/app/hooks/useCustomInput';
 import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
-import SpeechDialog from '../Speech';
+import SpeechDialog from '../Speech/tts';
+import { Microphone } from '../Speech/stt';
 
 const CustomizedInputBase = ({
   onSendMessage,
@@ -26,6 +27,7 @@ const CustomizedInputBase = ({
 
   const {
     inputValue,
+    appendText,
     handleInputChange,
     handleSendClick,
     isAssistantDialogOpen,
@@ -50,7 +52,7 @@ const CustomizedInputBase = ({
           p: '2px 4px',
           display: 'flex',
           alignItems: 'center',
-          width: isSmallScreen ? '100%' : 600,
+          width: isSmallScreen ? '100%' : 650,
         }}
         onKeyDown={(event) => {
           if (event.key === 'Enter') {
@@ -59,6 +61,7 @@ const CustomizedInputBase = ({
           }
         }}
       >
+        <Microphone onAppendText={appendText} />
         <IconButton
           sx={{ p: '10px' }}
           aria-label="menu"

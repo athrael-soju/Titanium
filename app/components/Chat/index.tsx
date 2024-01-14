@@ -21,8 +21,12 @@ const Chat = () => {
   const { data: session } = useSession();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const formMethods = useChatForm();
-  const { isAssistantEnabled, isVisionEnabled, isSpeechEnabled, isLoading } =
-    formMethods.watch();
+  const {
+    isAssistantEnabled,
+    isVisionEnabled,
+    isTextToSpeechEnabled,
+    isLoading,
+  } = formMethods.watch();
   const { model, voice } = formMethods.getValues();
   const sentences = useRef<string[]>([]);
   const sentenceIndex = useRef<number>(0);
@@ -74,7 +78,7 @@ const Chat = () => {
     while (!isDone) {
       isDone = await processChunk();
     }
-    if (isSpeechEnabled) {
+    if (isTextToSpeechEnabled) {
       await retrieveTextFromSpeech(
         sentences.current[sentences.current.length - 1],
         model,
@@ -92,7 +96,6 @@ const Chat = () => {
     if (boundary === -1) return;
 
     let completeData = buffer.substring(0, boundary);
-    buffer = buffer.substring(boundary + 1); // Keep incomplete part in buffer
     completeData.split('\n').forEach((line) => {
       if (line) {
         try {
@@ -109,7 +112,7 @@ const Chat = () => {
     const doc = nlp.readDoc(aiResponseText);
     sentences.current = doc.sentences().out();
     addAiMessageToState(aiResponseText, aiResponseId);
-    if (isSpeechEnabled) {
+    if (isTextToSpeechEnabled) {
       if (sentences.current.length > sentenceIndex.current + 1) {
         await retrieveTextFromSpeech(
           sentences.current[sentenceIndex.current++],
@@ -166,7 +169,7 @@ const Chat = () => {
         ? await response.json()
         : await response.text();
       addAiMessageToState(data, aiResponseId);
-      if (isSpeechEnabled) {
+      if (isTextToSpeechEnabled) {
         await retrieveTextFromSpeech(data, model, voice);
       }
     } catch (error) {

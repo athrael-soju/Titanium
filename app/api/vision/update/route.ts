@@ -8,13 +8,18 @@ async function updateVision(
   isVisionEnabled: boolean
 ): Promise<void> {
   let isAssistantEnabled = isVisionEnabled ? false : user.isAssistantEnabled;
-
+  let visionId = user.visionId;
+  if (!visionId) {
+    console.log('No visionId found. Creating a new one');
+    visionId = crypto.randomUUID();
+  }
   await usersCollection.updateOne(
     { email: user.email },
     {
       $set: {
         isAssistantEnabled: isAssistantEnabled,
         isVisionEnabled: isVisionEnabled,
+        visionId: visionId,
       },
     }
   );
