@@ -96,7 +96,6 @@ const Chat = () => {
     if (boundary === -1) return;
 
     let completeData = buffer.substring(0, boundary);
-    buffer = buffer.substring(boundary + 1); // Keep incomplete part in buffer
     completeData.split('\n').forEach((line) => {
       if (line) {
         try {

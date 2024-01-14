@@ -14,7 +14,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useCustomInput } from '@/app/hooks/useCustomInput';
 import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
-import SpeechDialog from '../Speech';
+import SpeechDialog from '../Speech/tts';
 import { Microphone } from '../Speech/stt';
 
 const CustomizedInputBase = ({
