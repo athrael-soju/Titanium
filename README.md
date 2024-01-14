@@ -9,8 +9,8 @@ Titanium is a modern web application built with Next.js, leveraging the latest O
 - Vision via 'gpt-4-vision-preview'. ✅ (Currently supports Image Analysis for multiple urls. File uploads may come later, but not a priority)
 - Speech (TTS) ✅ (Supports tts-1 and tts-1-hd and all available voice models)
 - Speech (STT) ✅ (Available via button toggle in the input chat box)
-- Image Generationvia DALLE-3.
-- Traditional RAG, using Vector DB's.
+- Image Generation via DALLE-3.
+- RAG (Unimodal and Multimodal)
 - Persistent multi-user memory.
 
 # Libraries
