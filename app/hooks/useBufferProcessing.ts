@@ -13,14 +13,14 @@ const nlp = winkNLP(model);
 export const useBufferProcessing = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const { data: session } = useSession();
-  const { getValues, watch, setValue } = useFormContext();
+  const { watch, setValue } = useFormContext();
   const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
   const isAssistantEnabled = watch('isAssistantEnabled');
   const isVisionEnabled = watch('isVisionEnabled');
   const model = watch('model');
   const voice = watch('voice');
-  const sentences = useRef([]);
-  const sentenceIndex = useRef(0);
+  const sentences = useRef<string[]>([]);
+  const sentenceIndex = useRef<number>(0);
 
   const addUserMessageToState = (message: string) => {
     sentences.current = [];
@@ -186,4 +186,9 @@ export const useBufferProcessing = () => {
       console.error('Error processing stream:', error);
     }
   }
+
+  return {
+    messages,
+    sendUserMessage,
+  };
 };

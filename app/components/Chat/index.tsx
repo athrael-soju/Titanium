@@ -7,11 +7,13 @@ import MessagesField from '../MessagesField';
 import styles from './index.module.css';
 import Loader from '../Loader';
 import CustomizedInputBase from '../CustomizedInputBase';
+import { useBufferProcessing } from '@/app/hooks';
 
 const Chat = () => {
   const { data: session } = useSession();
-  const { getValues, watch } = useFormContext();
+  const { watch } = useFormContext();
   const isLoading = watch('isLoading');
+  const { messages, sendUserMessage } = useBufferProcessing();
 
   if (session) {
     return (
