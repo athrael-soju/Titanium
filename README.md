@@ -10,7 +10,7 @@ Titanium is a modern web application built with Next.js, leveraging the latest O
 - Speech (TTS) ✅ (Supports tts-1 and tts-1-hd and all available voice models)
 - Speech (STT) ✅ (Available via button toggle in the input chat box)
 - Image Generation via DALLE-3.
-- RAG (Unimodal and Multimodal)
+- RAG (Unimodal and Multimodal) - In Progress.
 - Persistent multi-user memory.
 
 # Libraries
