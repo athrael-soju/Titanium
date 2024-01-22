@@ -4,8 +4,10 @@ import { useFormContext } from 'react-hook-form';
 import { useSession } from 'next-auth/react';
 import winkNLP from 'wink-nlp';
 import model from 'wink-eng-lite-web-model';
-import { retrieveTextFromSpeech } from '@/app/services/chatService';
-
+import {
+  retrieveAIResponse,
+  retrieveTextFromSpeech,
+} from '@/app/services/chatService';
 const nlp = winkNLP(model);
 
 export const useBufferProcessing = () => {
