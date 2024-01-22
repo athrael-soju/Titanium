@@ -1,19 +1,19 @@
-"use client";
-import React, { useRef, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { useSession } from "next-auth/react";
-import { FormProvider } from "react-hook-form";
-import winkNLP from "wink-nlp";
-import model from "wink-eng-lite-web-model";
-import MessagesField from "../MessagesField";
-import styles from "./index.module.css";
-import Loader from "../Loader";
-import CustomizedInputBase from "../CustomizedInputBase";
+'use client';
+import React, { useRef, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { useSession } from 'next-auth/react';
+import { FormProvider } from 'react-hook-form';
+import winkNLP from 'wink-nlp';
+import model from 'wink-eng-lite-web-model';
+import MessagesField from '../MessagesField';
+import styles from './index.module.css';
+import Loader from '../Loader';
+import CustomizedInputBase from '../CustomizedInputBase';
 import {
   retrieveAIResponse,
   retrieveTextFromSpeech,
-} from "@/app/services/chatService";
-import { useChatForm } from "@/app/hooks/useChatForm";
+} from '@/app/services/chatService';
+import { useChatForm } from '@/app/hooks/useChatForm';
 
 const nlp = winkNLP(model);
 
@@ -37,7 +37,7 @@ const Chat = () => {
     const userMessageId = uuidv4();
     setMessages((prevMessages) => [
       ...prevMessages,
-      { text: `🧑‍💻 ${message}`, sender: "user", id: userMessageId },
+      { text: `🧑‍💻 ${message}`, sender: 'user', id: userMessageId },
     ]);
   };
   const addAiMessageToState = (
@@ -46,7 +46,7 @@ const Chat = () => {
   ) => {
     setMessages((prevMessages) => [
       ...prevMessages.filter((msg) => msg.id !== aiResponseId),
-      { text: `🤖 ${aiResponseText}`, sender: "ai", id: aiResponseId },
+      { text: `🤖 ${aiResponseText}`, sender: 'ai', id: aiResponseId },
     ]);
   };
 
@@ -56,7 +56,7 @@ const Chat = () => {
   ) => {
     if (!reader) {
       console.error(
-        "No reader available for processing the AI response stream."
+        'No reader available for processing the AI response stream.'
       );
       return;
     }
@@ -74,7 +74,7 @@ const Chat = () => {
     if (!message.trim()) return;
 
     try {
-      formMethods.setValue("isLoading", true);
+      formMethods.setValue('isLoading', true);
       addUserMessageToState(message);
       const aiResponseId = uuidv4();
       const userEmail = session?.user?.email as string;
@@ -98,7 +98,7 @@ const Chat = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      formMethods.setValue("isLoading", false);
+      formMethods.setValue('isLoading', false);
     }
   };
 
@@ -107,12 +107,12 @@ const Chat = () => {
     aiResponseId: string
   ) {
     if (!(response instanceof Response)) {
-      console.error("Expected a Response object, received:", response);
+      console.error('Expected a Response object, received:', response);
       return;
     }
     try {
-      const contentType = response.headers.get("Content-Type");
-      const data = contentType?.includes("application/json")
+      const contentType = response.headers.get('Content-Type');
+      const data = contentType?.includes('application/json')
         ? await response.json()
         : await response.text();
       addAiMessageToState(data, aiResponseId);
@@ -120,7 +120,7 @@ const Chat = () => {
         await retrieveTextFromSpeech(data, model, voice);
       }
     } catch (error) {
-      console.error("Error processing response:", error);
+      console.error('Error processing response:', error);
     }
   }
 
