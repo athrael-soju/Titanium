@@ -1,3 +1,5 @@
+import { processStream } from '@/app/lib/stream';
+
 let audioQueue: string[] = [];
 let isPlaying = false;
 
@@ -56,6 +58,7 @@ const retrieveAIResponse = async (
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userMessage, userEmail }),
     });
+    const runner = processStream(response.body);
     if (isAssistantEnabled) {
       return response;
     } else if (isVisionEnabled) {

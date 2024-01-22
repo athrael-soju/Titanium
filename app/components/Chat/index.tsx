@@ -49,7 +49,6 @@ const Chat = () => {
       { text: `🤖 ${aiResponseText}`, sender: 'ai', id: aiResponseId },
     ]);
   };
-
   const processAIResponseStream = async (
     reader: ReadableStreamDefaultReader<Uint8Array> | undefined,
     aiResponseId: string
@@ -60,13 +59,67 @@ const Chat = () => {
       );
       return;
     }
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let aiResponseText = '';
 
+    const processChunk = async () => {
+      const { done, value } = await reader.read();
+      if (done) {
+        await processBuffer(buffer, aiResponseId, aiResponseText);
+        return true;
+      }
+      buffer += value ? decoder.decode(value, { stream: true }) : '';
+      await processBuffer(buffer, aiResponseId, aiResponseText);
+      return false;
+    };
+
+    let isDone = false;
+    while (!isDone) {
+      isDone = await processChunk();
+    }
     if (isTextToSpeechEnabled) {
       await retrieveTextFromSpeech(
         sentences.current[sentences.current.length - 1],
         model,
         voice
       );
+    }
+  };
+
+  const processBuffer = async (
+    buffer: string,
+    aiResponseId: string,
+    aiResponseText: string
+  ) => {
+    let boundary = buffer.lastIndexOf('\n');
+    if (boundary === -1) return;
+
+    let completeData = buffer.substring(0, boundary);
+    completeData.split('\n').forEach((line) => {
+      if (line) {
+        try {
+          const json = JSON.parse(line);
+          if (json?.choices[0]?.delta?.content) {
+            aiResponseText += json.choices[0].delta.content;
+          }
+        } catch (error) {
+          console.error('Failed to parse JSON:', line, error);
+        }
+      }
+    });
+
+    const doc = nlp.readDoc(aiResponseText);
+    sentences.current = doc.sentences().out();
+    addAiMessageToState(aiResponseText, aiResponseId);
+    if (isTextToSpeechEnabled) {
+      if (sentences.current.length > sentenceIndex.current + 1) {
+        await retrieveTextFromSpeech(
+          sentences.current[sentenceIndex.current++],
+          model,
+          voice
+        );
+      }
     }
   };
 
@@ -123,7 +176,23 @@ const Chat = () => {
       console.error('Error processing response:', error);
     }
   }
-
+  async function processStream(
+    stream: ReadableStreamDefaultReader<Uint8Array> | Response,
+    aiResponseId: string
+  ) {
+    if (!(stream instanceof ReadableStreamDefaultReader)) {
+      console.error(
+        'Expected a ReadableStreamDefaultReader object, received:',
+        stream
+      );
+      return;
+    }
+    try {
+      await processAIResponseStream(stream, aiResponseId);
+    } catch (error) {
+      console.error('Error processing stream:', error);
+    }
+  }
   if (session) {
     return (
       <FormProvider {...formMethods}>
