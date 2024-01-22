@@ -1,3 +1,4 @@
+import { ChatCompletionStream } from 'openai/lib/ChatCompletionStream';
 import { processStream } from '@/app/lib/stream';
 
 let audioQueue: string[] = [];
@@ -51,7 +52,12 @@ const retrieveAIResponse = async (
   userEmail: string,
   isAssistantEnabled: boolean,
   isVisionEnabled: boolean
-): Promise<Response | ReadableStreamDefaultReader<Uint8Array> | undefined> => {
+): Promise<
+  | Response
+  | ReadableStreamDefaultReader<Uint8Array>
+  | undefined
+  | ChatCompletionStream
+> => {
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -62,9 +68,9 @@ const retrieveAIResponse = async (
     if (isAssistantEnabled) {
       return response;
     } else if (isVisionEnabled) {
-      return response.body?.getReader();
+      return runner;
     } else {
-      return response.body?.getReader();
+      return runner;
     }
   } catch (error) {
     console.error('Failed to fetch AI response:', error);
@@ -72,4 +78,22 @@ const retrieveAIResponse = async (
   }
 };
 
-export { retrieveAIResponse, retrieveTextFromSpeech };
+const retrieveRunner = async (
+  userMessage: string,
+  userEmail: string
+): Promise<undefined | ChatCompletionStream> => {
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userMessage, userEmail }),
+    });
+    const runner = processStream(response.body);
+    return runner;
+  } catch (error) {
+    console.error('Failed to fetch AI response:', error);
+    return undefined;
+  }
+};
+
+export { retrieveAIResponse, retrieveRunner, retrieveTextFromSpeech };

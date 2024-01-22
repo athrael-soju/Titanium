@@ -5,6 +5,7 @@ import { SessionProvider } from 'next-auth/react';
 
 import ResponsiveAppBar from './components/AppBar';
 import Chat from './components/Chat';
+import ChatWithRunner from './components/ChatWithRunner';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -12,7 +13,7 @@ export default function Home() {
     <SessionProvider>
       <ResponsiveAppBar />
       <main className={styles.main}>
-        <Chat />
+        <ChatWithRunner />
       </main>
     </SessionProvider>
   );
