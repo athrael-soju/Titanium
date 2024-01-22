@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { useFormContext } from 'react-hook-form';
+import { useSession } from 'next-auth/react';
 import winkNLP from 'wink-nlp';
 import model from 'wink-eng-lite-web-model';
 import { retrieveTextFromSpeech } from '@/app/services/chatService';
@@ -7,8 +9,14 @@ import { retrieveTextFromSpeech } from '@/app/services/chatService';
 const nlp = winkNLP(model);
 
 export const useBufferProcessing = () => {
-  const { getValues, watch } = useFormContext();
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
+  const { data: session } = useSession();
+  const { getValues, watch, setValue } = useFormContext();
+  const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
+  const isAssistantEnabled = watch('isAssistantEnabled');
+  const isVisionEnabled = watch('isVisionEnabled');
+  const model = watch('model');
+  const voice = watch('voice');
   const sentences = useRef([]);
   const sentenceIndex = useRef(0);
 
@@ -110,7 +118,7 @@ export const useBufferProcessing = () => {
     if (!message.trim()) return;
 
     try {
-      formMethods.setValue('isLoading', true);
+      setValue('isLoading', true);
       addUserMessageToState(message);
       const aiResponseId = uuidv4();
       const userEmail = session?.user?.email as string;
@@ -134,7 +142,7 @@ export const useBufferProcessing = () => {
     } catch (error) {
       console.error(error);
     } finally {
-      formMethods.setValue('isLoading', false);
+      setValue('isLoading', false);
     }
   };
 
