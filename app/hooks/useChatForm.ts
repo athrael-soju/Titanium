@@ -11,6 +11,7 @@ interface ChatFormValues {
   isVisionDefined: boolean;
   isTextToSpeechEnabled: boolean;
   isSpeechToTextEnabled: boolean;
+  isRagEnabled: boolean;
   transcript: string;
   isLoading: boolean;
   assistantFiles: { name: string; id: string; assistandId: string }[];
@@ -36,6 +37,7 @@ export const useChatForm = () => {
       isVisionDefined: false,
       isTextToSpeechEnabled: false,
       isSpeechToTextEnabled: false,
+      isRagEnabled: false,
       transcript: '',
       isLoading: false,
       assistantFiles: [],

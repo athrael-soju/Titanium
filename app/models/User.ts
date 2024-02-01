@@ -10,4 +10,5 @@ interface IUser {
   isAssistantEnabled: boolean;
   isVisionEnabled: boolean;
   isTextToSpeechEnabled: boolean;
+  isRagEnabled: boolean;
 }

@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { retrieveServices } from '@/app/services/commonService';
+import { updateRag } from '@/app/services/ragService';
 import { useFormContext } from 'react-hook-form';
 import RagForm from './RagForm';
 
@@ -28,38 +29,35 @@ const RagDialog: React.FC<RagDialogProps> = ({ open, onClose }) => {
   const visionFileInputRef = useRef<HTMLInputElement>(null);
   const { getValues, setValue, watch } = useFormContext();
 
-  const model = getValues('model');
-  const voice = getValues('voice');
-  const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
+  // const model = getValues('model');
+  // const voice = getValues('voice');
+  const isRagEnabled = watch('isRagEnabled');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
-    setValue('isTextToSpeechEnabled', enabled);
+    setValue('isRagEnabled', enabled);
   };
 
   const handleCloseClick = async () => {
     try {
       onClose();
       setValue('isLoading', true);
-      if (isTextToSpeechEnabled) {
+      if (isRagEnabled) {
         const userEmail = session?.user?.email as string;
-        const retrieveSpeechResponse = await retrieveServices({
+        const retrieveRagResponse = await retrieveServices({
           userEmail,
-          serviceName: 'speech',
+          serviceName: 'rag',
         });
-        setValue(
-          'isTextToSpeechEnabled',
-          retrieveSpeechResponse.isTextToSpeechEnabled
-        );
-        setValue('model', retrieveSpeechResponse.model);
-        setValue('voice', retrieveSpeechResponse.voice);
+        setValue('isRagEnabled', retrieveRagResponse.isRagEnabled);
+        //setValue('model', retrieveRagResponse.model);
+        //setValue('voice', retrieveRagResponse.voice);
       } else {
-        setValue('isTextToSpeechEnabled', false);
-        setValue('model', '');
-        setValue('voice', '');
+        setValue('isRagEnabled', false);
+        //setValue('model', '');
+        //setValue('voice', '');
       }
     } catch (error) {
-      console.error('Failed to close assistant dialog:', error);
+      console.error('Failed to close R.A.G. dialog:', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -67,29 +65,29 @@ const RagDialog: React.FC<RagDialogProps> = ({ open, onClose }) => {
 
   const handleUpdate = async () => {
     let hasError = false;
-    if (!model) {
-      setError((prev) => ({ ...prev, model: true }));
-      hasError = true;
-    }
-    if (!voice) {
-      setError((prev) => ({ ...prev, voice: true }));
-      hasError = true;
-    }
-    if (hasError) {
-      return;
-    } else {
-      setError({ model: false, voice: false });
-    }
+    // if (!model) {
+    //   setError((prev) => ({ ...prev, model: true }));
+    //   hasError = true;
+    // }
+    // if (!voice) {
+    //   setError((prev) => ({ ...prev, voice: true }));
+    //   hasError = true;
+    // }
+    // if (hasError) {
+    //   return;
+    // } else {
+    //   setError({ model: false, voice: false });
+    // }
     try {
       setValue('isLoading', true);
       if (session) {
         const userEmail = session.user?.email as string;
-        // const updateSpeechResponse = await updateSpeech({
-        //   isTextToSpeechEnabled,
-        //   userEmail,
-        //   model,
-        //   voice,
-        // });
+        const updateRagResponse = await updateRag({
+          isRagEnabled,
+          userEmail,
+          // model,
+          // voice,
+        });
         console.log('R.A.G. updated successfully', true);
       } else {
         throw new Error('No session found');
@@ -128,7 +126,7 @@ const RagDialog: React.FC<RagDialogProps> = ({ open, onClose }) => {
               Disable
             </Typography>
             <Switch
-              checked={isTextToSpeechEnabled}
+              checked={isRagEnabled}
               onChange={handleToggle}
               name="activeVision"
             />
