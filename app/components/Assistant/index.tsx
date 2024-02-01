@@ -55,6 +55,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     setValue('isAssistantEnabled', enabled);
     if (enabled) {
       setValue('isVisionEnabled', false);
+      setValue('isRagEnabled', false);
     }
 
     if (onToggleAssistant) {

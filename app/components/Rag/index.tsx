@@ -18,24 +18,30 @@ import RagForm from './RagForm';
 interface RagDialogProps {
   open: boolean;
   onClose: () => void;
+  onToggleRag?: (isRagEnabled: boolean) => void;
 }
 
-const RagDialog: React.FC<RagDialogProps> = ({ open, onClose }) => {
+const RagDialog: React.FC<RagDialogProps> = ({
+  open,
+  onClose,
+  onToggleRag,
+}) => {
   const { data: session } = useSession();
   const [error, setError] = useState<{ model: boolean; voice: boolean }>({
     model: false,
     voice: false,
   });
-  const visionFileInputRef = useRef<HTMLInputElement>(null);
   const { getValues, setValue, watch } = useFormContext();
-
-  // const model = getValues('model');
-  // const voice = getValues('voice');
   const isRagEnabled = watch('isRagEnabled');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
     setValue('isRagEnabled', enabled);
+    setValue('isAssistantEnabled', false);
+
+    if (onToggleRag) {
+      onToggleRag(enabled);
+    }
   };
 
   const handleCloseClick = async () => {
@@ -49,12 +55,8 @@ const RagDialog: React.FC<RagDialogProps> = ({ open, onClose }) => {
           serviceName: 'rag',
         });
         setValue('isRagEnabled', retrieveRagResponse.isRagEnabled);
-        //setValue('model', retrieveRagResponse.model);
-        //setValue('voice', retrieveRagResponse.voice);
       } else {
         setValue('isRagEnabled', false);
-        //setValue('model', '');
-        //setValue('voice', '');
       }
     } catch (error) {
       console.error('Failed to close R.A.G. dialog:', error);
@@ -64,20 +66,6 @@ const RagDialog: React.FC<RagDialogProps> = ({ open, onClose }) => {
   };
 
   const handleUpdate = async () => {
-    let hasError = false;
-    // if (!model) {
-    //   setError((prev) => ({ ...prev, model: true }));
-    //   hasError = true;
-    // }
-    // if (!voice) {
-    //   setError((prev) => ({ ...prev, voice: true }));
-    //   hasError = true;
-    // }
-    // if (hasError) {
-    //   return;
-    // } else {
-    //   setError({ model: false, voice: false });
-    // }
     try {
       setValue('isLoading', true);
       if (session) {
@@ -85,10 +73,8 @@ const RagDialog: React.FC<RagDialogProps> = ({ open, onClose }) => {
         const updateRagResponse = await updateRag({
           isRagEnabled,
           userEmail,
-          // model,
-          // voice,
         });
-        console.log('R.A.G. updated successfully', true);
+        console.log('R.A.G. updated successfully', updateRagResponse);
       } else {
         throw new Error('No session found');
       }
@@ -133,11 +119,6 @@ const RagDialog: React.FC<RagDialogProps> = ({ open, onClose }) => {
             <Typography variant="caption" sx={{ mx: 1 }}>
               Enable
             </Typography>
-            <input
-              type="file"
-              ref={visionFileInputRef}
-              style={{ display: 'none' }}
-            />
           </Box>
         </Box>
       </DialogActions>

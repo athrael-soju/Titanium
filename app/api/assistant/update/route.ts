@@ -13,54 +13,6 @@ interface AssistantUpdateRequest {
   files: { name: string; id: string; assistantId: string }[];
 }
 
-async function createOrUpdateAssistant(
-  user: IUser,
-  name: string,
-  description: string,
-  isAssistantEnabled: boolean,
-  usersCollection: Collection<IUser>,
-  files: { name: string; id: string; assistantId: string }[]
-): Promise<{ assistant: any; thread: any }> {
-  let assistant, thread;
-  const isVisionEnabled = isAssistantEnabled ? false : user.isVisionEnabled;
-
-  if (!user.assistantId) {
-    // Create a new assistant and thread
-    assistant = await openai.beta.assistants.create({
-      instructions: description,
-      name: name,
-      tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
-      model: process.env.OPENAI_API_MODEL as string,
-      file_ids: files.map((file) => file.id),
-    });
-    thread = await openai.beta.threads.create();
-  } else {
-    // Update an existing assistant
-    assistant = await openai.beta.assistants.update(user.assistantId, {
-      instructions: description,
-      name: name,
-      tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
-      model: process.env.OPENAI_API_MODEL as string,
-      file_ids: files.map((file) => file.id),
-    });
-    thread = await openai.beta.threads.retrieve(user.threadId as string);
-  }
-
-  await usersCollection.updateOne(
-    { email: user.email },
-    {
-      $set: {
-        assistantId: assistant.id,
-        threadId: thread.id,
-        isAssistantEnabled: isAssistantEnabled,
-        isVisionEnabled: isVisionEnabled,
-      },
-    }
-  );
-
-  return { assistant, thread };
-}
-
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const client = await clientPromise;
@@ -116,4 +68,54 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       { status: 500 }
     );
   }
+}
+
+async function createOrUpdateAssistant(
+  user: IUser,
+  name: string,
+  description: string,
+  isAssistantEnabled: boolean,
+  usersCollection: Collection<IUser>,
+  files: { name: string; id: string; assistantId: string }[]
+): Promise<{ assistant: any; thread: any }> {
+  let assistant, thread;
+  const isVisionEnabled = isAssistantEnabled ? false : user.isVisionEnabled;
+  const isRagEnabled = isAssistantEnabled ? false : user.isRagEnabled;
+
+  if (!user.assistantId) {
+    // Create a new assistant and thread
+    assistant = await openai.beta.assistants.create({
+      instructions: description,
+      name: name,
+      tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
+      model: process.env.OPENAI_API_MODEL as string,
+      file_ids: files.map((file) => file.id),
+    });
+    thread = await openai.beta.threads.create();
+  } else {
+    // Update an existing assistant
+    assistant = await openai.beta.assistants.update(user.assistantId, {
+      instructions: description,
+      name: name,
+      tools: [{ type: 'retrieval' }, { type: 'code_interpreter' }],
+      model: process.env.OPENAI_API_MODEL as string,
+      file_ids: files.map((file) => file.id),
+    });
+    thread = await openai.beta.threads.retrieve(user.threadId as string);
+  }
+
+  await usersCollection.updateOne(
+    { email: user.email },
+    {
+      $set: {
+        assistantId: assistant.id,
+        threadId: thread.id,
+        isAssistantEnabled: isAssistantEnabled,
+        isVisionEnabled: isVisionEnabled,
+        isRagEnabled: isRagEnabled,
+      },
+    }
+  );
+
+  return { assistant, thread };
 }

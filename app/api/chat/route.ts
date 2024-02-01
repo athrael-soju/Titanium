@@ -9,6 +9,10 @@ if (!process.env.OPENAI_API_KEY) {
 const options: ClientOptions = { apiKey: process.env.OPENAI_API_KEY };
 const openai = new OpenAI(options);
 
+export async function POST(req: NextRequest) {
+  return await handlePostRequest(req);
+}
+
 async function fetchAssistantMessage(
   threadId: string,
   assistantId: string,
@@ -111,8 +115,4 @@ async function handlePostRequest(req: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-export async function POST(req: NextRequest) {
-  return await handlePostRequest(req);
 }

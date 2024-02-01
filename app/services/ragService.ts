@@ -1,18 +1,14 @@
 interface RagUpdateData {
   isRagEnabled: boolean;
   userEmail: string;
-  //   model: string;
-  //   voice: string;
 }
 
 const updateRag = async ({
   isRagEnabled,
   userEmail,
-}: //   model,
-//   voice,
-RagUpdateData): Promise<any> => {
+}: RagUpdateData): Promise<any> => {
   try {
-    const response = await fetch('/api/speech/update', {
+    const response = await fetch('/api/rag/update', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -20,8 +16,6 @@ RagUpdateData): Promise<any> => {
       body: JSON.stringify({
         isRagEnabled,
         userEmail,
-        // model,
-        // voice,
       }),
     });
     return response.json();

@@ -17,6 +17,7 @@ export const useBufferProcessing = () => {
   const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
   const isAssistantEnabled = watch('isAssistantEnabled');
   const isVisionEnabled = watch('isVisionEnabled');
+  const isRagEnabled = watch('isRagEnabled');
   const model = watch('model');
   const voice = watch('voice');
   const sentences = useRef<string[]>([]);
@@ -136,8 +137,6 @@ export const useBufferProcessing = () => {
       }
       if (isAssistantEnabled) {
         await processResponse(response, aiResponseId);
-      } else if (isVisionEnabled) {
-        await processStream(response, aiResponseId);
       } else {
         await processStream(response, aiResponseId);
       }

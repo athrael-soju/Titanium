@@ -67,12 +67,26 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
     [setValue]
   );
 
+  const prefetchRag = useCallback(
+    async (userEmail: string) => {
+      const response = await retrieveServices({
+        userEmail,
+        serviceName: 'rag',
+      });
+      if (response.isRagEnabled !== undefined) {
+        setValue('isRagEnabled', response.isRagEnabled);
+      }
+    },
+    [setValue]
+  );
+
   const prefetchData = useCallback(async () => {
     try {
       setValue('isLoading', true);
       await prefetchAssistant(session?.user?.email as string);
       await prefetchVision(session?.user?.email as string);
       await prefetchSpeech(session?.user?.email as string);
+      await prefetchRag(session?.user?.email as string);
     } catch (error) {
       console.error('Error prefetching services:', error);
     } finally {
@@ -80,6 +94,7 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
     }
   }, [
     prefetchAssistant,
+    prefetchRag,
     prefetchSpeech,
     prefetchVision,
     session?.user?.email,

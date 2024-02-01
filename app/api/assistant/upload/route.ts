@@ -13,36 +13,6 @@ interface FileUploadResponse {
   object: string;
 }
 
-async function addFileToAssistant(
-  user: IUser,
-  file: File
-): Promise<FileUploadResponse> {
-  const tempFilePath = join(tmpdir(), file.name);
-  const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
-  await fs.writeFile(tempFilePath, buffer);
-
-  try {
-    const fileStream = createReadStream(tempFilePath);
-    const fileResponse = await openai.files.create({
-      file: fileStream,
-      purpose: 'assistants',
-    });
-
-    return await openai.beta.assistants.files.create(
-      user.assistantId as string,
-      {
-        file_id: fileResponse.id,
-      }
-    );
-  } catch (error: any) {
-    console.error('Error in file upload to assistant:', error);
-    throw new Error('File upload to assistant failed');
-  } finally {
-    await fs.unlink(tempFilePath);
-  }
-}
-
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const data = await request.formData();
   const file = data.get('file') as unknown as File;
@@ -72,5 +42,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch (error: any) {
     console.error('Error processing file:', error);
     return sendErrorResponse('Error processing file', 500);
+  }
+}
+
+async function addFileToAssistant(
+  user: IUser,
+  file: File
+): Promise<FileUploadResponse> {
+  const tempFilePath = join(tmpdir(), file.name);
+  const arrayBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+  await fs.writeFile(tempFilePath, buffer);
+
+  try {
+    const fileStream = createReadStream(tempFilePath);
+    const fileResponse = await openai.files.create({
+      file: fileStream,
+      purpose: 'assistants',
+    });
+
+    return await openai.beta.assistants.files.create(
+      user.assistantId as string,
+      {
+        file_id: fileResponse.id,
+      }
+    );
+  } catch (error: any) {
+    console.error('Error in file upload to assistant:', error);
+    throw new Error('File upload to assistant failed');
+  } finally {
+    await fs.unlink(tempFilePath);
   }
 }
