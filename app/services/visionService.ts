@@ -46,7 +46,7 @@ const deleteVisionFile = async (
   userEmail: string
 ): Promise<any> => {
   try {
-    const response = await fetch('/api/vision/delete-url/', {
+    const response = await fetch('/api/vision/delete-url', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

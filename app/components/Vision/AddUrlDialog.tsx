@@ -9,6 +9,7 @@ import {
   Box,
   FormControl,
 } from '@mui/material';
+import validator from 'validator'; // Import validator
 
 interface AddUrlDialogProps {
   open: boolean;
@@ -27,14 +28,20 @@ const AddUrlDialog: React.FC<AddUrlDialogProps> = ({
 
   const handleAddUrl = () => {
     let hasError = false;
+
     if (!nameInput.trim()) {
       setError((prev) => ({ ...prev, name: true }));
       hasError = true;
     }
-    if (!urlInput.trim()) {
+
+    if (
+      !urlInput.trim() ||
+      !validator.isURL(urlInput, { require_protocol: true })
+    ) {
       setError((prev) => ({ ...prev, url: true }));
       hasError = true;
     }
+
     if (hasError) return;
 
     onAddUrl(urlInput, nameInput);
@@ -80,7 +87,7 @@ const AddUrlDialog: React.FC<AddUrlDialogProps> = ({
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
             error={error.url}
-            helperText={error.url ? 'URL is required' : ' '}
+            helperText={error.url ? 'A valid URL is required' : ' '}
           />
         </FormControl>
       </DialogContent>
