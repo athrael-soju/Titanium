@@ -13,6 +13,7 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [isVisionDialogOpen, setIsVisionDialogOpen] = useState(false);
   const [isSpeechDialogOpen, setIsSpeechDialogOpen] = useState(false);
+  const [isRagDialogOpen, setIsRagDialogOpen] = useState(false);
   const { setValue } = useFormContext();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -127,6 +128,11 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
     handleMenuClose();
   };
 
+  const handleRagClick = () => {
+    setIsRagDialogOpen(true);
+    handleMenuClose();
+  };
+
   return {
     inputValue,
     appendText,
@@ -135,14 +141,17 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
     isAssistantDialogOpen,
     isVisionDialogOpen,
     isSpeechDialogOpen,
+    isRagDialogOpen,
     handleAssistantsClick,
     handleVisionClick,
     handleSpeechClick,
+    handleRagClick,
     handleMenuOpen,
     handleMenuClose,
     anchorEl,
     setIsAssistantDialogOpen,
     setIsVisionDialogOpen,
     setIsSpeechDialogOpen,
+    setIsRagDialogOpen,
   };
 };
