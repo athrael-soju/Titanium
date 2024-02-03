@@ -14,6 +14,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.14.18",
+    "@pinecone-database/pinecone": "^2.0.1",
     "@tanstack/react-query": "^5.0.0",
     "@vercel/kv": "0.2.1",
     "@vercel/speed-insights": "^1.0.2",
