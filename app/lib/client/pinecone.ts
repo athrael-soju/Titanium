@@ -22,6 +22,7 @@ const getIndex = async () => {
 
 const upsert = async (data: any, user: IUser) => {
   const index = await getIndex();
+  // TODO: Create embeddings from data, before sending to Pinecone. Below won't work.
   const result = await index.namespace(user.ragId as string).upsert([
     {
       id: 'vec1',
@@ -107,7 +108,7 @@ const update = async (data: any, user: IUser) => {
   return result;
 };
 
-export {
+export const pinecone = {
   upsert,
   queryByRecordId,
   queryByNamespace,

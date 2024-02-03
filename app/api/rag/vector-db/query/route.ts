@@ -6,7 +6,7 @@ import {
   sendErrorResponse,
 } from '@/app/lib/utils/db';
 
-import { queryByNamespace } from '@/app/lib/client/pinecone';
+import { pinecone } from '@/app/lib/client/pinecone';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const data = req.headers.get('data');
     const { user } = await getDatabaseAndUser(db, userEmail);
     if (user.ragId) {
-      const response = await queryByNamespace(data, user);
+      const response = await pinecone.queryByNamespace(data, user);
 
       return NextResponse.json(
         {

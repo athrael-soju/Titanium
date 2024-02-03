@@ -19,6 +19,7 @@ import {
 import { useFormContext } from 'react-hook-form';
 import RagForm from './RagForm';
 import RagFileList from './RagFileList';
+import { upsertToVectorDb } from '@/app/services/vectorDbService';
 
 interface RagDialogProps {
   open: boolean;
@@ -88,6 +89,8 @@ const RagDialog: React.FC<RagDialogProps> = ({
           isRagEnabled,
           userEmail,
         });
+        // TODO: Create embeddings from data, before sending to Pinecone
+        //console.log(await upsertToVectorDb({}, userEmail))
         console.log('R.A.G. updated successfully: ', updateRagResponse);
       } else {
         throw new Error('No session found');
