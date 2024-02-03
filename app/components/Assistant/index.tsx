@@ -147,7 +147,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     }
   };
 
-  const handleFileDelete = async (file: any) => {
+  const handleFileDelete = async (file: string) => {
     try {
       setValue('isLoading', true);
       await deleteAssistantFile({ file });

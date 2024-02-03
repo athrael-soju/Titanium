@@ -22,6 +22,12 @@ interface ChatFormValues {
     type: string;
     url: string;
   }[];
+  ragFiles: {
+    id: string;
+    ragId: string;
+    name: string;
+    type: string;
+  }[];
 }
 
 export const useChatForm = () => {
@@ -42,6 +48,7 @@ export const useChatForm = () => {
       isLoading: false,
       assistantFiles: [],
       visionFiles: [],
+      ragFiles: [],
     },
   });
 

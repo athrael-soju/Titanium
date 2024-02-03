@@ -74,6 +74,7 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
         serviceName: 'rag',
       });
       if (response.isRagEnabled !== undefined) {
+        setValue('ragFiles', response.ragFileList);
         setValue('isRagEnabled', response.isRagEnabled);
       }
     },

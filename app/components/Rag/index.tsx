@@ -11,9 +11,10 @@ import {
 } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { retrieveServices } from '@/app/services/commonService';
-import { updateRag } from '@/app/services/ragService';
+import { updateRag, deleteRagFile } from '@/app/services/ragService';
 import { useFormContext } from 'react-hook-form';
 import RagForm from './RagForm';
+import RagFileList from './RagFileList';
 
 interface RagDialogProps {
   open: boolean;
@@ -33,6 +34,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
   });
   const { getValues, setValue, watch } = useFormContext();
   const isRagEnabled = watch('isRagEnabled');
+  const ragFiles = watch('ragFiles');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
@@ -73,13 +75,27 @@ const RagDialog: React.FC<RagDialogProps> = ({
         const updateRagResponse = await updateRag({
           isRagEnabled,
           userEmail,
+          ragFiles,
         });
-        console.log('R.A.G. updated successfully', updateRagResponse);
+        console.log('R.A.G. updated successfully: ', updateRagResponse);
       } else {
         throw new Error('No session found');
       }
     } catch (error) {
-      console.error('Error updating Vision:', error);
+      console.error('Error updating R.A.G.:', error);
+    } finally {
+      setValue('isLoading', false);
+    }
+  };
+
+  const handleFileDelete = async (file: string) => {
+    try {
+      setValue('isLoading', true);
+      await deleteRagFile({ file });
+      console.log('File successfully deleted from R.A.G.:', file);
+      ragFiles.splice(ragFiles.indexOf(file), 1);
+    } catch (error) {
+      console.error('Failed to remove file from the R.A.G.:', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -88,6 +104,10 @@ const RagDialog: React.FC<RagDialogProps> = ({
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle style={{ textAlign: 'center' }}>R.A.G. Settings</DialogTitle>
+      <DialogContent style={{ paddingBottom: 8 }}>
+        <RagForm error={error} />
+        <RagFileList files={ragFiles} onDelete={handleFileDelete} />
+      </DialogContent>
       <DialogContent style={{ paddingTop: 5, paddingBottom: 5 }}>
         <RagForm error={error} />
       </DialogContent>
