@@ -5,10 +5,8 @@ import { tmpdir } from 'os';
 import { join } from 'path';
 
 interface FileUploadResponse {
-  filename: string;
-  ragId: string;
-  fileId: string;
-  purpose: string;
+  fileWrittenToDisk: boolean;
+  uploadPath: string;
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -20,23 +18,42 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const db = await getDb();
     const usersCollection = db.collection<IUser>('users');
     const user = await getUserByEmail(usersCollection, userEmail);
-
+    let ragId;
     if (!user) {
       return sendErrorResponse('User not found', 404);
     }
 
-    if (user.ragId) {
-      const fileResponse = await writeFile(user, file);
-      return NextResponse.json(
-        { message: 'File uploaded', fileResponse },
-        { status: 200 }
+    if (!user.ragId) {
+      console.log('No ragId found. Creating a new one');
+      ragId = crypto.randomUUID();
+      await usersCollection.updateOne(
+        { email: user.email },
+        { $set: { ragId: ragId } }
       );
     } else {
-      return sendErrorResponse(
-        'R.A.G. must be initialized before files can be uploaded',
-        400
-      );
+      ragId = user.ragId;
     }
+ 
+    const fileWriteResponse = await writeFile(user, file);
+
+    const dbFile: RagFile = {
+      name: file.name,
+      path: fileWriteResponse.uploadPath,
+      ragId: ragId,
+      fileId: crypto.randomUUID(),
+      purpose: 'R.A.G.',
+    };
+
+    const fileCollection = db.collection<RagFile>('files');
+    const insertFileToDBResponse = await fileCollection.insertOne(dbFile);
+
+    return NextResponse.json({
+      message: 'File upload successful',
+      file: dbFile,
+      fileWrittenToDisk: fileWriteResponse.fileWrittenToDisk,
+      dbInsertionId: insertFileToDBResponse.insertedId,
+      status: 200,
+    });
   } catch (error: any) {
     console.error('Error processing file:', error);
     return sendErrorResponse('Error processing file', 500);
@@ -45,16 +62,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 async function writeFile(user: IUser, file: File): Promise<FileUploadResponse> {
   try {
-    const filePath = join(tmpdir(), file.name);
+    const uploadPath = join(tmpdir(), file.name);
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    await fs.writeFile(filePath, buffer);
+    await fs.writeFile(uploadPath, buffer);
 
     const response = {
-      filename: filePath,
-      ragId: user.ragId as string,
-      fileId: crypto.randomUUID(),
-      purpose: 'R.A.G.',
+      fileWrittenToDisk: true,
+      uploadPath: uploadPath,
     };
 
     return response;

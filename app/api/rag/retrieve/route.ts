@@ -3,7 +3,7 @@ import {
   getDatabaseAndUser,
   getDb,
   handleErrorResponse,
-  sendErrorResponse,
+  sendInformationResponse,
 } from '@/app/lib/utils/db';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -13,20 +13,24 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const serviceName = req.headers.get('serviceName');
     const { user } = await getDatabaseAndUser(db, userEmail);
 
-    if (serviceName === 'rag') {
-      const { isRagEnabled, ragId } = user;
+    if (serviceName === 'rag' && user.ragId) {
+      const fileCollection = db.collection<RagFile>('files');
+      const ragFileList = await fileCollection
+        .find({ ragId: user.ragId })
+        .toArray();
 
       return NextResponse.json(
         {
           message: 'R.A.G. retrieved',
-          isRagEnabled,
-          ragId,
+          ragId: user.ragId,
+          ragFileList,
+          isRagEnabled: user.isRagEnabled,
         },
         { status: 200 }
       );
+    } else {
+      return sendInformationResponse('R.A.G. not configured for the user', 200);
     }
-
-    return sendErrorResponse('R.A.G. not configured for the user', 200);
   } catch (error: any) {
     return handleErrorResponse(error);
   }

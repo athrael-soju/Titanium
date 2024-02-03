@@ -11,7 +11,11 @@ import {
 } from '@mui/material';
 import { useSession } from 'next-auth/react';
 import { retrieveServices } from '@/app/services/commonService';
-import { updateRag, deleteRagFile } from '@/app/services/ragService';
+import {
+  updateRag,
+  uploadRagFile,
+  deleteRagFile,
+} from '@/app/services/ragService';
 import { useFormContext } from 'react-hook-form';
 import RagForm from './RagForm';
 import RagFileList from './RagFileList';
@@ -32,18 +36,25 @@ const RagDialog: React.FC<RagDialogProps> = ({
     model: false,
     voice: false,
   });
-  const { getValues, setValue, watch } = useFormContext();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { setValue, watch } = useFormContext();
   const isRagEnabled = watch('isRagEnabled');
   const ragFiles = watch('ragFiles');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
     setValue('isRagEnabled', enabled);
-    setValue('isAssistantEnabled', false);
+    if (enabled) {
+      setValue('isAssistantEnabled', false);
+    }
 
     if (onToggleRag) {
       onToggleRag(enabled);
     }
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
   };
 
   const handleCloseClick = async () => {
@@ -56,6 +67,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
           userEmail,
           serviceName: 'rag',
         });
+        console.log('R.A.G. retrieved successfully: ', retrieveRagResponse);
         setValue('isRagEnabled', retrieveRagResponse.isRagEnabled);
       } else {
         setValue('isRagEnabled', false);
@@ -75,7 +87,6 @@ const RagDialog: React.FC<RagDialogProps> = ({
         const updateRagResponse = await updateRag({
           isRagEnabled,
           userEmail,
-          ragFiles,
         });
         console.log('R.A.G. updated successfully: ', updateRagResponse);
       } else {
@@ -88,10 +99,46 @@ const RagDialog: React.FC<RagDialogProps> = ({
     }
   };
 
-  const handleFileDelete = async (file: string) => {
+  const handleFileSelect = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const userEmail = session?.user?.email as string;
+      try {
+        setValue('isLoading', true);
+        const fileUploadResponse = await uploadRagFile(file, userEmail);
+        if (fileUploadResponse?.status === 200) {
+          console.log('File uploaded successfully: ', fileUploadResponse);
+          const response = fileUploadResponse.file;
+
+          const newFile = {
+            id: response.fileId,
+            ragId: response.ragId,
+            name: response.filename,
+            path: response.path,
+            type: response.purpose,
+          };
+          const newRagFiles = [...ragFiles, newFile];
+          setValue('ragFiles', newRagFiles);
+          await handleUpdate();
+        } else {
+          throw new Error('Failed to upload file to R.A.G.');
+        }
+      } catch (error) {
+        console.error('Failed to upload file:', error);
+      } finally {
+        setValue('isLoading', false);
+      }
+    }
+  };
+
+  const handleFileDelete = async (file: RagFile) => {
     try {
       setValue('isLoading', true);
-      await deleteRagFile({ file });
+      const user = session?.user as any;
+      const userEmail = user.email;
+      await deleteRagFile({ file, userEmail });
       console.log('File successfully deleted from R.A.G.:', file);
       ragFiles.splice(ragFiles.indexOf(file), 1);
     } catch (error) {
@@ -128,6 +175,9 @@ const RagDialog: React.FC<RagDialogProps> = ({
           </Button>
           <Box display="flex" justifyContent="center" alignItems="center">
             <Button onClick={handleCloseClick}>Close Window</Button>
+            <Button onClick={handleUploadClick} disabled={!isRagEnabled}>
+              Add File
+            </Button>
             <Typography variant="caption" sx={{ mx: 1 }}>
               Disable
             </Typography>
@@ -139,6 +189,12 @@ const RagDialog: React.FC<RagDialogProps> = ({
             <Typography variant="caption" sx={{ mx: 1 }}>
               Enable
             </Typography>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              onChange={handleFileSelect}
+            />
           </Box>
         </Box>
       </DialogActions>

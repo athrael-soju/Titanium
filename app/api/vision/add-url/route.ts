@@ -24,11 +24,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       visionId = user.visionId;
     }
     file.visionId = visionId;
-    const fileCollection = db.collection<IFile>('files');
+    const fileCollection = db.collection<VisionFile>('files');
     const insertFileResponse = await fileCollection.insertOne(file);
 
     return NextResponse.json({
-      message: 'File processed successfully',
+      message: 'File upload successful',
       response: insertFileResponse,
       file: file,
       status: 200,

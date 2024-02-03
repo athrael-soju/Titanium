@@ -73,7 +73,7 @@ async function handlePostRequest(req: NextRequest) {
       return new Response(assistantMessageContent.text.value);
     } else if (user.isVisionEnabled && user.visionId) {
       const content = [{ type: 'text', text: userMessage }] as any[];
-      const fileCollection = db.collection<IFile>('files');
+      const fileCollection = db.collection<VisionFile>('files');
       const visionFileList = await fileCollection
         .find({ visionId: user.visionId })
         .toArray();

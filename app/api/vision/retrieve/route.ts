@@ -3,7 +3,7 @@ import {
   getDatabaseAndUser,
   getDb,
   handleErrorResponse,
-  sendErrorResponse,
+  sendInformationResponse,
 } from '@/app/lib/utils/db';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const { user } = await getDatabaseAndUser(db, userEmail);
 
     if (serviceName === 'vision' && user.visionId) {
-      const fileCollection = db.collection<IFile>('files');
+      const fileCollection = db.collection<VisionFile>('files');
       const visionFileList = await fileCollection
         .find({ visionId: user.visionId })
         .toArray();
@@ -28,9 +28,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         },
         { status: 200 }
       );
+    } else {
+      return sendInformationResponse('Vision not configured for the user', 200);
     }
-
-    return sendErrorResponse('Vision not configured for the user', 200);
   } catch (error: any) {
     return handleErrorResponse(error);
   }

@@ -71,11 +71,14 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       };
 
       const response = await addVisionUrl({ userEmail, file: newFile });
-
-      newFile.visionId = response.file.visionId;
-      const newVisionFiles = [...visionFiles, newFile];
-      setValue('visionFiles', newVisionFiles);
-      await handleUpdate();
+      if (response.status === 200) {
+        newFile.visionId = response.file.visionId;
+        const newVisionFiles = [...visionFiles, newFile];
+        setValue('visionFiles', newVisionFiles);
+        await handleUpdate();
+      } else {
+        throw new Error('Failed to add URL to Vision');
+      }
     } catch (error) {
       console.error('Failed to add URL to Vision:', error);
     } finally {
@@ -150,7 +153,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     <>
       <Dialog open={open} onClose={onClose}>
         <DialogTitle style={{ textAlign: 'center' }}>
-          Add Vision Images
+          Vision Settings
         </DialogTitle>
         <DialogContent style={{ paddingBottom: 8 }}>
           <VisionFileList files={visionFiles} onDelete={handleRemoveUrl} />

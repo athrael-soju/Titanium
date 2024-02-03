@@ -22,6 +22,14 @@ export const sendErrorResponse = (
   return NextResponse.json({ message }, { status });
 };
 
+export const sendInformationResponse = (
+  message: string,
+  status: number
+): NextResponse => {
+  console.log(message);
+  return NextResponse.json({ message }, { status });
+};
+
 export async function getDatabaseAndUser(
   db: Db,
   userEmail: string

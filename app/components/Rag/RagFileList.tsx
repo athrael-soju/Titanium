@@ -11,7 +11,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import FilePaper from '../FileList';
 
 interface RagFileListProps {
-  files: { name: string; id: string; assistandId: string }[];
+  files: { name: string; id: string; ragId: string }[];
   onDelete: (file: any) => void;
 }
 

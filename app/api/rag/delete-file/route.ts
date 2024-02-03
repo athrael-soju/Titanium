@@ -1,20 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
+import {
+  getDatabaseAndUser,
+  getDb,
+  sendErrorResponse,
+} from '@/app/lib/utils/db';
 import fs from 'fs/promises';
 
 interface DeleteFileRequest {
-  file: string;
+  file: RagFile;
+  userEmail: string;
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const requestBody = await req.json();
-  const { file } = requestBody as DeleteFileRequest;
 
   try {
-    const fileDeletedFromDisk = await fs.unlink(file);
-    const fileDeletedFromVectorDB = true;
+    const db = await getDb();
+    const { file, userEmail } = requestBody as DeleteFileRequest;
+    const { user } = await getDatabaseAndUser(db, userEmail);
+
+    if (user.ragId !== file.ragId) {
+      return sendErrorResponse('User ragId not found', 404);
+    }
+
+    const fileCollection = db.collection<RagFile>('files');
+
+    const fileDeletedFromDB = await fileCollection.deleteOne({
+      ragId: file.ragId,
+    });
+    const fileDeletedFromDisk = await fs.unlink(file.path);
+    const fileDeletedFromVectorDB = true; // TODO: Implement vectorDB deletion
     return NextResponse.json(
       {
         fileDeletedFromDisk: fileDeletedFromDisk,
+        fileDeletedFromDB: fileDeletedFromDB,
         fileDeletedFromVectorDB: fileDeletedFromVectorDB,
       },
       { status: 200 }

@@ -177,7 +177,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           setValue('assistantFiles', retrieveAssistantResponse.fileList);
         }
         if (fileUploadResponse?.status === 200) {
-          console.log('File uploaded successfully', fileUploadResponse);
+          console.log('File uploaded successfully: ', fileUploadResponse);
         }
       } catch (error) {
         console.error('Failed to upload file:', error);
@@ -213,7 +213,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       <DialogTitle style={{ textAlign: 'center' }}>
         {!isAssistantDefined
           ? 'Create Assistant'
-          : `Customize Assistant: ${name}`}
+          : `Assistant Settings: ${name}`}
       </DialogTitle>
       <DialogContent style={{ paddingBottom: 8 }}>
         <AssistantForm error={error} />
