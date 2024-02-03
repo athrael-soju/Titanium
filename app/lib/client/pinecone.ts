@@ -7,8 +7,6 @@ const apiKey = process.env.PINECONE_API as string,
 
 const config = {
   apiKey,
-  host,
-  region,
 };
 
 const pineconeClient = new Pinecone(config);
