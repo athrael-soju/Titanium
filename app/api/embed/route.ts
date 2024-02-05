@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendErrorResponse } from '@/app/lib/utils/response';
 import OpenAI, { ClientOptions } from 'openai';
+import { Embedding } from 'openai/resources/embeddings.mjs';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('OPENAI_API_KEY is not set');
@@ -24,7 +25,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           input: item.text,
           encoding_format: 'float',
         });
-        return response.data;
+
+        const embeddingValues = response.data[0].embedding;
+        return {
+          id: crypto.randomUUID(),
+          values: embeddingValues,
+          metadata: item.metadata,
+        };
       })
     );
 

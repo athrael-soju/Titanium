@@ -1,4 +1,7 @@
-const upsertToVectorDb = async (data: any, userEmail: string): Promise<any> => {
+const upsertToVectorDb = async (
+  data: any[],
+  userEmail: string
+): Promise<any> => {
   try {
     const response = await fetch('/api/rag/vector-db/upsert', {
       method: 'POST',

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDatabaseAndUser, getDb } from '@/app/lib/utils/db';
 import { sendErrorResponse } from '@/app/lib/utils/response';
 
-interface ProcessFileRequest {
+interface UpdateFileStatusRequest {
   file: RagFile;
   userEmail: string;
 }
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   try {
     const db = await getDb();
-    const { file, userEmail } = requestBody as ProcessFileRequest;
+    const { file, userEmail } = requestBody as UpdateFileStatusRequest;
     const { user } = await getDatabaseAndUser(db, userEmail);
 
     if (user.ragId !== file.ragId) {
@@ -34,13 +34,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     file.processed = true;
     return NextResponse.json(
       {
-        message: 'R.A.G. file processing successful',
+        message: 'R.A.G. file status update successful',
         file: file,
       },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('R.A.G. file processing unsuccessful:', error);
-    return sendErrorResponse('R.A.G. file processing unsuccessful', 400);
+    console.error('R.A.G. file status update unsuccessful:', error);
+    return sendErrorResponse('R.A.G. file status update unsuccessful', 400);
   }
 }

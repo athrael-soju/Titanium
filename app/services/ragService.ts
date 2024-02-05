@@ -47,7 +47,7 @@ const deleteRagFile = async ({
   }
 };
 
-const processRagFile = async ({
+const updateFileStatus = async ({
   file,
   userEmail,
 }: {
@@ -55,7 +55,7 @@ const processRagFile = async ({
   userEmail: string;
 }): Promise<any> => {
   try {
-    const response = await fetch('/api/rag/process-file/', {
+    const response = await fetch('/api/rag/update-file-status/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -85,4 +85,4 @@ const uploadRagFile = async (file: File, userEmail: string): Promise<any> => {
   }
 };
 
-export { updateRag, deleteRagFile, processRagFile, uploadRagFile };
+export { updateRag, deleteRagFile, updateFileStatus, uploadRagFile };
