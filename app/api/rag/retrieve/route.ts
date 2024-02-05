@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDatabaseAndUser, getDb } from '@/app/lib/utils/db';
 import {
-  getDatabaseAndUser,
-  getDb,
-  handleErrorResponse,
+  sendErrorResponse,
   sendInformationResponse,
-} from '@/app/lib/utils/db';
+} from '@/app/lib/utils/response';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -32,6 +31,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return sendInformationResponse('R.A.G. not configured for the user', 200);
     }
   } catch (error: any) {
-    return handleErrorResponse(error);
+    return sendErrorResponse(error, 400);
   }
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { UnstructuredClient } from 'unstructured-client';
 import * as fs from 'fs';
 
-import { sendErrorResponse } from '@/app/lib/utils/db';
+import { sendErrorResponse } from '@/app/lib/utils/response';
 
 const apiKey = process.env.UNSTRUCTURED_API as string;
 

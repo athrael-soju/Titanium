@@ -91,7 +91,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
           isRagEnabled,
           userEmail,
         });
-        // TODO: Chunk the data using Unstructured
+
         // TODO: Create embeddings from data, before sending to Pinecone
         //console.log(await upsertToVectorDb({}, userEmail))
         console.log('R.A.G. updated successfully: ', updateRagResponse);

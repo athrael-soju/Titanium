@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  getDatabaseAndUser,
-  getDb,
-  sendErrorResponse,
-} from '@/app/lib/utils/db';
+import { getDatabaseAndUser, getDb } from '@/app/lib/utils/db';
+import { sendErrorResponse } from '@/app/lib/utils/response';
 
 import { pinecone } from '@/app/lib/client/pinecone';
 

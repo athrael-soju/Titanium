@@ -1,6 +1,6 @@
+import { NextRequest, NextResponse } from 'next/server';
 import OpenAI, { ClientOptions } from 'openai';
 import clientPromise from '../../lib/client/mongodb';
-import { NextRequest, NextResponse } from 'next/server';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('OPENAI_API_KEY is not set');

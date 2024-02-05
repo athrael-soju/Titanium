@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDatabaseAndUser, getDb } from '@/app/lib/utils/db';
 import {
-  getDatabaseAndUser,
-  getDb,
   handleErrorResponse,
   sendInformationResponse,
-} from '@/app/lib/utils/db';
+} from '@/app/lib/utils/response';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
