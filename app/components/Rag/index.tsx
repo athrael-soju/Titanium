@@ -160,12 +160,11 @@ const RagDialog: React.FC<RagDialogProps> = ({
       const user = session?.user as any;
       const userEmail = user.email;
       const parsedDocumentResponse = await parseDocument(file.path);
-      // const generateEmbeddingsResponse = await generateEmbeddings({
-      //   userEmail,
-      //   data: parsedDocumentResponse,
-      // });
+      const generateEmbeddingsResponse = await generateEmbeddings(
+        parsedDocumentResponse.file
+      );
 
-      console.log('parsedDocumentResponse: ', parsedDocumentResponse);
+      console.log('parsedDocumentResponse: ', generateEmbeddingsResponse);
 
       const processedFileResponse = await processRagFile({ file, userEmail });
       ragFiles[ragFiles.indexOf(file)].processed =
