@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, sendErrorResponse, getUserByEmail } from '@/app/lib/utils/db';
+import { getDb, getUserByEmail } from '@/app/lib/utils/db';
+import { sendErrorResponse } from '@/app/lib/utils/response';
 import fs from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     } else {
       ragId = user.ragId;
     }
- 
+
     const fileWriteResponse = await writeFile(user, file);
 
     const dbFile = {

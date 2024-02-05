@@ -20,8 +20,9 @@ import {
 import { useFormContext } from 'react-hook-form';
 import RagForm from './RagForm';
 import RagFileList from './RagFileList';
-import { upsertToVectorDb } from '@/app/services/vectorDbService';
 import { parseDocument } from '@/app/services/unstructuredService';
+import { generateEmbeddings } from '@/app/services/embeddingService';
+import { upsertToVectorDb } from '@/app/services/vectorDbService';
 
 interface RagDialogProps {
   open: boolean;
@@ -91,9 +92,6 @@ const RagDialog: React.FC<RagDialogProps> = ({
           isRagEnabled,
           userEmail,
         });
-
-        // TODO: Create embeddings from data, before sending to Pinecone
-        //console.log(await upsertToVectorDb({}, userEmail))
         console.log('R.A.G. updated successfully: ', updateRagResponse);
       } else {
         throw new Error('No session found');
@@ -162,10 +160,16 @@ const RagDialog: React.FC<RagDialogProps> = ({
       const user = session?.user as any;
       const userEmail = user.email;
       const parsedDocumentResponse = await parseDocument(file.path);
+      // const generateEmbeddingsResponse = await generateEmbeddings({
+      //   userEmail,
+      //   data: parsedDocumentResponse,
+      // });
+
+      console.log('parsedDocumentResponse: ', parsedDocumentResponse);
+
       const processedFileResponse = await processRagFile({ file, userEmail });
       ragFiles[ragFiles.indexOf(file)].processed =
         processedFileResponse.file.processed;
-
       console.log(
         'File processed successfully: ',
         parsedDocumentResponse,

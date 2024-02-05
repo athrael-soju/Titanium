@@ -20,4 +20,4 @@ const generateEmbeddings = async (data: JSON): Promise<any> => {
   }
 };
 
-export default generateEmbeddings;
+export { generateEmbeddings };

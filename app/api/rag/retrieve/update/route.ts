@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, getUserByEmail, sendErrorResponse } from '@/app/lib/utils/db';
+import { getDb, getUserByEmail } from '@/app/lib/utils/db';
+import { sendErrorResponse } from '@/app/lib/utils/response';
 import { Collection } from 'mongodb';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
