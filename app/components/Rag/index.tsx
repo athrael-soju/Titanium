@@ -158,29 +158,28 @@ const RagDialog: React.FC<RagDialogProps> = ({
     setValue('isLoading', true);
     const user = session?.user as any;
     const userEmail = user.email;
-    console.log('Document processing status: ', file.name);
+    console.log('Document processing started for: ', file.name);
     parseDocument(file.path)
       .then((parsedDocumentResponse) => {
         console.log('Parsed: ', parsedDocumentResponse);
-        generateEmbeddings(parsedDocumentResponse.file).then(
+        generateEmbeddings(parsedDocumentResponse.file, userEmail).then(
           (generateEmbeddingsResponse) => {
             console.log('Embedded: ', generateEmbeddingsResponse);
-            upsertToVectorDb(
-              generateEmbeddingsResponse.embeddings,
-              userEmail
-            ).then((upsertToVectorDbResponse) => {
-              console.log('Upserted: ', upsertToVectorDbResponse);
-              updateFileStatus({ file, userEmail }).then(
-                (updateFileStatusResponse) => {
-                  console.log(
-                    'File status updated: ',
-                    updateFileStatusResponse
-                  );
-                  ragFiles[ragFiles.indexOf(file)].processed =
-                    updateFileStatusResponse.file.processed;
-                }
-              );
-            });
+            upsertToVectorDb(generateEmbeddingsResponse, userEmail).then(
+              (upsertToVectorDbResponse) => {
+                console.log('Upserted: ', upsertToVectorDbResponse);
+                updateFileStatus({ file, userEmail }).then(
+                  (updateFileStatusResponse) => {
+                    console.log(
+                      'File status updated: ',
+                      updateFileStatusResponse
+                    );
+                    ragFiles[ragFiles.indexOf(file)].processed =
+                      updateFileStatusResponse.file.processed;
+                  }
+                );
+              }
+            );
           }
         );
       })

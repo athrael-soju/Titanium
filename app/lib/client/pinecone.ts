@@ -17,36 +17,48 @@ const getClient = async () => {
 
 const getIndex = async () => {
   const client = await getClient();
-  return client.index(indexName);
+  return client.index<PdfSearchMetadata>(indexName);
 };
 
-const upsert = async (data: any, user: IUser) => {
-  const index = await getIndex();
-  // TODO: Create embeddings from data, before sending to Pinecone. Below won't work.
-  const result = await index.namespace(user.ragId as string).upsert([
-    {
-      id: 'vec1',
-      values: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
-      metadata: { genre: 'drama' },
-    },
-    {
-      id: 'vec2',
-      values: [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
-      metadata: { genre: 'action' },
-    },
-    {
-      id: 'vec3',
-      values: [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3],
-      metadata: { genre: 'drama' },
-    },
-    {
-      id: 'vec4',
-      values: [0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4],
-      metadata: { genre: 'action' },
-    },
-  ]);
-  console.log(result);
+type PdfSearchMetadata = {
+  filename: string;
+  filetype: string;
+  languages: string[];
+  page_number: number;
+  rag_id: string;
+  user_email: string;
+};
+
+// Helper function to chunk the array into smaller arrays of a given size
+function chunkArray<PdfSearchMetadata>(
+  array: PdfSearchMetadata[],
+  chunkSize: number
+): PdfSearchMetadata[][] {
+  const result: PdfSearchMetadata[][] = [];
+  for (let i = 0; i < array.length; i += chunkSize) {
+    result.push(array.slice(i, i + chunkSize));
+  }
   return result;
+}
+
+const upsert = async (data: any[], user: IUser) => {
+  try {
+    const index = await getIndex();
+    // Chunking the data into arrays of 100 objects each
+    // TODO: Make this configurable
+    const chunkedData = chunkArray(data, 100);
+
+    // Upserting the data in batches of 100
+    for (const chunk of chunkedData) {
+      const result = await index.namespace(user.ragId as string).upsert(chunk);
+      console.log(result);
+    }
+
+    return { success: 'true' };
+  } catch (error: any) {
+    console.error('Error upserting Pinecone:', error);
+    throw error;
+  }
 };
 
 const queryByRecordId = async (data: any, user: IUser) => {
@@ -100,12 +112,12 @@ const deleteAll = async (user: IUser) => {
 
 const update = async (data: any, user: IUser) => {
   const index = await getIndex();
-  const result = await index.update({
-    id: '18593',
-    metadata: { genre: 'romance' },
-  });
-  console.log(result);
-  return result;
+  // const result = await index.update({
+  //   id: '18593',
+  //   metadata: { genre: 'romance' },
+  // });
+  // console.log(result);
+  // return result;
 };
 
 export const pinecone = {

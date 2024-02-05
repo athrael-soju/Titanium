@@ -1,8 +1,11 @@
-const generateEmbeddings = async (data: JSON): Promise<any> => {
+const generateEmbeddings = async (
+  data: JSON,
+  userEmail: string
+): Promise<any> => {
   try {
     const response = await fetch('/api/embed', {
       method: 'GET',
-      headers: { data: JSON.stringify(data) },
+      headers: { data: JSON.stringify(data), userEmail: userEmail },
     });
 
     if (!response.ok) {

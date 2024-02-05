@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDatabaseAndUser, getDb } from '@/app/lib/utils/db';
 import { sendErrorResponse } from '@/app/lib/utils/response';
 import OpenAI, { ClientOptions } from 'openai';
-import { Embedding } from 'openai/resources/embeddings.mjs';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('OPENAI_API_KEY is not set');
@@ -12,12 +12,18 @@ const openai = new OpenAI(options);
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
+    const db = await getDb();
     const dataString = req.headers.get('data');
-    if (!dataString) {
-      throw new Error('No data provided in headers');
+    const userEmail = req.headers.get('userEmail');
+    if (!userEmail || !dataString) {
+      throw new Error(
+        'Incomplete request headers. Please provide userEmail and data.'
+      );
     }
     const data = JSON.parse(dataString);
+    const { user } = await getDatabaseAndUser(db, userEmail);
 
+    console.log('User:', user, 'Data:', data);
     const embeddings = await Promise.all(
       data.map(async (item: any) => {
         const response = await openai.embeddings.create({
@@ -30,7 +36,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         return {
           id: crypto.randomUUID(),
           values: embeddingValues,
-          metadata: item.metadata,
+          metadata: {
+            ...item.metadata,
+            rag_id: user.ragId,
+            user_email: user.email,
+          },
         };
       })
     );
