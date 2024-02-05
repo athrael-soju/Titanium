@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   getDatabaseAndUser,
   getDb,
-  handleErrorResponse,
   sendErrorResponse,
 } from '@/app/lib/utils/db';
 
@@ -29,10 +28,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     } else {
       return sendErrorResponse(
         'Query cannot proceed without a valid user ragId',
-        200
+        400
       );
     }
   } catch (error: any) {
-    return handleErrorResponse(error);
+    console.error('Error querying Pinecone:', error);
+    return sendErrorResponse('Error querying Pinecone:', 400);
   }
 }

@@ -27,6 +27,7 @@ interface ChatFormValues {
     ragId: string;
     name: string;
     type: string;
+    processed: boolean;
   }[];
 }
 

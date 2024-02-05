@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   getDatabaseAndUser,
   getDb,
-  handleErrorResponse,
   sendErrorResponse,
+  sendInformationResponse,
 } from '@/app/lib/utils/db';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -26,9 +26,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         { status: 200 }
       );
     }
-
-    return sendErrorResponse('Speech not configured for the user', 200);
+    return sendInformationResponse('Speech not configured for the user', 200);
   } catch (error: any) {
-    return handleErrorResponse(error);
+    return sendErrorResponse(error, 400);
   }
 }

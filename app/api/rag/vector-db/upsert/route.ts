@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getDatabaseAndUser,
-  getDb,
-  handleErrorResponse,
+  getDb,  
   sendErrorResponse,
 } from '@/app/lib/utils/db';
 
@@ -30,10 +29,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     } else {
       return sendErrorResponse(
         'Upsert cannot proceed without a valid user ragId',
-        200
+        400
       );
     }
   } catch (error: any) {
-    return handleErrorResponse(error);
+    console.error('Error upserting Pinecone:', error);
+    return sendErrorResponse('Error upserting Pinecone', 400);
   }
 }

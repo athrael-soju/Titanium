@@ -15,11 +15,13 @@ import {
   updateRag,
   uploadRagFile,
   deleteRagFile,
+  processRagFile,
 } from '@/app/services/ragService';
 import { useFormContext } from 'react-hook-form';
 import RagForm from './RagForm';
 import RagFileList from './RagFileList';
 import { upsertToVectorDb } from '@/app/services/vectorDbService';
+import { parseDocument } from '@/app/services/unstructuredService';
 
 interface RagDialogProps {
   open: boolean;
@@ -89,6 +91,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
           isRagEnabled,
           userEmail,
         });
+        // TODO: Chunk the data using Unstructured
         // TODO: Create embeddings from data, before sending to Pinecone
         //console.log(await upsertToVectorDb({}, userEmail))
         console.log('R.A.G. updated successfully: ', updateRagResponse);
@@ -116,11 +119,12 @@ const RagDialog: React.FC<RagDialogProps> = ({
           const response = fileUploadResponse.file;
 
           const newFile = {
-            id: response.fileId,
+            id: response.id,
             ragId: response.ragId,
-            name: response.filename,
+            name: response.name,
             path: response.path,
             type: response.purpose,
+            processed: false,
           };
           const newRagFiles = [...ragFiles, newFile];
           setValue('ragFiles', newRagFiles);
@@ -142,10 +146,33 @@ const RagDialog: React.FC<RagDialogProps> = ({
       const user = session?.user as any;
       const userEmail = user.email;
       await deleteRagFile({ file, userEmail });
-      console.log('File successfully deleted from R.A.G.:', file);
       ragFiles.splice(ragFiles.indexOf(file), 1);
+
+      console.log('File successfully deleted from R.A.G.:', file);
     } catch (error) {
       console.error('Failed to remove file from the R.A.G.:', error);
+    } finally {
+      setValue('isLoading', false);
+    }
+  };
+
+  const handleFileProcess = async (file: RagFile) => {
+    try {
+      setValue('isLoading', true);
+      const user = session?.user as any;
+      const userEmail = user.email;
+      const parsedDocumentResponse = await parseDocument(file.path);
+      const processedFileResponse = await processRagFile({ file, userEmail });
+      ragFiles[ragFiles.indexOf(file)].processed =
+        processedFileResponse.file.processed;
+
+      console.log(
+        'File processed successfully: ',
+        parsedDocumentResponse,
+        processedFileResponse
+      );
+    } catch (error) {
+      console.error('Failed to process file:', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -156,7 +183,11 @@ const RagDialog: React.FC<RagDialogProps> = ({
       <DialogTitle style={{ textAlign: 'center' }}>R.A.G. Settings</DialogTitle>
       <DialogContent style={{ paddingBottom: 8 }}>
         <RagForm error={error} />
-        <RagFileList files={ragFiles} onDelete={handleFileDelete} />
+        <RagFileList
+          files={ragFiles}
+          onDelete={handleFileDelete}
+          onProcess={handleFileProcess}
+        />
       </DialogContent>
       <DialogContent style={{ paddingTop: 5, paddingBottom: 5 }}>
         <RagForm error={error} />

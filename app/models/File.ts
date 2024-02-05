@@ -10,6 +10,6 @@ interface RagFile {
   name: string;
   path: string;
   ragId: string;
-  fileId: string;
   purpose: string;
+  processed: boolean;
 }

@@ -10,11 +10,10 @@ interface FileUploadResponse {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const data = await request.formData();
-  const file = data.get('file') as unknown as File;
-  const userEmail = data.get('userEmail') as string;
-
   try {
+    const data = await request.formData();
+    const file = data.get('file') as unknown as File;
+    const userEmail = data.get('userEmail') as string;
     const db = await getDb();
     const usersCollection = db.collection<IUser>('users');
     const user = await getUserByEmail(usersCollection, userEmail);
@@ -36,12 +35,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  
     const fileWriteResponse = await writeFile(user, file);
 
-    const dbFile: RagFile = {
+    const dbFile = {
+      id: crypto.randomUUID(),
       name: file.name,
       path: fileWriteResponse.uploadPath,
       ragId: ragId,
-      fileId: crypto.randomUUID(),
       purpose: 'R.A.G.',
+      processed: false,
     };
 
     const fileCollection = db.collection<RagFile>('files');

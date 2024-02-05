@@ -4,9 +4,8 @@ import {
   getDb,
   sendErrorResponse,
 } from '@/app/lib/utils/db';
-import fs from 'fs/promises';
 
-interface DeleteFileRequest {
+interface ProcessFileRequest {
   file: RagFile;
   userEmail: string;
 }
@@ -16,7 +15,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   try {
     const db = await getDb();
-    const { file, userEmail } = requestBody as DeleteFileRequest;
+    const { file, userEmail } = requestBody as ProcessFileRequest;
     const { user } = await getDatabaseAndUser(db, userEmail);
 
     if (user.ragId !== file.ragId) {
@@ -25,21 +24,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const fileCollection = db.collection<RagFile>('files');
 
-    const fileDeletedFromDB = await fileCollection.deleteOne({
-      ragId: file.ragId,
-    });
-    const fileDeletedFromDisk = await fs.unlink(file.path);
-    const fileDeletedFromVectorDB = true; // TODO: Implement vectorDB deletion
+    await fileCollection.updateOne(
+      {
+        ragId: file.ragId,
+      },
+      {
+        $set: {
+          processed: true,
+        },
+      }
+    );
+    file.processed = true;
     return NextResponse.json(
       {
-        fileDeletedFromDisk: fileDeletedFromDisk,
-        fileDeletedFromDB: fileDeletedFromDB,
-        fileDeletedFromVectorDB: fileDeletedFromVectorDB,
+        message: 'R.A.G. file processing successful',
+        file: file,
       },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('R.A.G. file deletion unsuccessful:', error);
-    return sendErrorResponse('R.A.G. file deletion unsuccessful', 400);
+    console.error('R.A.G. file processing unsuccessful:', error);
+    return sendErrorResponse('R.A.G. file processing unsuccessful', 400);
   }
 }

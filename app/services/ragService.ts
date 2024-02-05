@@ -47,6 +47,28 @@ const deleteRagFile = async ({
   }
 };
 
+const processRagFile = async ({
+  file,
+  userEmail,
+}: {
+  file: RagFile;
+  userEmail: string;
+}): Promise<any> => {
+  try {
+    const response = await fetch('/api/rag/process-file/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ file, userEmail }),
+    });
+    return response.json();
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    throw error;
+  }
+};
+
 const uploadRagFile = async (file: File, userEmail: string): Promise<any> => {
   const formData = new FormData();
   formData.append('file', file);
@@ -63,4 +85,4 @@ const uploadRagFile = async (file: File, userEmail: string): Promise<any> => {
   }
 };
 
-export { updateRag, deleteRagFile, uploadRagFile };
+export { updateRag, deleteRagFile, processRagFile, uploadRagFile };
