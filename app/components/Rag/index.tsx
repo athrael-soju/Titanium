@@ -163,15 +163,13 @@ const RagDialog: React.FC<RagDialogProps> = ({
       const generateEmbeddingsResponse = await generateEmbeddings(
         parsedDocumentResponse.file
       );
-
-      console.log('parsedDocumentResponse: ', generateEmbeddingsResponse);
-
       const processedFileResponse = await processRagFile({ file, userEmail });
       ragFiles[ragFiles.indexOf(file)].processed =
         processedFileResponse.file.processed;
       console.log(
         'File processed successfully: ',
         parsedDocumentResponse,
+        generateEmbeddingsResponse,
         processedFileResponse
       );
     } catch (error) {
