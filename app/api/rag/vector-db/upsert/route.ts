@@ -10,7 +10,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const requestBody = await req.json();
     const { data, userEmail } = requestBody;
     const { user } = await getDatabaseAndUser(db, userEmail);
-    
+
     if (user.ragId) {
       const response = await pinecone.upsert(data, user);
       return NextResponse.json({

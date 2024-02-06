@@ -129,9 +129,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
             chunks: [],
           };
 
-          const newRagFiles = [...ragFiles, newFile];
-          setValue('ragFiles', newRagFiles);
-          await handleUpdate();
+          setValue('ragFiles', [...ragFiles, newFile]);
         } else {
           throw new Error('Failed to upload file to R.A.G.');
         }
@@ -149,20 +147,12 @@ const RagDialog: React.FC<RagDialogProps> = ({
       const user = session?.user as any;
       const userEmail = user.email;
       console.log('Deletion process started for:', file);
-      const deleteFromVectorDbResponse = await deleteFileFromVectorDb(
-        file,
-        userEmail
-      );
-      if (deleteFromVectorDbResponse.status === 200) {
-        await deleteRagFile({ file, userEmail });
-        ragFiles.splice(ragFiles.indexOf(file), 1);
-        console.log('File successfully deleted from R.A.G.:', file);
-      } else {
-        throw new Error(
-          'Failed to delete file from R.A.G.',
-          deleteFromVectorDbResponse.status
-        );
+      if (file.processed) {
+        await deleteFileFromVectorDb(file, userEmail);
       }
+      await deleteRagFile({ file, userEmail });
+      ragFiles.splice(ragFiles.indexOf(file), 1);
+      console.log('File successfully deleted from R.A.G.:', file);
     } catch (error) {
       console.error('Failed to remove file from the R.A.G.:', error);
     } finally {
