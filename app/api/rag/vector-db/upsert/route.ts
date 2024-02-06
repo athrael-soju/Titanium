@@ -15,7 +15,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       const response = await pinecone.upsert(data, user);
 
       return NextResponse.json({
-        message: 'Pinecone upsert successful',
+        message: 'Pinecone upserted successfully',
         ragId: user.ragId,
         response,
         isRagEnabled: user.isRagEnabled,

@@ -28,13 +28,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(
       {
-        message: 'Unstructured partition successful',
+        message: 'Unstructured partition parsed successfully',
         file: parsedDataResponse?.elements,
       },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('Unstructured partition failed', error);
-    return sendErrorResponse('Unstructured partition failed', 400);
+    console.error('Unstructured partition failed to parse', error);
+    return sendErrorResponse('Unstructured partition failed to parse', 400);
   }
 }

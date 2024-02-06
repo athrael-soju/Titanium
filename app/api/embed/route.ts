@@ -32,13 +32,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           input: item.text,
           encoding_format: 'float',
         });
+        const transformedMetadata = transformObjectValues(item.metadata);
 
         const embeddingValues = response.data[0].embedding;
         return {
           id: crypto.randomUUID(),
           values: embeddingValues,
           metadata: {
-            ...item.metadata,
+            ...transformedMetadata,
             rag_id: user.ragId,
             user_email: user.email,
           },
@@ -58,3 +59,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return sendErrorResponse('Error generating embeddings', 400);
   }
 }
+
+const transformObjectValues = (
+  obj: Record<string, any>
+): Record<string, any> => {
+  return Object.entries(obj).reduce((acc, [key, value]) => {
+    if (typeof value === 'object' && value !== null) {
+      acc[key] = Object.entries(value).map(
+        ([k, v]) => `${k}:${JSON.stringify(v)}`
+      );
+    } else {
+      acc[key] = value;
+    }
+    return acc;
+  }, {} as Record<string, any>);
+};

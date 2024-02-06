@@ -33,12 +33,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
     file.processed = true;
     return NextResponse.json({
-      message: 'R.A.G. file status update successful',
+      message: 'R.A.G. file status updated successfully',
       file: file,
       status: 200,
     });
   } catch (error: any) {
-    console.error('R.A.G. file status update unsuccessful:', error);
-    return sendErrorResponse('R.A.G. file status update unsuccessful', 400);
+    console.error('R.A.G. file status update failed:', error);
+    return sendErrorResponse('R.A.G. file status update failed', 400);
   }
 }

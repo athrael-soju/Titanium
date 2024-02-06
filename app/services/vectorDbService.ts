@@ -11,7 +11,7 @@ const upsertToVectorDb = async (
       body: JSON.stringify({ data, userEmail }),
     });
     const jsonResponse = await response.json();
-    console.log('Data upserted:', jsonResponse);
+    console.log(jsonResponse.message, jsonResponse.ragId);
     return jsonResponse;
   } catch (error) {
     console.error('Error upserting data to vector db:', error);
