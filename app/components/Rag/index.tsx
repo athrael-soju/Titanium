@@ -165,14 +165,20 @@ const RagDialog: React.FC<RagDialogProps> = ({
         parsedDocumentResponse.file,
         userEmail
       );
-      await upsertToVectorDb(generateEmbeddingsResponse, userEmail);
-      const updateFileStatusResponse = await updateFileStatus({
-        file,
-        userEmail,
-      });
-      ragFiles[ragFiles.indexOf(file)].processed =
-        updateFileStatusResponse.file.processed;
-      console.log('File processing completed successfully.');
+      const upsertToVectorDbResponse = await upsertToVectorDb(
+        generateEmbeddingsResponse,
+        userEmail
+      );
+
+      if (upsertToVectorDbResponse.status === 200) {
+        const updateFileStatusResponse = await updateFileStatus({
+          file,
+          userEmail,
+        });
+        ragFiles[ragFiles.indexOf(file)].processed =
+          updateFileStatusResponse.file.processed;
+        console.log('File processing completed successfully.');
+      }
     } catch (error) {
       console.error('Failed to process file:', error);
       throw new Error('Failed to process file');

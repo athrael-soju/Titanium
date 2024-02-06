@@ -14,8 +14,8 @@ const upsertToVectorDb = async (
     console.log('Data upserted:', jsonResponse);
     return jsonResponse;
   } catch (error) {
-    console.error('Unexpected error:', error);
-    throw error;
+    console.error('Error upserting data to vector db:', error);
+    throw new Error('Error upserting data to vector db');
   }
 };
 

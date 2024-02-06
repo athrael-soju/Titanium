@@ -14,15 +14,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (user.ragId) {
       const response = await pinecone.upsert(data, user);
 
-      return NextResponse.json(
-        {
-          message: 'Pinecone upsert successful',
-          ragId: user.ragId,
-          response,
-          isRagEnabled: user.isRagEnabled,
-        },
-        { status: 200 }
-      );
+      return NextResponse.json({
+        message: 'Pinecone upsert successful',
+        ragId: user.ragId,
+        response,
+        isRagEnabled: user.isRagEnabled,
+        status: 200,
+      });
     } else {
       return sendErrorResponse(
         'Upsert cannot proceed without a valid user ragId',

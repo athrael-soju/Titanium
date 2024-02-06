@@ -1,8 +1,6 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 
 const apiKey = process.env.PINECONE_API as string,
-  host = process.env.PINECONE_HOST,
-  region = process.env.PINECONE_REGION,
   indexName = process.env.PINECONE_INDEX as string;
 
 const config = {
@@ -17,24 +15,12 @@ const getClient = async () => {
 
 const getIndex = async () => {
   const client = await getClient();
-  return client.index<PdfSearchMetadata>(indexName);
-};
-
-type PdfSearchMetadata = {
-  filename: string;
-  filetype: string;
-  languages: string[];
-  page_number: number;
-  rag_id: string;
-  user_email: string;
+  return client.index(indexName);
 };
 
 // Helper function to chunk the array into smaller arrays of a given size
-function chunkArray<PdfSearchMetadata>(
-  array: PdfSearchMetadata[],
-  chunkSize: number
-): PdfSearchMetadata[][] {
-  const result: PdfSearchMetadata[][] = [];
+function chunkArray(array: any[], chunkSize: number): any[][] {
+  const result: any[][] = [];
   for (let i = 0; i < array.length; i += chunkSize) {
     result.push(array.slice(i, i + chunkSize));
   }
