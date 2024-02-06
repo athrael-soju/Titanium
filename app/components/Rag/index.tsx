@@ -155,42 +155,30 @@ const RagDialog: React.FC<RagDialogProps> = ({
   };
 
   const handleFileProcess = async (file: RagFile) => {
-    setValue('isLoading', true);
-    const user = session?.user as any;
-    const userEmail = user.email;
-    console.log('Document processing started for: ', file.name);
-    parseDocument(file.path)
-      .then((parsedDocumentResponse) => {
-        console.log('Parsed: ', parsedDocumentResponse);
-        generateEmbeddings(parsedDocumentResponse.file, userEmail).then(
-          (generateEmbeddingsResponse) => {
-            console.log('Embedded: ', generateEmbeddingsResponse);
-            upsertToVectorDb(generateEmbeddingsResponse, userEmail).then(
-              (upsertToVectorDbResponse) => {
-                console.log('Upserted: ', upsertToVectorDbResponse);
-                updateFileStatus({ file, userEmail }).then(
-                  (updateFileStatusResponse) => {
-                    console.log(
-                      'File status updated: ',
-                      updateFileStatusResponse
-                    );
-                    ragFiles[ragFiles.indexOf(file)].processed =
-                      updateFileStatusResponse.file.processed;
-                  }
-                );
-              }
-            );
-          }
-        );
-      })
-      .catch((error) => {
-        console.error('Failed to process file:', error);
-        throw new Error('Failed to process file:', error);
-      })
-      .finally(() => {
-        console.log('File processing completed successfully.');
-        setValue('isLoading', false);
+    try {
+      setValue('isLoading', true);
+      const user = session?.user as any;
+      const userEmail = user.email;
+      console.log('Document processing started for: ', file.name);
+      const parsedDocumentResponse = await parseDocument(file.path);
+      const generateEmbeddingsResponse = await generateEmbeddings(
+        parsedDocumentResponse.file,
+        userEmail
+      );
+      await upsertToVectorDb(generateEmbeddingsResponse, userEmail);
+      const updateFileStatusResponse = await updateFileStatus({
+        file,
+        userEmail,
       });
+      ragFiles[ragFiles.indexOf(file)].processed =
+        updateFileStatusResponse.file.processed;
+      console.log('File processing completed successfully.');
+    } catch (error) {
+      console.error('Failed to process file:', error);
+      throw new Error('Failed to process file');
+    } finally {
+      setValue('isLoading', false);
+    }
   };
 
   return (

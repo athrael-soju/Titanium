@@ -62,7 +62,9 @@ const updateFileStatus = async ({
       },
       body: JSON.stringify({ file, userEmail }),
     });
-    return response.json();
+    const jsonResponse = await response.json();
+    console.log('File status updated:', jsonResponse);
+    return jsonResponse;
   } catch (error) {
     console.error('Unexpected error:', error);
     throw error;

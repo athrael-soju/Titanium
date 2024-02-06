@@ -10,7 +10,9 @@ const upsertToVectorDb = async (
       },
       body: JSON.stringify({ data, userEmail }),
     });
-    return response.json();
+    const jsonResponse = await response.json();
+    console.log('Data upserted:', jsonResponse);
+    return jsonResponse;
   } catch (error) {
     console.error('Unexpected error:', error);
     throw error;

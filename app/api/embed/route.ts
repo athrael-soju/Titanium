@@ -10,17 +10,18 @@ if (!process.env.OPENAI_API_KEY) {
 const options: ClientOptions = { apiKey: process.env.OPENAI_API_KEY };
 const openai = new OpenAI(options);
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
-    const dataString = req.headers.get('data');
-    const userEmail = req.headers.get('userEmail');
-    if (!userEmail || !dataString) {
+    const requestBody = await req.json();
+    const { data, userEmail } = requestBody;
+
+    if (!userEmail || !data) {
       throw new Error(
         'Incomplete request headers. Please provide userEmail and data.'
       );
     }
-    const data = JSON.parse(dataString);
+
     const { user } = await getDatabaseAndUser(db, userEmail);
 
     console.log('User:', user, 'Data:', data);
