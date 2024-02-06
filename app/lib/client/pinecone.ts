@@ -31,7 +31,7 @@ const upsert = async (data: any[], user: IUser) => {
   try {
     const index = await getIndex();
     // TODO: Make this configurable. Chunking the data into arrays of 100 objects each.
-    const chunkedData = chunkArray(data, 100);
+    const chunkedData = chunkArray(data, 250);
     for (const chunk of chunkedData) {
       await index.namespace(user.ragId as string).upsert(chunk);
     }
@@ -78,7 +78,6 @@ const deleteMany = async (idList: string[]) => {
 const deleteAll = async (user: IUser) => {
   const index = await getIndex();
   const result = await index.namespace(user.ragId as string).deleteAll();
-  console.log(result);
   return result;
 };
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, sendErrorResponse, getUserByEmail } from '@/app/lib/utils/db';
+import { getDb, getUserByEmail } from '@/app/lib/utils/db';
+import { sendErrorResponse } from '@/app/lib/utils/response';
 import OpenAI from 'openai';
 import { Collection } from 'mongodb';
 
@@ -30,7 +31,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-// Helper function
 async function deleteUserAssistant(
   assistantId: string,
   userEmail: string,
