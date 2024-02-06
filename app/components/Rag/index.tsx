@@ -22,7 +22,10 @@ import RagForm from './RagForm';
 import RagFileList from './RagFileList';
 import { parseDocument } from '@/app/services/unstructuredService';
 import { generateEmbeddings } from '@/app/services/embeddingService';
-import { upsertToVectorDb } from '@/app/services/vectorDbService';
+import {
+  upsertToVectorDb,
+  deleteFileFromVectorDb,
+} from '@/app/services/vectorDbService';
 
 interface RagDialogProps {
   open: boolean;
@@ -123,7 +126,9 @@ const RagDialog: React.FC<RagDialogProps> = ({
             path: response.path,
             type: response.purpose,
             processed: false,
+            chunks: [],
           };
+
           const newRagFiles = [...ragFiles, newFile];
           setValue('ragFiles', newRagFiles);
           await handleUpdate();
@@ -143,10 +148,21 @@ const RagDialog: React.FC<RagDialogProps> = ({
       setValue('isLoading', true);
       const user = session?.user as any;
       const userEmail = user.email;
-      await deleteRagFile({ file, userEmail });
-      ragFiles.splice(ragFiles.indexOf(file), 1);
-
-      console.log('File successfully deleted from R.A.G.:', file);
+      console.log('Deletion process started for:', file);
+      const deleteFromVectorDbResponse = await deleteFileFromVectorDb(
+        file,
+        userEmail
+      );
+      if (deleteFromVectorDbResponse.status === 200) {
+        await deleteRagFile({ file, userEmail });
+        ragFiles.splice(ragFiles.indexOf(file), 1);
+        console.log('File successfully deleted from R.A.G.:', file);
+      } else {
+        throw new Error(
+          'Failed to delete file from R.A.G.',
+          deleteFromVectorDbResponse.status
+        );
+      }
     } catch (error) {
       console.error('Failed to remove file from the R.A.G.:', error);
     } finally {
@@ -160,13 +176,19 @@ const RagDialog: React.FC<RagDialogProps> = ({
       const user = session?.user as any;
       const userEmail = user.email;
       console.log('Document processing started for: ', file.name);
-      const parsedDocumentResponse = await parseDocument(file.path);
+
+      const parsedDocumentResponse = await parseDocument(file);
+
       const generateEmbeddingsResponse = await generateEmbeddings(
         parsedDocumentResponse.file,
         userEmail
       );
+
+      ragFiles[ragFiles.indexOf(file)].chunks =
+        generateEmbeddingsResponse.chunks;
+
       const upsertToVectorDbResponse = await upsertToVectorDb(
-        generateEmbeddingsResponse,
+        generateEmbeddingsResponse.embeddings,
         userEmail
       );
 
@@ -178,6 +200,11 @@ const RagDialog: React.FC<RagDialogProps> = ({
         ragFiles[ragFiles.indexOf(file)].processed =
           updateFileStatusResponse.file.processed;
         console.log('File processing completed successfully');
+      } else {
+        throw new Error(
+          'Failed to process file',
+          upsertToVectorDbResponse.status
+        );
       }
     } catch (error) {
       console.error('Failed to process file:', error);

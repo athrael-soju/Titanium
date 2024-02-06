@@ -34,7 +34,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ragId = user.ragId;
     }
 
-    const fileWriteResponse = await writeFile(user, file);
+    const fileWriteResponse = await writeFile(file);
 
     const dbFile = {
       id: crypto.randomUUID(),
@@ -43,6 +43,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ragId: ragId,
       purpose: 'R.A.G.',
       processed: false,
+      chunks: [],
     };
 
     const fileCollection = db.collection<RagFile>('files');
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       message: 'File upload successful',
       file: dbFile,
       fileWrittenToDisk: fileWriteResponse.fileWrittenToDisk,
-      dbInsertionId: insertFileToDBResponse.insertedId,
+      fileWrittenToDb: insertFileToDBResponse.insertedId,
       status: 200,
     });
   } catch (error: any) {
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 }
 
-async function writeFile(user: IUser, file: File): Promise<FileUploadResponse> {
+async function writeFile(file: File): Promise<FileUploadResponse> {
   try {
     const uploadPath = join(tmpdir(), file.name);
     const arrayBuffer = await file.arrayBuffer();

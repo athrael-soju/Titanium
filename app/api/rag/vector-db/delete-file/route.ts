@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDatabaseAndUser, getDb } from '@/app/lib/utils/db';
 import { sendErrorResponse } from '@/app/lib/utils/response';
-import fs from 'fs/promises';
+
+import { pinecone } from '@/app/lib/client/pinecone';
 
 interface DeleteFileRequest {
   file: RagFile;
@@ -19,20 +20,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (user.ragId !== file.ragId) {
       return sendErrorResponse('User ragId not found', 404);
     }
+    const fileDeletedFromVectorDB = await pinecone.deleteMany(file.chunks);
 
-    const fileCollection = db.collection<RagFile>('files');
-
-    const fileDeletedFromDB = await fileCollection.deleteOne({
-      ragId: file.ragId,
-    });
-    const fileDeletedFromDisk = await fs.unlink(file.path);
     return NextResponse.json({
-      fileDeletedFromDisk: fileDeletedFromDisk,
-      fileDeletedFromDB: fileDeletedFromDB,
+      message: 'Vector DB file deletion successful',
+      fileDeletedFromVectorDB: fileDeletedFromVectorDB,
       status: 200,
     });
   } catch (error: any) {
-    console.error('R.A.G. file deletion unsuccessful:', error);
-    return sendErrorResponse('R.A.G. file deletion unsuccessful', 400);
+    console.error('Vector DB file deletion unsuccessful:', error);
+    return sendErrorResponse('Vector DB file deletion unsuccessful', 400);
   }
 }

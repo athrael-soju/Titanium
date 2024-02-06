@@ -12,4 +12,5 @@ interface RagFile {
   ragId: string;
   purpose: string;
   processed: boolean;
+  chunks: string[];
 }

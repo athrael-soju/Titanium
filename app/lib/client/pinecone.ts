@@ -30,18 +30,14 @@ function chunkArray(array: any[], chunkSize: number): any[][] {
 const upsert = async (data: any[], user: IUser) => {
   try {
     const index = await getIndex();
-    // Chunking the data into arrays of 100 objects each
-    // TODO: Make this configurable
+    // TODO: Make this configurable. Chunking the data into arrays of 100 objects each.
     const chunkedData = chunkArray(data, 100);
-
-    // Upserting the data in batches of 100
     for (const chunk of chunkedData) {
       await index.namespace(user.ragId as string).upsert(chunk);
     }
-
     return { success: 'true' };
   } catch (error: any) {
-    console.error('Error upserting Pinecone:', error);
+    console.error('Error upserting in Pinecone:', error);
     throw error;
   }
 };
@@ -73,19 +69,10 @@ const deleteOne = async (id: string, user: IUser) => {
   return result;
 };
 
-const deleteMany = async (idList: string[], user: IUser) => {
+const deleteMany = async (idList: string[]) => {
   const index = await getIndex();
   const result = await index.deleteMany(idList);
-  console.log(result);
   return result;
-};
-
-const deleteManyByMetadata = async (metadata: string[], user: IUser) => {
-  const index = await getIndex();
-  metadata.forEach(async (data) => {
-    const result = await index.deleteMany({ data });
-    console.log(result);
-  });
 };
 
 const deleteAll = async (user: IUser) => {
@@ -111,7 +98,6 @@ export const pinecone = {
   queryByNamespace,
   deleteOne,
   deleteMany,
-  deleteManyByMetadata,
   deleteAll,
   update,
 };

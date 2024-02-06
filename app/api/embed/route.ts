@@ -23,6 +23,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     const { user } = await getDatabaseAndUser(db, userEmail);
+    const fileCollection = db.collection<RagFile>('files');
+    const chunkIdList: string[] = [];
+    const ragId = user.ragId as string;
 
     const embeddings = await Promise.all(
       data.map(async (item: any) => {
@@ -32,24 +35,35 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           encoding_format: 'float',
         });
         const transformedMetadata = transformObjectValues(item.metadata);
-
+        const newId = crypto.randomUUID();
+        chunkIdList.push(newId);
         const embeddingValues = response.data[0].embedding;
         return {
-          id: crypto.randomUUID(),
+          id: newId,
           values: embeddingValues,
           metadata: {
             ...transformedMetadata,
-            rag_id: user.ragId,
+            rag_id: ragId,
             user_email: user.email,
           },
         };
       })
     );
 
+    await fileCollection.updateOne(
+      { ragId: ragId },
+      {
+        $set: {
+          chunks: chunkIdList,
+        },
+      }
+    );
+
     return NextResponse.json(
       {
         message: 'Embeddings generated successfully',
-        embeddings,
+        chunks: chunkIdList,
+        embeddings: embeddings,
       },
       { status: 200 }
     );

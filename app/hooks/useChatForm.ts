@@ -28,6 +28,7 @@ interface ChatFormValues {
     name: string;
     type: string;
     processed: boolean;
+    chunks: string[];
   }[];
 }
 

@@ -12,27 +12,25 @@ const client = new UnstructuredClient({
   },
 });
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const fileName = req.headers.get('fileName') as string;
-    const data = fs.readFileSync(fileName);
+    const { file } = await req.json();
+    const fileData = fs.readFileSync(file.path);
     let parsedDataResponse = await client.general.partition({
       files: {
-        content: data,
-        fileName: fileName,
+        content: fileData,
+        fileName: file.name,
       },
       // fast | hi_res | auto
       strategy: 'fast',
       pdfInferTableStructure: false,
     });
 
-    return NextResponse.json(
-      {
-        message: 'Unstructured partition parsed successfully',
-        file: parsedDataResponse?.elements,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      message: 'Unstructured partition parsed successfully',
+      file: parsedDataResponse?.elements,
+      status: 200,
+    });
   } catch (error: any) {
     console.error('Unstructured partition failed to parse', error);
     return sendErrorResponse('Unstructured partition failed to parse', 400);

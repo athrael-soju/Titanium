@@ -1,8 +1,11 @@
-const parseDocument = async (fileName: string): Promise<any> => {
+const parseDocument = async (file: RagFile): Promise<any> => {
   try {
     const response = await fetch('/api/parse/unstructured', {
-      method: 'GET',
-      headers: { fileName: fileName },
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ file }),
     });
 
     if (!response.ok) {
