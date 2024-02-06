@@ -13,7 +13,8 @@ const generateEmbeddings = async (
       throw new Error('Error generating embeddings');
     }
     const jsonResponse = await response.json();
-    console.log(jsonResponse.message, jsonResponse.embeddings);
+    console.log(jsonResponse.message);
+    //console.log(jsonResponse.message, jsonResponse.embeddings);
     return jsonResponse.embeddings;
   } catch (error) {
     console.error('Error generating embeddings:', error);

@@ -177,7 +177,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
         });
         ragFiles[ragFiles.indexOf(file)].processed =
           updateFileStatusResponse.file.processed;
-        console.log('File processing completed successfully.');
+        console.log('File processing completed successfully');
       }
     } catch (error) {
       console.error('Failed to process file:', error);

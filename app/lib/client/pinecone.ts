@@ -36,8 +36,7 @@ const upsert = async (data: any[], user: IUser) => {
 
     // Upserting the data in batches of 100
     for (const chunk of chunkedData) {
-      const result = await index.namespace(user.ragId as string).upsert(chunk);
-      console.log(result);
+      await index.namespace(user.ragId as string).upsert(chunk);
     }
 
     return { success: 'true' };

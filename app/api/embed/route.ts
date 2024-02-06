@@ -24,7 +24,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const { user } = await getDatabaseAndUser(db, userEmail);
 
-    console.log('User:', user, 'Data:', data);
     const embeddings = await Promise.all(
       data.map(async (item: any) => {
         const response = await openai.embeddings.create({
