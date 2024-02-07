@@ -65,6 +65,7 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
         setValue('ragFiles', response.ragFileList);
         setValue('topK', response.topK);
         setValue('chunkBatch', response.chunkBatch);
+        setValue('parsingStrategy', response.parsingStrategy);
       }
     },
     [setValue]
