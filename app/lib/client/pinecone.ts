@@ -60,14 +60,14 @@ const queryByNamespace = async (
 
 const deleteOne = async (id: string, user: IUser) => {
   const index = await getIndex();
-  const result = await index.deleteOne(id);
+  const result = await index.namespace(user.ragId as string).deleteOne(id);
   console.log(result);
   return result;
 };
 
-const deleteMany = async (idList: string[]) => {
+const deleteMany = async (idList: string[], user: IUser) => {
   const index = await getIndex();
-  const result = await index.deleteMany(idList);
+  const result = await index.namespace(user.ragId as string).deleteMany(idList);
   return result;
 };
 
