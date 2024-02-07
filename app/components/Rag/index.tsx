@@ -218,7 +218,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
         generateEmbeddingsResponse.chunks;
 
       const upsertToVectorDbResponse = await upsertToVectorDb(
-        generateEmbeddingsResponse.chunks,
+        generateEmbeddingsResponse.embeddings,
         userEmail,
         chunkBatch
       );
