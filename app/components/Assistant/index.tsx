@@ -215,9 +215,28 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           ? 'Create Assistant'
           : `Assistant Settings: ${name}`}
       </DialogTitle>
-      <DialogContent style={{ paddingBottom: 8 }}>
+      <DialogContent style={{ paddingTop: 5, paddingBottom: 5 }}>
         <AssistantForm error={error} />
         <AssistantFileList files={files} onDelete={handleFileDelete} />
+        <Button
+          fullWidth
+          onClick={handleCreate}
+          style={{ marginBottom: '8px' }}
+          variant="outlined"
+          color="success"
+        >
+          {isAssistantDefined ? 'Update' : 'Create'}
+        </Button>
+        <Button
+          fullWidth
+          onClick={handleAssistantDelete}
+          disabled={!isAssistantDefined}
+          style={{ marginBottom: '8px' }}
+          variant="outlined"
+          color="error"
+        >
+          Delete
+        </Button>
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box
@@ -226,23 +245,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           alignItems="stretch"
           width="100%"
         >
-          <Button
-            onClick={handleCreate}
-            style={{ marginBottom: '8px' }}
-            variant="outlined"
-            color="success"
-          >
-            {isAssistantDefined ? 'Update' : 'Create'}
-          </Button>
-          <Button
-            onClick={handleAssistantDelete}
-            disabled={!isAssistantDefined}
-            style={{ marginBottom: '8px' }}
-            variant="outlined"
-            color="error"
-          >
-            Delete
-          </Button>
           <Box display="flex" justifyContent="center" alignItems="center">
             <Button onClick={handleCloseClick}>Close Window</Button>
             <Button onClick={handleUploadClick} disabled={!isAssistantDefined}>

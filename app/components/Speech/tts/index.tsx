@@ -117,6 +117,15 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
       <DialogTitle style={{ textAlign: 'center' }}>Speech Settings</DialogTitle>
       <DialogContent style={{ paddingTop: 5, paddingBottom: 5 }}>
         <SpeechForm error={error} />
+        <Button
+          fullWidth
+          onClick={handleUpdate}
+          style={{ marginTop: 8, marginBottom: 8 }}
+          variant="outlined"
+          color="success"
+        >
+          Update
+        </Button>
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box
@@ -125,14 +134,6 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
           alignItems="stretch"
           width="100%"
         >
-          <Button
-            onClick={handleUpdate}
-            style={{ marginBottom: '8px' }}
-            variant="outlined"
-            color="success"
-          >
-            Update
-          </Button>
           <Box display="flex" justifyContent="center" alignItems="center">
             <Button onClick={handleCloseClick}>Close Window</Button>
             <Typography variant="caption" sx={{ mx: 1 }}>

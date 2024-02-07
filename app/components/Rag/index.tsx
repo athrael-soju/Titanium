@@ -255,6 +255,15 @@ const RagDialog: React.FC<RagDialogProps> = ({
           onDelete={handleFileDelete}
           onProcess={handleFileProcess}
         />
+        <Button
+          fullWidth
+          onClick={handleUpdate}
+          style={{ marginBottom: '8px' }}
+          variant="outlined"
+          color="success"
+        >
+          Update
+        </Button>
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box
@@ -263,14 +272,6 @@ const RagDialog: React.FC<RagDialogProps> = ({
           alignItems="stretch"
           width="100%"
         >
-          <Button
-            onClick={handleUpdate}
-            style={{ marginBottom: '8px' }}
-            variant="outlined"
-            color="success"
-          >
-            Update
-          </Button>
           <Box display="flex" justifyContent="center" alignItems="center">
             <Button onClick={handleCloseClick}>Close Window</Button>
             <Button onClick={handleUploadClick} disabled={!isRagEnabled}>

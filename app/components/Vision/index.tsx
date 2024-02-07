@@ -161,6 +161,15 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
         </DialogTitle>
         <DialogContent style={{ paddingBottom: 8 }}>
           <VisionFileList files={visionFiles} onDelete={handleRemoveUrl} />
+          <Button
+            fullWidth
+            onClick={handleUpdate}
+            style={{ marginBottom: '8px' }}
+            variant="outlined"
+            color="success"
+          >
+            Update
+          </Button>
         </DialogContent>
         <DialogActions style={{ paddingTop: 0 }}>
           <Box
@@ -169,14 +178,6 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
             alignItems="stretch"
             width="100%"
           >
-            <Button
-              onClick={handleUpdate}
-              style={{ marginBottom: '8px' }}
-              variant="outlined"
-              color="success"
-            >
-              Update
-            </Button>
             <Box display="flex" justifyContent="center" alignItems="center">
               <Button onClick={handleCloseClick}>Close Window</Button>
               <Button onClick={handleAddUrlClick}>Add URL</Button>

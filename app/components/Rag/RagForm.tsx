@@ -14,7 +14,7 @@ const RagForm: React.FC<RagFormProps> = ({ error }) => {
 
   return (
     <>
-      <FormControl fullWidth>
+      <FormControl fullWidth margin="dense">
         <InputLabel id="topK-select-label">Top K</InputLabel>
         <Select
           labelId="topK-select-label"
@@ -31,7 +31,7 @@ const RagForm: React.FC<RagFormProps> = ({ error }) => {
           <MenuItem value={'1000'}>1000</MenuItem>
         </Select>
       </FormControl>
-      <FormControl fullWidth margin="normal">
+      <FormControl fullWidth margin="dense">
         <InputLabel id="chunkBatch-select-label">Batch Size</InputLabel>
         <Select
           labelId="chunkBatch-select-label"
@@ -48,7 +48,7 @@ const RagForm: React.FC<RagFormProps> = ({ error }) => {
           <MenuItem value={'250'}>250</MenuItem>
         </Select>
       </FormControl>
-      <FormControl fullWidth margin="normal">
+      <FormControl fullWidth margin="dense">
         <InputLabel id="parsingStrategy-select-label">
           Parsing Strategy
         </InputLabel>

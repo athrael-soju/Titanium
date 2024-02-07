@@ -13,7 +13,7 @@ const SpeechForm: React.FC<SpeechFormProps> = ({ error }) => {
 
   return (
     <>
-      <FormControl fullWidth>
+      <FormControl fullWidth margin="dense">
         <InputLabel id="model-select-label">Model</InputLabel>
         <Select
           labelId="model-select-label"
@@ -27,7 +27,7 @@ const SpeechForm: React.FC<SpeechFormProps> = ({ error }) => {
           <MenuItem value={'tts-1-hd'}>TTS-1 HD</MenuItem>
         </Select>
       </FormControl>
-      <FormControl fullWidth margin="normal">
+      <FormControl fullWidth margin="dense">
         <InputLabel id="voice-select-label">Voice</InputLabel>
         <Select
           labelId="voice-select-label"

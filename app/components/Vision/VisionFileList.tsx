@@ -21,31 +21,35 @@ interface VisionFileListProps {
   onDelete: (file: any) => void;
 }
 
-const VisionFileList: React.FC<VisionFileListProps> = ({ files, onDelete }) => (
-  <FilePaper
-    files={files}
-    renderFileItem={(file) => (
-      <ListItem
-        key={file.id}
-        secondaryAction={
-          <IconButton
-            edge="end"
-            aria-label="delete"
-            onClick={() => onDelete(file)}
+const VisionFileList: React.FC<VisionFileListProps> = ({ files, onDelete }) => {
+  return (
+    <div style={{ paddingTop: 5 }}>
+      <FilePaper
+        files={files}
+        renderFileItem={(file) => (
+          <ListItem
+            key={file.id}
+            secondaryAction={
+              <IconButton
+                edge="end"
+                aria-label="delete"
+                onClick={() => onDelete(file)}
+              >
+                <DeleteIcon />
+              </IconButton>
+            }
           >
-            <DeleteIcon />
-          </IconButton>
-        }
-      >
-        <ListItemAvatar>
-          <Avatar>
-            <FolderIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText primary={file.name} />
-      </ListItem>
-    )}
-  />
-);
+            <ListItemAvatar>
+              <Avatar>
+                <FolderIcon />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText primary={file.name} />
+          </ListItem>
+        )}
+      />
+    </div>
+  );
+};
 
 export default VisionFileList;
