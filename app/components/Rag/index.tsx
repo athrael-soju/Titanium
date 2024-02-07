@@ -40,9 +40,14 @@ const RagDialog: React.FC<RagDialogProps> = ({
   onToggleRag,
 }) => {
   const { data: session } = useSession();
-  const [error, setError] = useState<{ topK: boolean; chunkBatch: boolean }>({
+  const [error, setError] = useState<{
+    topK: boolean;
+    chunkBatch: boolean;
+    parsingStrategy: boolean;
+  }>({
     topK: false,
     chunkBatch: false,
+    parsingStrategy: false,
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { getValues, setValue, watch } = useFormContext();
@@ -51,6 +56,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
   const ragFiles = watch('ragFiles');
   const topK = getValues('topK');
   const chunkBatch = getValues('chunkBatch');
+  const parsingStrategy = getValues('parsingStrategy');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
@@ -81,10 +87,12 @@ const RagDialog: React.FC<RagDialogProps> = ({
         setValue('isRagEnabled', retrieveRagResponse.isRagEnabled);
         setValue('topK', retrieveRagResponse.topK);
         setValue('chunkBatch', retrieveRagResponse.chunkBatch);
+        setValue('parsingStrategy', retrieveRagResponse.parsingStrategy);
       } else {
         setValue('isRagEnabled', false);
         setValue('topK', '');
         setValue('chunkBatch', '');
+        setValue('parsingStrategy', '');
       }
     } catch (error) {
       console.error('Failed to close R.A.G. dialog:', error);
@@ -106,7 +114,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
     if (hasError) {
       return;
     } else {
-      setError({ topK: false, chunkBatch: false });
+      setError({ topK: false, chunkBatch: false, parsingStrategy: false });
     }
     try {
       setValue('isLoading', true);
@@ -117,6 +125,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
           userEmail,
           topK,
           chunkBatch,
+          parsingStrategy,
         });
         console.log('R.A.G. updated successfully: ', updateRagResponse);
       } else {
@@ -190,7 +199,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
       const userEmail = user.email;
       console.log('Document processing started for: ', file.name);
 
-      const parsedDocumentResponse = await parseDocument(file);
+      const parsedDocumentResponse = await parseDocument(file, parsingStrategy);
 
       const generateEmbeddingsResponse = await generateEmbeddings(
         parsedDocumentResponse.file,

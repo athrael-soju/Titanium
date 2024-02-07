@@ -4,6 +4,7 @@ interface IUser {
   model: string;
   topK: string;
   chunkBatch: string;
+  parsingStrategy: string;
   voice: string;
   description: string;
   assistantId?: string | null;

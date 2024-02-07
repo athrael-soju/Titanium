@@ -1,11 +1,14 @@
-const parseDocument = async (file: RagFile): Promise<any> => {
+const parseDocument = async (
+  file: RagFile,
+  parsingStrategy: string
+): Promise<any> => {
   try {
-    const response = await fetch('/api/parse/unstructured', {
+    const response = await fetch('/api/parse', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ file }),
+      body: JSON.stringify({ file, parsingStrategy }),
     });
 
     if (!response.ok) {
@@ -13,7 +16,6 @@ const parseDocument = async (file: RagFile): Promise<any> => {
     }
     const jsonResponse = await response.json();
     console.log(jsonResponse.message);
-    //console.log(jsonResponse.message, jsonResponse.file);
     return jsonResponse;
   } catch (error) {
     console.error('Unexpected error:', error);

@@ -3,6 +3,7 @@ interface RagUpdateData {
   userEmail: string;
   topK: string;
   chunkBatch: string;
+  parsingStrategy: string;
 }
 
 const updateRag = async ({
@@ -10,6 +11,7 @@ const updateRag = async ({
   userEmail,
   topK,
   chunkBatch,
+  parsingStrategy,
 }: RagUpdateData): Promise<any> => {
   try {
     const response = await fetch('/api/rag/update', {
@@ -22,6 +24,7 @@ const updateRag = async ({
         userEmail,
         topK,
         chunkBatch,
+        parsingStrategy,
       }),
     });
     return response.json();

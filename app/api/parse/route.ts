@@ -14,15 +14,14 @@ const client = new UnstructuredClient({
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const { file } = await req.json();
+    const { file, parsingStrategy } = await req.json();
     const fileData = fs.readFileSync(file.path);
     let parsedDataResponse = await client.general.partition({
       files: {
         content: fileData,
         fileName: file.name,
       },
-      // fast | hi_res | auto
-      strategy: 'fast',
+      strategy: parsingStrategy,
       pdfInferTableStructure: false,
     });
 

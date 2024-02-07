@@ -17,9 +17,10 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
   const { setValue } = useFormContext();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const prefetchAssistant = useCallback(
+  const prefetchServices = useCallback(
     async (userEmail: string) => {
-      const response = await retrieveServices({
+      // Prefetch assistant data
+      let response = await retrieveServices({
         userEmail,
         serviceName: 'assistant',
       });
@@ -32,12 +33,8 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
       } else {
         setValue('isAssistantDefined', false);
       }
-    },
-    [setValue]
-  );
-  const prefetchVision = useCallback(
-    async (userEmail: string) => {
-      const response = await retrieveServices({
+      // Prefetch vision data
+      response = await retrieveServices({
         userEmail,
         serviceName: 'vision',
       });
@@ -48,13 +45,8 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
       } else {
         setValue('isVisionDefined', false);
       }
-    },
-    [setValue]
-  );
-
-  const prefetchSpeech = useCallback(
-    async (userEmail: string) => {
-      const response = await retrieveServices({
+      // Prefetch speech data
+      response = await retrieveServices({
         userEmail,
         serviceName: 'speech',
       });
@@ -63,13 +55,8 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
         setValue('model', response.model);
         setValue('voice', response.voice);
       }
-    },
-    [setValue]
-  );
-
-  const prefetchRag = useCallback(
-    async (userEmail: string) => {
-      const response = await retrieveServices({
+      // Prefetch rag data
+      response = await retrieveServices({
         userEmail,
         serviceName: 'rag',
       });
@@ -86,23 +73,13 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
   const prefetchData = useCallback(async () => {
     try {
       setValue('isLoading', true);
-      await prefetchAssistant(session?.user?.email as string);
-      await prefetchVision(session?.user?.email as string);
-      await prefetchSpeech(session?.user?.email as string);
-      await prefetchRag(session?.user?.email as string);
+      await prefetchServices(session?.user?.email as string);
     } catch (error) {
       console.error('Error prefetching services:', error);
     } finally {
       setValue('isLoading', false);
     }
-  }, [
-    prefetchAssistant,
-    prefetchRag,
-    prefetchSpeech,
-    prefetchVision,
-    session?.user?.email,
-    setValue,
-  ]);
+  }, [prefetchServices, session?.user?.email, setValue]);
 
   useEffect(() => {
     prefetchData();

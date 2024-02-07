@@ -23,6 +23,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           ragId: user.ragId,
           topK: user.topK,
           chunkBatch: user.chunkBatch,
+          parsingStrategy: user.parsingStrategy,
           ragFileList,
           isRagEnabled: user.isRagEnabled,
         },

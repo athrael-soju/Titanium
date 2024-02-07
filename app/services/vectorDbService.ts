@@ -12,7 +12,6 @@ const upsertToVectorDb = async (
     });
     const jsonResponse = await response.json();
     console.log(jsonResponse.message);
-    //console.log(jsonResponse.message, jsonResponse.ragId);
     return jsonResponse;
   } catch (error) {
     console.error('Error upserting data to vector db:', error);
@@ -34,7 +33,6 @@ const deleteFileFromVectorDb = async (
     });
     const jsonResponse = await response.json();
     console.log(jsonResponse.message);
-    //console.log(jsonResponse.message, jsonResponse.ragId);
     return jsonResponse;
   } catch (error) {
     console.error('Error deleting data from vector db:', error);
@@ -56,7 +54,6 @@ const queryVectorDbByNamespace = async (
     });
     const jsonResponse = await response.json();
     console.log(jsonResponse.message);
-    //console.log(jsonResponse.message, jsonResponse.ragId);
     return jsonResponse;
   } catch (error) {
     console.error('Error deleting data from vector db:', error);

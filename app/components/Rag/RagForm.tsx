@@ -3,14 +3,14 @@ import { useFormContext } from 'react-hook-form';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 interface RagFormProps {
-  error: { topK: boolean; chunkBatch: boolean };
+  error: { topK: boolean; chunkBatch: boolean; parsingStrategy: boolean };
 }
 
 const RagForm: React.FC<RagFormProps> = ({ error }) => {
   const { watch, setValue } = useFormContext();
   const topK = watch('topK');
   const chunkBatch = watch('chunkBatch');
-
+  const parsingStrategy = watch('parsingStrategy');
   return (
     <>
       <FormControl fullWidth>
@@ -45,6 +45,25 @@ const RagForm: React.FC<RagFormProps> = ({ error }) => {
           <MenuItem value={'150'}>150</MenuItem>
           <MenuItem value={'200'}>200</MenuItem>
           <MenuItem value={'250'}>250</MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl fullWidth margin="normal">
+        <InputLabel id="parsingStrategy-select-label">
+          Parsing Strategy
+        </InputLabel>
+        <Select
+          labelId="parsingStrategy-select-label"
+          id="parsingStrategy-select"
+          value={parsingStrategy}
+          label="ParsingStrategy"
+          onChange={(e) =>
+            setValue('parsingStrategy', e.target.value as string)
+          }
+          error={error.parsingStrategy}
+        >
+          <MenuItem value={'hi_res'}>Hi Res</MenuItem>
+          <MenuItem value={'fast'}>Fast</MenuItem>
+          <MenuItem value={'auto'}>auto</MenuItem>
         </Select>
       </FormControl>
     </>

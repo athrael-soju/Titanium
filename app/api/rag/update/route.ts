@@ -6,7 +6,8 @@ import { Collection } from 'mongodb';
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
-    const { isRagEnabled, userEmail, topK, chunkBatch } = await req.json();
+    const { isRagEnabled, userEmail, topK, chunkBatch, parsingStrategy } =
+      await req.json();
 
     const usersCollection = db.collection<IUser>('users');
     const fileCollection = db.collection<RagFile>('files');
@@ -15,7 +16,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (!user) {
       return sendErrorResponse('User not found', 404);
     }
-    await updateRag(user, usersCollection, isRagEnabled, topK, chunkBatch);
+    await updateRag(
+      user,
+      usersCollection,
+      isRagEnabled,
+      topK,
+      chunkBatch,
+      parsingStrategy
+    );
 
     const ragId = user.ragId as string;
     const ragFile = await fileCollection.findOne({ ragId: ragId });
@@ -38,7 +46,8 @@ async function updateRag(
   usersCollection: Collection<IUser>,
   isRagEnabled: boolean,
   topK: string,
-  chunkBatch: string
+  chunkBatch: string,
+  parsingStrategy: string
 ): Promise<void> {
   let isAssistantEnabled = isRagEnabled ? false : user.isAssistantEnabled;
   let ragId = user.ragId;
@@ -56,6 +65,7 @@ async function updateRag(
         ragId: ragId,
         topK: topK,
         chunkBatch: chunkBatch,
+        parsingStrategy: parsingStrategy,
       },
     }
   );

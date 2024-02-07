@@ -17,7 +17,7 @@ import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
 import SpeechDialog from '../Speech/tts';
 import { Microphone } from '../Speech/stt';
-import RagDialog from '../RetrievalAugmentedGeneration';
+import RagDialog from '../Rag';
 
 const CustomizedInputBase = ({
   onSendMessage,
