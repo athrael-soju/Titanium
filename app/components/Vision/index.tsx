@@ -58,8 +58,10 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   const handleAddUrl = async (urlInput: string, nameInput: string) => {
     try {
       setValue('isLoading', true);
-      const user = session?.user as any;
-      const userEmail = user.email;
+      const userEmail = session?.user?.email;
+      if (!userEmail) {
+        throw new Error('No user found');
+      }
       let id = crypto.randomUUID();
 
       const newFile = {
@@ -137,8 +139,10 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   }) => {
     try {
       setValue('isLoading', true);
-      const user = session?.user as any;
-      const userEmail = user.email;
+      const userEmail = session?.user?.email;
+      if (!userEmail) {
+        throw new Error('No user found');
+      }
       const response = await deleteVisionFile(file, userEmail);
       console.log('File successfully deleted from Vision:', response);
       visionFiles.splice(visionFiles.indexOf(file), 1);

@@ -180,8 +180,10 @@ const RagDialog: React.FC<RagDialogProps> = ({
   const handleFileDelete = async (file: RagFile) => {
     try {
       setValue('isLoading', true);
-      const user = session?.user as any;
-      const userEmail = user.email;
+      const userEmail = session?.user?.email;
+      if (!userEmail) {
+        throw new Error('No user found');
+      }
       console.log('Deletion process started for:', file);
       if (file.processed) {
         await deleteFileFromVectorDb(file, userEmail);
@@ -199,8 +201,10 @@ const RagDialog: React.FC<RagDialogProps> = ({
   const handleFileProcess = async (file: RagFile) => {
     try {
       setValue('isLoading', true);
-      const user = session?.user as any;
-      const userEmail = user.email;
+      const userEmail = session?.user?.email;
+      if (!userEmail) {
+        throw new Error('No user found');
+      }
       console.log('Document processing started for: ', file.name);
 
       const parsedDocumentResponse = await parseDocument(file, parsingStrategy);
