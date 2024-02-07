@@ -20,7 +20,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (user.ragId !== file.ragId) {
       return sendErrorResponse('User ragId not found', 404);
     }
-    //const fileDeletedFromVectorDB = await pinecone.deleteMany(file.chunks);
+    // TODO: Figure out why this is not working.
+    // const fileDeletedFromVectorDB = await pinecone.deleteMany(file.chunks);
     const fileDeletedFromVectorDB = await pinecone.deleteAll(user);
 
     return NextResponse.json({
