@@ -30,7 +30,6 @@ function chunkArray(array: any[], chunkSize: number): any[][] {
 const upsert = async (data: any[], user: IUser, chunkBatch: string) => {
   try {
     const index = await getIndex();
-    // TODO: Make this configurable. Chunking the data into arrays of 100 objects each.
     const chunkedData = chunkArray(data, parseInt(chunkBatch));
     for (const chunk of chunkedData) {
       await index.namespace(user.ragId as string).upsert(chunk);

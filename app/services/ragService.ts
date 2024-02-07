@@ -73,7 +73,6 @@ const updateFileStatus = async ({
     });
     const jsonResponse = await response.json();
     console.log(jsonResponse.message);
-    //console.log(jsonResponse.message, jsonResponse.file);
     return jsonResponse;
   } catch (error) {
     console.error('Unexpected error:', error);
