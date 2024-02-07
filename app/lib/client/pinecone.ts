@@ -45,7 +45,7 @@ const upsert = async (data: any[], user: IUser) => {
 const queryByNamespace = async (user: IUser, messageEmbedding: any) => {
   const index = await getIndex();
   const result = await index.namespace(user.ragId as string).query({
-    topK: 10, // TODO: Make this configurable
+    topK: 25, // TODO: Make this configurable
     vector: messageEmbedding[0].values,
     includeValues: false,
     includeMetadata: true,
