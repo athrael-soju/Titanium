@@ -4,14 +4,15 @@ import { sendErrorResponse } from '@/app/lib/utils/response';
 
 import { pinecone } from '@/app/lib/client/pinecone';
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
-    const userEmail = req.headers.get('userEmail') as string;
-    const data = req.headers.get('data');
+    const requestBody = await req.json();
+    const { embeddedMessage, userEmail } = requestBody;
     const { user } = await getDatabaseAndUser(db, userEmail);
+
     if (user.ragId) {
-      const response = await pinecone.queryByNamespace(data, user);
+      const response = await pinecone.queryByNamespace(user, embeddedMessage);
 
       return NextResponse.json(
         {

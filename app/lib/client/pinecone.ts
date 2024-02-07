@@ -42,23 +42,16 @@ const upsert = async (data: any[], user: IUser) => {
   }
 };
 
-const queryByRecordId = async (data: any, user: IUser) => {
-  const index = await getIndex();
-  const result = await index.query({ topK: 10, id: '1' });
-  console.log(result);
-  return result;
-};
-
-const queryByNamespace = async (data: any, user: IUser) => {
+const queryByNamespace = async (user: IUser, messageEmbedding: any) => {
   const index = await getIndex();
   const result = await index.namespace(user.ragId as string).query({
-    topK: 2,
-    vector: [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3],
-    includeValues: true,
+    topK: 10, // TODO: Make this configurable
+    vector: messageEmbedding[0].values,
+    includeValues: false,
     includeMetadata: true,
-    filter: { genre: { $eq: 'action' } },
+    //filter: { genre: { $eq: 'action' } },
   });
-  console.log(result);
+
   return result;
 };
 
@@ -81,22 +74,10 @@ const deleteAll = async (user: IUser) => {
   return result;
 };
 
-const update = async (data: any, user: IUser) => {
-  const index = await getIndex();
-  // const result = await index.update({
-  //   id: '18593',
-  //   metadata: { genre: 'romance' },
-  // });
-  // console.log(result);
-  // return result;
-};
-
 export const pinecone = {
   upsert,
-  queryByRecordId,
   queryByNamespace,
   deleteOne,
   deleteMany,
   deleteAll,
-  update,
 };

@@ -1,5 +1,5 @@
 const generateEmbeddings = async (
-  data: JSON,
+  data: any,
   userEmail: string
 ): Promise<any> => {
   try {

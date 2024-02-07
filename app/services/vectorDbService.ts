@@ -42,4 +42,26 @@ const deleteFileFromVectorDb = async (
   }
 };
 
-export { upsertToVectorDb, deleteFileFromVectorDb };
+const queryVectorDbByNamespace = async (
+  embeddedMessage: any,
+  userEmail: string
+): Promise<any> => {
+  try {
+    const response = await fetch('/api/rag/vector-db/query', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userEmail, embeddedMessage }),
+    });
+    const jsonResponse = await response.json();
+    console.log(jsonResponse.message);
+    //console.log(jsonResponse.message, jsonResponse.ragId);
+    return jsonResponse;
+  } catch (error) {
+    console.error('Error deleting data from vector db:', error);
+    throw new Error('Error deleting data from vector db');
+  }
+};
+
+export { upsertToVectorDb, deleteFileFromVectorDb, queryVectorDbByNamespace };

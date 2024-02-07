@@ -8,6 +8,8 @@ import {
   retrieveAIResponse,
   retrieveTextFromSpeech,
 } from '@/app/services/chatService';
+import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
+import { generateEmbeddings } from '@/app/services/embeddingService';
 const nlp = winkNLP(model);
 
 export const useBufferProcessing = () => {
@@ -125,6 +127,11 @@ export const useBufferProcessing = () => {
       addUserMessageToState(message);
       const aiResponseId = uuidv4();
       const userEmail = session?.user?.email as string;
+
+      if (isRagEnabled) {
+        message = await enhanceUserResponse(message, userEmail);
+      }
+
       const response = await retrieveAIResponse(
         message,
         userEmail,
@@ -146,6 +153,35 @@ export const useBufferProcessing = () => {
       setValue('isLoading', false);
     }
   };
+
+  async function enhanceUserResponse(message: string, userEmail: string) {
+    const jsonMessage = [
+      {
+        text: message,
+        metadata: {
+          user_email: userEmail,
+        },
+      },
+    ];
+    const embeddedMessage = await generateEmbeddings(jsonMessage, userEmail);
+
+    const vectorResponse = await queryVectorDbByNamespace(
+      embeddedMessage.embeddings,
+      userEmail
+    );
+
+    const context = vectorResponse.response.matches.map((item: any) => {
+      return {
+        text: item.metadata.text,
+        metadata: item.metadata,
+      };
+    });
+    return `
+        Please make use of context provided to very briefly respond to the user prompt in a very sarcastic manner.: 
+        CONTEXT: ${JSON.stringify(context)}
+        PROMPT: ${message}
+        `;
+  }
 
   async function processResponse(
     response: ReadableStreamDefaultReader<Uint8Array> | Response,

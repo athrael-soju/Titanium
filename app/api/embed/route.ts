@@ -43,6 +43,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           values: embeddingValues,
           metadata: {
             ...transformedMetadata,
+            text: item.text,
             rag_id: ragId,
             user_email: user.email,
           },
