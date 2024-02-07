@@ -8,11 +8,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
     const requestBody = await req.json();
-    const { data, userEmail } = requestBody;
+    const { data, userEmail, chunkBatch } = requestBody;
     const { user } = await getDatabaseAndUser(db, userEmail);
 
     if (user.ragId) {
-      const response = await pinecone.upsert(data, user);
+      const response = await pinecone.upsert(data, user, chunkBatch);
       return NextResponse.json({
         message: 'Pinecone upserted successfully',
         ragId: user.ragId,

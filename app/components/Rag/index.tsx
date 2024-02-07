@@ -20,13 +20,13 @@ import {
   updateFileStatus,
 } from '@/app/services/ragService';
 import RagFileList from './RagFileList';
+import RagForm from './RagForm';
 import { parseDocument } from '@/app/services/unstructuredService';
 import { generateEmbeddings } from '@/app/services/embeddingService';
 import {
   upsertToVectorDb,
   deleteFileFromVectorDb,
 } from '@/app/services/vectorDbService';
-import RagForm from './RagForm';
 
 interface RagDialogProps {
   open: boolean;
@@ -109,6 +109,10 @@ const RagDialog: React.FC<RagDialogProps> = ({
     }
     if (!chunkBatch) {
       setError((prev) => ({ ...prev, chunkBatch: true }));
+      hasError = true;
+    }
+    if (!parsingStrategy) {
+      setError((prev) => ({ ...prev, parsingStrategy: true }));
       hasError = true;
     }
     if (hasError) {
@@ -210,8 +214,9 @@ const RagDialog: React.FC<RagDialogProps> = ({
         generateEmbeddingsResponse.chunks;
 
       const upsertToVectorDbResponse = await upsertToVectorDb(
-        generateEmbeddingsResponse.embeddings,
-        userEmail
+        generateEmbeddingsResponse.chunks,
+        userEmail,
+        chunkBatch
       );
 
       if (upsertToVectorDbResponse.status === 200) {

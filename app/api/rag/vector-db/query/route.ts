@@ -8,21 +8,23 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
     const requestBody = await req.json();
-    const { embeddedMessage, userEmail } = requestBody;
+    const { embeddedMessage, userEmail, topK } = requestBody;
     const { user } = await getDatabaseAndUser(db, userEmail);
 
     if (user.ragId) {
-      const response = await pinecone.queryByNamespace(user, embeddedMessage);
-
-      return NextResponse.json(
-        {
-          message: 'Pinecone query successful',
-          ragId: user.ragId,
-          response,
-          isRagEnabled: user.isRagEnabled,
-        },
-        { status: 200 }
+      const response = await pinecone.queryByNamespace(
+        user,
+        embeddedMessage,
+        topK
       );
+
+      return NextResponse.json({
+        message: 'Pinecone query successful',
+        ragId: user.ragId,
+        response,
+        isRagEnabled: user.isRagEnabled,
+        status: 200,
+      });
     } else {
       return sendErrorResponse(
         'Query cannot proceed without a valid user ragId',

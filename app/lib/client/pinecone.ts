@@ -27,11 +27,11 @@ function chunkArray(array: any[], chunkSize: number): any[][] {
   return result;
 }
 
-const upsert = async (data: any[], user: IUser) => {
+const upsert = async (data: any[], user: IUser, chunkBatch: string) => {
   try {
     const index = await getIndex();
     // TODO: Make this configurable. Chunking the data into arrays of 100 objects each.
-    const chunkedData = chunkArray(data, 250);
+    const chunkedData = chunkArray(data, parseInt(chunkBatch));
     for (const chunk of chunkedData) {
       await index.namespace(user.ragId as string).upsert(chunk);
     }
@@ -42,10 +42,14 @@ const upsert = async (data: any[], user: IUser) => {
   }
 };
 
-const queryByNamespace = async (user: IUser, messageEmbedding: any) => {
+const queryByNamespace = async (
+  user: IUser,
+  messageEmbedding: any,
+  topK: string
+) => {
   const index = await getIndex();
   const result = await index.namespace(user.ragId as string).query({
-    topK: 25, // TODO: Make this configurable
+    topK: parseInt(topK),
     vector: messageEmbedding[0].values,
     includeValues: false,
     includeMetadata: true,

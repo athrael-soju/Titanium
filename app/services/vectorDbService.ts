@@ -1,6 +1,7 @@
 const upsertToVectorDb = async (
   data: any[],
-  userEmail: string
+  userEmail: string,
+  chunkBatch: string
 ): Promise<any> => {
   try {
     const response = await fetch('/api/rag/vector-db/upsert', {
@@ -8,7 +9,7 @@ const upsertToVectorDb = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ data, userEmail }),
+      body: JSON.stringify({ data, userEmail, chunkBatch }),
     });
     const jsonResponse = await response.json();
     console.log(jsonResponse.message);
@@ -42,7 +43,8 @@ const deleteFileFromVectorDb = async (
 
 const queryVectorDbByNamespace = async (
   embeddedMessage: any,
-  userEmail: string
+  userEmail: string,
+  topK: string
 ): Promise<any> => {
   try {
     const response = await fetch('/api/rag/vector-db/query', {
@@ -50,7 +52,7 @@ const queryVectorDbByNamespace = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ userEmail, embeddedMessage }),
+      body: JSON.stringify({ userEmail, embeddedMessage, topK }),
     });
     const jsonResponse = await response.json();
     console.log(jsonResponse.message);

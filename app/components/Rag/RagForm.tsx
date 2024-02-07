@@ -11,6 +11,7 @@ const RagForm: React.FC<RagFormProps> = ({ error }) => {
   const topK = watch('topK');
   const chunkBatch = watch('chunkBatch');
   const parsingStrategy = watch('parsingStrategy');
+
   return (
     <>
       <FormControl fullWidth>
