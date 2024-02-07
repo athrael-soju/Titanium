@@ -17,11 +17,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       const ragFileList = await fileCollection
         .find({ ragId: user.ragId })
         .toArray();
-
       return NextResponse.json(
         {
           message: 'R.A.G. retrieved',
           ragId: user.ragId,
+          topK: user.topK,
+          chunkBatch: user.chunkBatch,
           ragFileList,
           isRagEnabled: user.isRagEnabled,
         },

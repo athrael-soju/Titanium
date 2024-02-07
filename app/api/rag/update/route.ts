@@ -6,10 +6,7 @@ import { Collection } from 'mongodb';
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
-    const { isRagEnabled, userEmail } = (await req.json()) as {
-      isRagEnabled: boolean;
-      userEmail: string;
-    };
+    const { isRagEnabled, userEmail, topK, chunkBatch } = await req.json();
 
     const usersCollection = db.collection<IUser>('users');
     const fileCollection = db.collection<RagFile>('files');
@@ -18,7 +15,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (!user) {
       return sendErrorResponse('User not found', 404);
     }
-    await updateRag(user, usersCollection, isRagEnabled);
+    await updateRag(user, usersCollection, isRagEnabled, topK, chunkBatch);
 
     const ragId = user.ragId as string;
     const ragFile = await fileCollection.findOne({ ragId: ragId });
@@ -39,7 +36,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 async function updateRag(
   user: IUser,
   usersCollection: Collection<IUser>,
-  isRagEnabled: boolean
+  isRagEnabled: boolean,
+  topK: string,
+  chunkBatch: string
 ): Promise<void> {
   let isAssistantEnabled = isRagEnabled ? false : user.isAssistantEnabled;
   let ragId = user.ragId;
@@ -55,6 +54,8 @@ async function updateRag(
         isRagEnabled: isRagEnabled,
         isAssistantEnabled: isAssistantEnabled,
         ragId: ragId,
+        topK: topK,
+        chunkBatch: chunkBatch,
       },
     }
   );

@@ -10,10 +10,10 @@ import {
   DialogContent,
 } from '@mui/material';
 import { useSession } from 'next-auth/react';
+import { useFormContext } from 'react-hook-form';
 
 import { retrieveServices } from '@/app/services/commonService';
 import { updateSpeech } from '@/app/services/textToSpeechService';
-import { useFormContext } from 'react-hook-form';
 import SpeechForm from './SpeechForm';
 
 interface SpeechDialogProps {
@@ -35,9 +35,9 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
   const visionFileInputRef = useRef<HTMLInputElement>(null);
   const { getValues, setValue, watch } = useFormContext();
 
+  const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
   const model = getValues('model');
   const voice = getValues('voice');
-  const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
@@ -58,7 +58,10 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
           userEmail,
           serviceName: 'speech',
         });
-        setValue('isTextToSpeechEnabled', retrieveSpeechResponse.isTextToSpeechEnabled);
+        setValue(
+          'isTextToSpeechEnabled',
+          retrieveSpeechResponse.isTextToSpeechEnabled
+        );
         setValue('model', retrieveSpeechResponse.model);
         setValue('voice', retrieveSpeechResponse.voice);
       } else {
@@ -138,7 +141,7 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
             <Switch
               checked={isTextToSpeechEnabled}
               onChange={handleToggle}
-              name="activeVision"
+              name="activeSpeech"
             />
             <Typography variant="caption" sx={{ mx: 1 }}>
               Enable

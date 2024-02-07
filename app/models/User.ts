@@ -2,6 +2,8 @@ interface IUser {
   email: string;
   name: string;
   model: string;
+  topK: string;
+  chunkBatch: string;
   voice: string;
   description: string;
   assistantId?: string | null;

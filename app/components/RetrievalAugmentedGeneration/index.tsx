@@ -10,6 +10,8 @@ import {
   DialogContent,
 } from '@mui/material';
 import { useSession } from 'next-auth/react';
+import { useFormContext } from 'react-hook-form';
+
 import { retrieveServices } from '@/app/services/commonService';
 import {
   updateRag,
@@ -17,8 +19,6 @@ import {
   deleteRagFile,
   updateFileStatus,
 } from '@/app/services/ragService';
-import { useFormContext } from 'react-hook-form';
-import RagForm from './RagForm';
 import RagFileList from './RagFileList';
 import { parseDocument } from '@/app/services/unstructuredService';
 import { generateEmbeddings } from '@/app/services/embeddingService';
@@ -26,6 +26,7 @@ import {
   upsertToVectorDb,
   deleteFileFromVectorDb,
 } from '@/app/services/vectorDbService';
+import RagForm from './RagForm';
 
 interface RagDialogProps {
   open: boolean;
@@ -39,14 +40,17 @@ const RagDialog: React.FC<RagDialogProps> = ({
   onToggleRag,
 }) => {
   const { data: session } = useSession();
-  const [error, setError] = useState<{ model: boolean; voice: boolean }>({
-    model: false,
-    voice: false,
+  const [error, setError] = useState<{ topK: boolean; chunkBatch: boolean }>({
+    topK: false,
+    chunkBatch: false,
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { setValue, watch } = useFormContext();
+  const { getValues, setValue, watch } = useFormContext();
+
   const isRagEnabled = watch('isRagEnabled');
   const ragFiles = watch('ragFiles');
+  const topK = getValues('topK');
+  const chunkBatch = getValues('chunkBatch');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
@@ -74,10 +78,13 @@ const RagDialog: React.FC<RagDialogProps> = ({
           userEmail,
           serviceName: 'rag',
         });
-        console.log('R.A.G. retrieved successfully: ', retrieveRagResponse);
         setValue('isRagEnabled', retrieveRagResponse.isRagEnabled);
+        setValue('topK', retrieveRagResponse.topK);
+        setValue('chunkBatch', retrieveRagResponse.chunkBatch);
       } else {
         setValue('isRagEnabled', false);
+        setValue('topK', '');
+        setValue('chunkBatch', '');
       }
     } catch (error) {
       console.error('Failed to close R.A.G. dialog:', error);
@@ -87,6 +94,20 @@ const RagDialog: React.FC<RagDialogProps> = ({
   };
 
   const handleUpdate = async () => {
+    let hasError = false;
+    if (!topK) {
+      setError((prev) => ({ ...prev, topK: true }));
+      hasError = true;
+    }
+    if (!chunkBatch) {
+      setError((prev) => ({ ...prev, chunkBatch: true }));
+      hasError = true;
+    }
+    if (hasError) {
+      return;
+    } else {
+      setError({ topK: false, chunkBatch: false });
+    }
     try {
       setValue('isLoading', true);
       if (session) {
@@ -94,6 +115,8 @@ const RagDialog: React.FC<RagDialogProps> = ({
         const updateRagResponse = await updateRag({
           isRagEnabled,
           userEmail,
+          topK,
+          chunkBatch,
         });
         console.log('R.A.G. updated successfully: ', updateRagResponse);
       } else {
@@ -207,16 +230,13 @@ const RagDialog: React.FC<RagDialogProps> = ({
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle style={{ textAlign: 'center' }}>R.A.G. Settings</DialogTitle>
-      <DialogContent style={{ paddingBottom: 8 }}>
+      <DialogContent style={{ paddingTop: 5, paddingBottom: 5 }}>
         <RagForm error={error} />
         <RagFileList
           files={ragFiles}
           onDelete={handleFileDelete}
           onProcess={handleFileProcess}
         />
-      </DialogContent>
-      <DialogContent style={{ paddingTop: 5, paddingBottom: 5 }}>
-        <RagForm error={error} />
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box
@@ -244,7 +264,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
             <Switch
               checked={isRagEnabled}
               onChange={handleToggle}
-              name="activeVision"
+              name="activeRag"
             />
             <Typography variant="caption" sx={{ mx: 1 }}>
               Enable

@@ -1,6 +1,6 @@
 import React from 'react';
-import { FormControl, TextField } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
+import { FormControl, TextField } from '@mui/material';
 
 interface AssistantFormProps {
   error: { name: boolean; description: boolean };

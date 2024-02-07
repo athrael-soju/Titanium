@@ -76,6 +76,8 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
       if (response.ragId) {
         setValue('isRagEnabled', response.isRagEnabled);
         setValue('ragFiles', response.ragFileList);
+        setValue('topK', response.topK);
+        setValue('chunkBatch', response.chunkBatch);
       }
     },
     [setValue]

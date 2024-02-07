@@ -1,11 +1,15 @@
 interface RagUpdateData {
   isRagEnabled: boolean;
   userEmail: string;
+  topK: string;
+  chunkBatch: string;
 }
 
 const updateRag = async ({
   isRagEnabled,
   userEmail,
+  topK,
+  chunkBatch,
 }: RagUpdateData): Promise<any> => {
   try {
     const response = await fetch('/api/rag/update', {
@@ -16,6 +20,8 @@ const updateRag = async ({
       body: JSON.stringify({
         isRagEnabled,
         userEmail,
+        topK,
+        chunkBatch,
       }),
     });
     return response.json();
