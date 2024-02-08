@@ -57,7 +57,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error: any) {
-    console.error('Error processing file:', error);
+    console.error('Error processing file: ', error);
     return sendErrorResponse('Error processing file', 500);
   }
 }
@@ -76,7 +76,7 @@ async function writeFile(file: File): Promise<FileUploadResponse> {
 
     return response;
   } catch (error: any) {
-    console.error('Error in file upload to R.A.G.:', error);
+    console.error('Error in file upload to R.A.G.: ', error);
     throw new Error('File upload to R.A.G. failed');
   }
 }

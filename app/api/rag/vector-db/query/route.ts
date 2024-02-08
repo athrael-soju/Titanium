@@ -33,6 +33,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
   } catch (error: any) {
     console.error('Error querying Pinecone:', error);
-    return sendErrorResponse('Error querying Pinecone:', 400);
+    return sendErrorResponse('Error querying Pinecone: ', 400);
   }
 }

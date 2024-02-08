@@ -16,7 +16,7 @@ const generateEmbeddings = async (
     console.log(jsonResponse.message);
     return jsonResponse;
   } catch (error) {
-    console.error('Error generating embeddings:', error);
+    console.error('Error generating embeddings: ', error);
     throw error;
   }
 };

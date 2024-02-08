@@ -30,7 +30,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
   } catch (error: any) {
-    console.error('Pinecone upsert unsuccessful:', error);
+    console.error('Pinecone upsert unsuccessful: ', error);
     return sendErrorResponse('Pinecone upsert unsuccessful', 400);
   }
 }

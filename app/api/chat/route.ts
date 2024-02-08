@@ -110,7 +110,7 @@ async function handlePostRequest(req: NextRequest) {
       return new Response(completion.toReadableStream());
     }
   } catch (error: any) {
-    console.error('Error processing request:', error);
+    console.error('Error processing request: ', error);
     return sendErrorResponse('Error processing request', 400);
   }
 }

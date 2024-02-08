@@ -37,8 +37,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error: any) {
-    console.error('Error in Speech update:', error);
-    return sendErrorResponse('Error in Speech update', 500);
+    console.error('Error updating speech: ', error);
+    return sendErrorResponse('Error updating speech', 500);
   }
 }
 

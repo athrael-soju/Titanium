@@ -29,7 +29,7 @@ const updateRag = async ({
     });
     return response.json();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };
@@ -51,7 +51,7 @@ const deleteRagFile = async ({
     });
     return response.json();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };
@@ -75,7 +75,7 @@ const updateFileStatus = async ({
     console.log(jsonResponse.message);
     return jsonResponse;
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw new Error('Error updating file status');
   }
 };
@@ -91,7 +91,7 @@ const uploadRagFile = async (file: File, userEmail: string): Promise<any> => {
     });
     return response.json();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };

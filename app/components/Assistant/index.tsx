@@ -96,7 +96,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
         throw new Error('No session found');
       }
     } catch (error) {
-      console.error('Error updating assistant:', error);
+      console.error('Error updating assistant: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -127,7 +127,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
         );
       }
     } catch (error) {
-      console.error('Failed to close assistant dialog:', error);
+      console.error('Failed to close assistant dialog: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -150,7 +150,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       console.log('File successfully deleted from the assistant:', file);
       files.splice(files.indexOf(file), 1);
     } catch (error) {
-      console.error('Failed to remove file from the assistant:', error);
+      console.error('Failed to remove file from the assistant: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -198,7 +198,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       handleReset();
       setValue('isAssistantDefined', false);
     } catch (error) {
-      console.error('Error deleting assistant:', error);
+      console.error('Error deleting assistant: ', error);
     } finally {
       setValue('isLoading', false);
     }

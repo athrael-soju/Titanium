@@ -31,7 +31,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error: any) {
-    console.error('Unstructured partition failed to parse', error);
+    console.error('Unstructured partition failed to parse: ', error);
     return sendErrorResponse('Unstructured partition failed to parse', 400);
   }
 }

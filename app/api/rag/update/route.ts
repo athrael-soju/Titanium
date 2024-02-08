@@ -36,7 +36,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error: any) {
-    console.error('Error in R.A.G. update:', error);
+    console.error('Error in R.A.G. update: ', error);
     return sendErrorResponse('Error in R.A.G. update', 400);
   }
 }

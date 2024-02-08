@@ -67,7 +67,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error: any) {
-    console.error('Error generating embeddings:', error);
+    console.error('Error generating embeddings: ', error);
     return sendErrorResponse('Error generating embeddings', 400);
   }
 }

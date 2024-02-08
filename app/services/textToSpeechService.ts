@@ -26,7 +26,7 @@ const updateSpeech = async ({
     });
     return response.json();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };

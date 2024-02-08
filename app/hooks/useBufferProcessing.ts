@@ -100,7 +100,7 @@ export const useBufferProcessing = () => {
             aiResponseText += json.choices[0].delta.content;
           }
         } catch (error) {
-          console.error('Failed to parse JSON:', line, error);
+          console.error('Failed to parse JSON: ', line, error);
         }
       }
     });
@@ -190,7 +190,7 @@ export const useBufferProcessing = () => {
     aiResponseId: string
   ) {
     if (!(response instanceof Response)) {
-      console.error('Expected a Response object, received:', response);
+      console.error('Expected a Response object, received: ', response);
       return;
     }
     try {
@@ -203,7 +203,7 @@ export const useBufferProcessing = () => {
         await retrieveTextFromSpeech(data, model, voice);
       }
     } catch (error) {
-      console.error('Error processing response:', error);
+      console.error('Error processing response: ', error);
     }
   }
   async function processStream(
@@ -212,7 +212,7 @@ export const useBufferProcessing = () => {
   ) {
     if (!(stream instanceof ReadableStreamDefaultReader)) {
       console.error(
-        'Expected a ReadableStreamDefaultReader object, received:',
+        'Expected a ReadableStreamDefaultReader object, received: ',
         stream
       );
       return;
@@ -220,7 +220,7 @@ export const useBufferProcessing = () => {
     try {
       await processAIResponseStream(stream, aiResponseId);
     } catch (error) {
-      console.error('Error processing stream:', error);
+      console.error('Error processing stream: ', error);
     }
   }
 

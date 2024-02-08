@@ -64,7 +64,7 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
       setValue('model', retrieveSpeechResponse.model);
       setValue('voice', retrieveSpeechResponse.voice);
     } catch (error) {
-      console.error('Failed to close assistant dialog:', error);
+      console.error('Failed to close assistant dialog: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -100,7 +100,7 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
         throw new Error('No session found');
       }
     } catch (error) {
-      console.error('Error updating Vision:', error);
+      console.error('Error updating Vision: ', error);
     } finally {
       setValue('isLoading', false);
     }

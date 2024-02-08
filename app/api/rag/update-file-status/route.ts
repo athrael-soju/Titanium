@@ -38,7 +38,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error: any) {
-    console.error('R.A.G. file status update failed:', error);
+    console.error('R.A.G. file status update failed: ', error);
     return sendErrorResponse('R.A.G. file status update failed', 400);
   }
 }

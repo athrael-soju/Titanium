@@ -27,7 +27,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error: any) {
-    console.error('Assistant file deletion unsuccessful:', error);
+    console.error('Assistant file deletion unsuccessful: ', error);
     return sendErrorResponse('Assistant file deletion unsuccessful', 500);
   }
 }

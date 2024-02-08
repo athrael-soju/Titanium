@@ -31,7 +31,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error) {
-    console.error(error);
-    return sendErrorResponse('Error processing file', 500);
+    console.error('Error processing file: ', error);
+    return sendErrorResponse('Error processing file: ', 500);
   }
 }

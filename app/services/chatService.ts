@@ -39,7 +39,7 @@ const retrieveTextFromSpeech = async (
       playNextAudio();
     }
   } catch (error) {
-    console.error('STT conversion error:', error);
+    console.error('STT conversion error: ', error);
     return undefined;
   }
 };
@@ -61,7 +61,7 @@ const retrieveAIResponse = async (
       return response.body?.getReader();
     }
   } catch (error) {
-    console.error('Failed to fetch AI response:', error);
+    console.error('Failed to fetch AI response: ', error);
     return undefined;
   }
 };

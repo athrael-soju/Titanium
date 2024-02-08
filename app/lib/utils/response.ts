@@ -17,7 +17,7 @@ export const sendInformationResponse = (
 };
 
 export function handleErrorResponse(error: Error): NextResponse {
-  console.error('Error:', error.message);
+  console.error('Error: ', error.message);
   const status =
     error.message === 'User not found' ||
     error.message === 'User email is required'

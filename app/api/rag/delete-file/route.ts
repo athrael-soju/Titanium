@@ -32,7 +32,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error: any) {
-    console.error('R.A.G. file deletion unsuccessful:', error);
+    console.error('R.A.G. file deletion unsuccessful: ', error);
     return sendErrorResponse('R.A.G. file deletion unsuccessful', 400);
   }
 }

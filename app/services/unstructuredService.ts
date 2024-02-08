@@ -18,7 +18,7 @@ const parseDocument = async (
     console.log(jsonResponse.message);
     return jsonResponse;
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };

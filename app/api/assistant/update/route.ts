@@ -56,7 +56,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error: any) {
-    console.error('Error in assistant update:', error);
+    console.error('Error in assistant update: ', error);
     return sendErrorResponse('Error in assistant update', 400);
   }
 }

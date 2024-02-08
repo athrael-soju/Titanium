@@ -76,7 +76,7 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
       setValue('isLoading', true);
       await prefetchServices(session?.user?.email as string);
     } catch (error) {
-      console.error('Error prefetching services:', error);
+      console.error('Error prefetching services: ', error);
     } finally {
       setValue('isLoading', false);
     }

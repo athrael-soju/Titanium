@@ -36,7 +36,7 @@ const upsert = async (data: any[], user: IUser, chunkBatch: string) => {
     }
     return { success: true };
   } catch (error: any) {
-    console.error('Error upserting in Pinecone:', error);
+    console.error('Error upserting in Pinecone: ', error);
     throw error;
   }
 };
@@ -78,7 +78,7 @@ const deleteMany = async (
     }
     return { success: true };
   } catch (error: any) {
-    console.error('Error deleting many in Pinecone:', error);
+    console.error('Error deleting many in Pinecone: ', error);
     throw error;
   }
 };

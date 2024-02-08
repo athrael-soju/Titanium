@@ -14,7 +14,7 @@ const getAudioTranscript = async ({ blob }: TextToSpeechData): Promise<any> => {
 
     return response.text();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };

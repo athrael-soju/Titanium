@@ -42,7 +42,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
   } catch (error: any) {
-    console.error('Error processing file:', error);
+    console.error('Error processing file: ', error);
     return sendErrorResponse('Error processing file', 500);
   }
 }
@@ -70,7 +70,7 @@ async function addFileToAssistant(
       }
     );
   } catch (error: any) {
-    console.error('Error in file upload to assistant:', error);
+    console.error('Error in file upload to assistant: ', error);
     throw new Error('File upload to assistant failed');
   } finally {
     await fs.unlink(tempFilePath);

@@ -82,7 +82,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
         throw new Error('Failed to add URL to Vision');
       }
     } catch (error) {
-      console.error('Failed to add URL to Vision:', error);
+      console.error('Failed to add URL to Vision: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -101,7 +101,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
         setValue('isVisionEnabled', retrieveVisionResponse.isVisionEnabled);
       } 
     } catch (error) {
-      console.error('Failed to close assistant dialog:', error);
+      console.error('Failed to close assistant dialog: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -122,7 +122,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
         throw new Error('No session found');
       }
     } catch (error) {
-      console.error('Error updating Vision:', error);
+      console.error('Error updating Vision: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -145,7 +145,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       console.log('File successfully deleted from Vision:', response);
       visionFiles.splice(visionFiles.indexOf(file), 1);
     } catch (error) {
-      console.error('Failed to remove file from Vision:', error);
+      console.error('Failed to remove file from Vision: ', error);
     } finally {
       setValue('isLoading', false);
     }

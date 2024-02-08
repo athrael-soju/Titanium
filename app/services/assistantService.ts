@@ -28,7 +28,7 @@ const updateAssistant = async ({
     });
     return response.json();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };
@@ -48,7 +48,7 @@ const deleteAssistantFile = async ({
     });
     return response.json();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };
@@ -68,7 +68,7 @@ const deleteAssistant = async ({
     });
     return response.json();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };
@@ -88,7 +88,7 @@ const uploadFile = async (
     });
     return fileUploadResponse;
   } catch (error) {
-    console.error('Failed to upload file:', error);
+    console.error('Failed to upload file: ', error);
   }
 };
 
