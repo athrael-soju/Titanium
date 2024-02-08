@@ -177,7 +177,9 @@ export const useBufferProcessing = () => {
       };
     });
     return `
-        Please make use of context provided to very briefly respond to the user prompt in a very sarcastic manner.: 
+        FOLLOW THESE INSTRUCTIONS AT ALL TIMES:
+        1. Please ONLY make use of context provided to very briefly respond to the user prompt. 
+        2. Otherwise, inform the user that you are unable to assist with their request.
         CONTEXT: ${JSON.stringify(context)}
         PROMPT: ${message}
         `;
