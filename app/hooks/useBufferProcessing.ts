@@ -18,7 +18,6 @@ export const useBufferProcessing = () => {
   const { watch, setValue } = useFormContext();
   const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
   const isAssistantEnabled = watch('isAssistantEnabled');
-  const isVisionEnabled = watch('isVisionEnabled');
   const isRagEnabled = watch('isRagEnabled');
   const model = watch('model');
   const voice = watch('voice');

@@ -48,7 +48,6 @@ const retrieveAIResponse = async (
   userMessage: string,
   userEmail: string,
   isAssistantEnabled: boolean,
-  isVisionEnabled: boolean
 ): Promise<Response | ReadableStreamDefaultReader<Uint8Array> | undefined> => {
   try {
     const response = await fetch('/api/chat', {
