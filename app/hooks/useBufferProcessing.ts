@@ -136,8 +136,7 @@ export const useBufferProcessing = () => {
       const response = await retrieveAIResponse(
         message,
         userEmail,
-        isAssistantEnabled,
-        isVisionEnabled
+        isAssistantEnabled
       );
 
       if (!response) {
