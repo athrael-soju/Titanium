@@ -78,22 +78,15 @@ const RagDialog: React.FC<RagDialogProps> = ({
     try {
       onClose();
       setValue('isLoading', true);
-      if (isRagEnabled) {
-        const userEmail = session?.user?.email as string;
-        const retrieveRagResponse = await retrieveServices({
-          userEmail,
-          serviceName: 'rag',
-        });
-        setValue('isRagEnabled', retrieveRagResponse.isRagEnabled);
-        setValue('topK', retrieveRagResponse.topK);
-        setValue('chunkBatch', retrieveRagResponse.chunkBatch);
-        setValue('parsingStrategy', retrieveRagResponse.parsingStrategy);
-      } else {
-        setValue('isRagEnabled', false);
-        setValue('topK', '');
-        setValue('chunkBatch', '');
-        setValue('parsingStrategy', '');
-      }
+      const userEmail = session?.user?.email as string;
+      const retrieveRagResponse = await retrieveServices({
+        userEmail,
+        serviceName: 'rag',
+      });
+      setValue('isRagEnabled', retrieveRagResponse.isRagEnabled);
+      setValue('topK', retrieveRagResponse.topK);
+      setValue('chunkBatch', retrieveRagResponse.chunkBatch);
+      setValue('parsingStrategy', retrieveRagResponse.parsingStrategy);
     } catch (error) {
       console.error('Failed to close R.A.G. dialog:', error);
     } finally {

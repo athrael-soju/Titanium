@@ -99,9 +99,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           serviceName: 'vision',
         });
         setValue('isVisionEnabled', retrieveVisionResponse.isVisionEnabled);
-      } else {
-        setValue('isVisionEnabled', false);
-      }
+      } 
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);
     } finally {

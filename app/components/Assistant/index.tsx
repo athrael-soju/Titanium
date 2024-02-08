@@ -125,10 +125,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           'isAssistantEnabled',
           retrieveAssistantResponse.isAssistantEnabled
         );
-      } else {
-        setValue('name', '');
-        setValue('description', '');
-        setValue('isAssistantEnabled', false);
       }
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);

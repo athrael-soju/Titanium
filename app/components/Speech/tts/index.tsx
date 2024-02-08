@@ -52,23 +52,17 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
     try {
       onClose();
       setValue('isLoading', true);
-      if (isTextToSpeechEnabled) {
-        const userEmail = session?.user?.email as string;
-        const retrieveSpeechResponse = await retrieveServices({
-          userEmail,
-          serviceName: 'speech',
-        });
-        setValue(
-          'isTextToSpeechEnabled',
-          retrieveSpeechResponse.isTextToSpeechEnabled
-        );
-        setValue('model', retrieveSpeechResponse.model);
-        setValue('voice', retrieveSpeechResponse.voice);
-      } else {
-        setValue('isTextToSpeechEnabled', false);
-        setValue('model', '');
-        setValue('voice', '');
-      }
+      const userEmail = session?.user?.email as string;
+      const retrieveSpeechResponse = await retrieveServices({
+        userEmail,
+        serviceName: 'speech',
+      });
+      setValue(
+        'isTextToSpeechEnabled',
+        retrieveSpeechResponse.isTextToSpeechEnabled
+      );
+      setValue('model', retrieveSpeechResponse.model);
+      setValue('voice', retrieveSpeechResponse.voice);
     } catch (error) {
       console.error('Failed to close assistant dialog:', error);
     } finally {
