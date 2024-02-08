@@ -1,12 +1,3 @@
-/* .main {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6rem;
-  min-height: 100vh;
-} */
-
 .description {
   display: inherit;
   justify-content: inherit;
@@ -235,6 +226,5 @@
   align-items: center;
   padding: 6rem 1rem 1rem;
   min-height: 100vh;
-    background: linear-gradient(to bottom, #ffffff, #f0f5f9);
-
+  background: linear-gradient(to bottom, #ffffff, #f0f5f9);
 }

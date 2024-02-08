@@ -58,8 +58,10 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   const handleAddUrl = async (urlInput: string, nameInput: string) => {
     try {
       setValue('isLoading', true);
-      const user = session?.user as any;
-      const userEmail = user.email;
+      const userEmail = session?.user?.email;
+      if (!userEmail) {
+        throw new Error('No user found');
+      }
       let id = crypto.randomUUID();
 
       const newFile = {
@@ -71,13 +73,16 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       };
 
       const response = await addVisionUrl({ userEmail, file: newFile });
-
-      newFile.visionId = response.file.visionId;
-      const newVisionFiles = [...visionFiles, newFile];
-      setValue('visionFiles', newVisionFiles);
-      await handleUpdate();
+      if (response.status === 200) {
+        newFile.visionId = response.file.visionId;
+        const newVisionFiles = [...visionFiles, newFile];
+        setValue('visionFiles', newVisionFiles);
+        await handleUpdate();
+      } else {
+        throw new Error('Failed to add URL to Vision');
+      }
     } catch (error) {
-      console.error('Failed to add URL to Vision:', error);
+      console.error('Failed to add URL to Vision: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -94,11 +99,9 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           serviceName: 'vision',
         });
         setValue('isVisionEnabled', retrieveVisionResponse.isVisionEnabled);
-      } else {
-        setValue('isVisionEnabled', false);
-      }
+      } 
     } catch (error) {
-      console.error('Failed to close assistant dialog:', error);
+      console.error('Failed to close assistant dialog: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -119,7 +122,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
         throw new Error('No session found');
       }
     } catch (error) {
-      console.error('Error updating Vision:', error);
+      console.error('Error updating Vision: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -134,13 +137,15 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   }) => {
     try {
       setValue('isLoading', true);
-      const user = session?.user as any;
-      const userEmail = user.email;
+      const userEmail = session?.user?.email;
+      if (!userEmail) {
+        throw new Error('No user found');
+      }
       const response = await deleteVisionFile(file, userEmail);
       console.log('File successfully deleted from Vision:', response);
       visionFiles.splice(visionFiles.indexOf(file), 1);
     } catch (error) {
-      console.error('Failed to remove file from Vision:', error);
+      console.error('Failed to remove file from Vision: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -150,10 +155,19 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     <>
       <Dialog open={open} onClose={onClose}>
         <DialogTitle style={{ textAlign: 'center' }}>
-          Add Vision Images
+          Vision Settings
         </DialogTitle>
         <DialogContent style={{ paddingBottom: 8 }}>
           <VisionFileList files={visionFiles} onDelete={handleRemoveUrl} />
+          <Button
+            fullWidth
+            onClick={handleUpdate}
+            style={{ marginBottom: '8px' }}
+            variant="outlined"
+            color="success"
+          >
+            Update
+          </Button>
         </DialogContent>
         <DialogActions style={{ paddingTop: 0 }}>
           <Box
@@ -162,14 +176,6 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
             alignItems="stretch"
             width="100%"
           >
-            <Button
-              onClick={handleUpdate}
-              style={{ marginBottom: '8px' }}
-              variant="outlined"
-              color="success"
-            >
-              Update
-            </Button>
             <Box display="flex" justifyContent="center" alignItems="center">
               <Button onClick={handleCloseClick}>Close Window</Button>
               <Button onClick={handleAddUrlClick}>Add URL</Button>

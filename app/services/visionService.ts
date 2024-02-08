@@ -30,7 +30,7 @@ const updateVision = async ({
     });
     return response.json();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };
@@ -55,7 +55,7 @@ const deleteVisionFile = async (
     });
     return response.json();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };
@@ -77,7 +77,7 @@ const addVisionUrl = async ({
     });
     return response.json();
   } catch (error) {
-    console.error('Failed to upload file:', error);
+    console.error('Failed to upload file: ', error);
   }
 };
 

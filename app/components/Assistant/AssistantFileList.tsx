@@ -19,30 +19,32 @@ const AssistantFileList: React.FC<AssistantFileListProps> = ({
   files,
   onDelete,
 }) => (
-  <FilePaper
-    files={files}
-    renderFileItem={(file) => (
-      <ListItem
-        key={file.id}
-        secondaryAction={
-          <IconButton
-            edge="end"
-            aria-label="delete"
-            onClick={() => onDelete(file)}
-          >
-            <DeleteIcon />
-          </IconButton>
-        }
-      >
-        <ListItemAvatar>
-          <Avatar>
-            <FolderIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText primary={file.name} />
-      </ListItem>
-    )}
-  />
+  <div style={{ paddingTop: 5 }}>
+    <FilePaper
+      files={files}
+      renderFileItem={(file) => (
+        <ListItem
+          key={file.id}
+          secondaryAction={
+            <IconButton
+              edge="end"
+              aria-label="delete"
+              onClick={() => onDelete(file)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          }
+        >
+          <ListItemAvatar>
+            <Avatar>
+              <FolderIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText primary={file.name} />
+        </ListItem>
+      )}
+    />
+  </div>
 );
 
 export default AssistantFileList;

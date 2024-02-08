@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, sendErrorResponse, getUserByEmail } from '@/app/lib/utils/db';
+import { getDb, getUserByEmail } from '@/app/lib/utils/db';
+import { sendErrorResponse } from '@/app/lib/utils/response';
 import OpenAI from 'openai';
 import { Collection } from 'mongodb';
 
@@ -18,19 +19,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (user.assistantId) {
       await deleteUserAssistant(user.assistantId, userEmail, usersCollection);
-      return NextResponse.json(
-        { message: 'Assistant deleted (With all associated files)' },
-        { status: 200 }
-      );
+      return NextResponse.json({
+        message: 'Assistant deleted (With all associated files)',
+        status: 200,
+      });
     }
 
     return sendErrorResponse('No assistant found for the user', 404);
   } catch (error: any) {
-    return sendErrorResponse('Assistant deletion unsuccessful', 500);
+    return sendErrorResponse('Assistant deletion unsuccessful', 400);
   }
 }
 
-// Helper function
 async function deleteUserAssistant(
   assistantId: string,
   userEmail: string,

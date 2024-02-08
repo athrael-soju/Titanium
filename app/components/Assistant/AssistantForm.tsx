@@ -1,6 +1,6 @@
 import React from 'react';
-import { FormControl, TextField } from '@mui/material';
 import { useFormContext } from 'react-hook-form';
+import { FormControl, TextField } from '@mui/material';
 
 interface AssistantFormProps {
   error: { name: boolean; description: boolean };
@@ -13,12 +13,7 @@ const AssistantForm: React.FC<AssistantFormProps> = ({ error }) => {
 
   return (
     <>
-      <FormControl
-        fullWidth
-        margin="dense"
-        error={error.name}
-        variant="outlined"
-      >
+      <FormControl fullWidth error={error.name} variant="outlined">
         <TextField
           autoFocus
           label="Name"
@@ -30,12 +25,7 @@ const AssistantForm: React.FC<AssistantFormProps> = ({ error }) => {
           helperText={error.name ? 'Name is required' : ' '}
         />
       </FormControl>
-      <FormControl
-        fullWidth
-        margin="dense"
-        error={error.description}
-        variant="outlined"
-      >
+      <FormControl fullWidth error={error.description} variant="outlined">
         <TextField
           label="Description"
           fullWidth

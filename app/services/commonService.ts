@@ -8,7 +8,7 @@ const retrieveServices = async ({
   serviceName,
 }: RetrieveServicesData): Promise<any> => {
   try {
-    const response = await fetch(`/api/${serviceName}/retrieve/`, {
+    const response = await fetch(`/api/${serviceName}/retrieve`, {
       method: 'GET',
       headers: { userEmail: userEmail, serviceName: serviceName },
     });
@@ -19,7 +19,7 @@ const retrieveServices = async ({
 
     return response.json();
   } catch (error) {
-    console.error('Unexpected error:', error);
+    console.error('Unexpected error: ', error);
     throw error;
   }
 };

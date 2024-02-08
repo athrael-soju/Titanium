@@ -8,6 +8,8 @@ import {
   retrieveAIResponse,
   retrieveTextFromSpeech,
 } from '@/app/services/chatService';
+import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
+import { generateEmbeddings } from '@/app/services/embeddingService';
 const nlp = winkNLP(model);
 
 export const useBufferProcessing = () => {
@@ -16,9 +18,10 @@ export const useBufferProcessing = () => {
   const { watch, setValue } = useFormContext();
   const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
   const isAssistantEnabled = watch('isAssistantEnabled');
-  const isVisionEnabled = watch('isVisionEnabled');
+  const isRagEnabled = watch('isRagEnabled');
   const model = watch('model');
   const voice = watch('voice');
+  const chunkBatch = watch('chunkBatch');
   const sentences = useRef<string[]>([]);
   const sentenceIndex = useRef<number>(0);
 
@@ -97,7 +100,7 @@ export const useBufferProcessing = () => {
             aiResponseText += json.choices[0].delta.content;
           }
         } catch (error) {
-          console.error('Failed to parse JSON:', line, error);
+          console.error('Failed to parse JSON: ', line, error);
         }
       }
     });
@@ -124,11 +127,15 @@ export const useBufferProcessing = () => {
       addUserMessageToState(message);
       const aiResponseId = uuidv4();
       const userEmail = session?.user?.email as string;
+
+      if (isRagEnabled) {
+        message = await enhanceUserResponse(message, userEmail);
+      }
+
       const response = await retrieveAIResponse(
         message,
         userEmail,
-        isAssistantEnabled,
-        isVisionEnabled
+        isAssistantEnabled
       );
 
       if (!response) {
@@ -136,8 +143,6 @@ export const useBufferProcessing = () => {
       }
       if (isAssistantEnabled) {
         await processResponse(response, aiResponseId);
-      } else if (isVisionEnabled) {
-        await processStream(response, aiResponseId);
       } else {
         await processStream(response, aiResponseId);
       }
@@ -148,12 +153,44 @@ export const useBufferProcessing = () => {
     }
   };
 
+  async function enhanceUserResponse(message: string, userEmail: string) {
+    const jsonMessage = [
+      {
+        text: message,
+        metadata: {
+          user_email: userEmail,
+        },
+      },
+    ];
+    const embeddedMessage = await generateEmbeddings(jsonMessage, userEmail);
+
+    const vectorResponse = await queryVectorDbByNamespace(
+      embeddedMessage.embeddings,
+      userEmail,
+      chunkBatch
+    );
+
+    const context = vectorResponse.response.matches.map((item: any) => {
+      return {
+        text: item.metadata.text,
+        metadata: item.metadata,
+      };
+    });
+    return `
+        FOLLOW THESE INSTRUCTIONS AT ALL TIMES:
+        1. Please ONLY make use of context provided to very briefly respond to the user prompt. 
+        2. Otherwise, inform the user that you are unable to assist with their request.
+        CONTEXT: ${JSON.stringify(context)}
+        PROMPT: ${message}
+        `;
+  }
+
   async function processResponse(
     response: ReadableStreamDefaultReader<Uint8Array> | Response,
     aiResponseId: string
   ) {
     if (!(response instanceof Response)) {
-      console.error('Expected a Response object, received:', response);
+      console.error('Expected a Response object, received: ', response);
       return;
     }
     try {
@@ -166,7 +203,7 @@ export const useBufferProcessing = () => {
         await retrieveTextFromSpeech(data, model, voice);
       }
     } catch (error) {
-      console.error('Error processing response:', error);
+      console.error('Error processing response: ', error);
     }
   }
   async function processStream(
@@ -175,7 +212,7 @@ export const useBufferProcessing = () => {
   ) {
     if (!(stream instanceof ReadableStreamDefaultReader)) {
       console.error(
-        'Expected a ReadableStreamDefaultReader object, received:',
+        'Expected a ReadableStreamDefaultReader object, received: ',
         stream
       );
       return;
@@ -183,7 +220,7 @@ export const useBufferProcessing = () => {
     try {
       await processAIResponseStream(stream, aiResponseId);
     } catch (error) {
-      console.error('Error processing stream:', error);
+      console.error('Error processing stream: ', error);
     }
   }
 

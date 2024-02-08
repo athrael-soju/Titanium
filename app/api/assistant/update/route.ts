@@ -5,12 +5,60 @@ import { Collection } from 'mongodb';
 
 const openai = new OpenAI();
 
+import { sendErrorResponse } from '@/app/lib/utils/response';
+
 interface AssistantUpdateRequest {
   userEmail: string;
   name: string;
   description: string;
   isAssistantEnabled: boolean;
   files: { name: string; id: string; assistantId: string }[];
+}
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  try {
+    const client = await clientPromise;
+    const db = client.db();
+    const requestBody = await req.json();
+    const { userEmail, name, description, isAssistantEnabled, files } =
+      requestBody as AssistantUpdateRequest;
+
+    if (
+      !userEmail ||
+      !name ||
+      !description ||
+      isAssistantEnabled === undefined
+    ) {
+      return sendErrorResponse('Missing required parameters', 400);
+    }
+
+    const usersCollection = db.collection<IUser>('users');
+    const user = await usersCollection.findOne({ email: userEmail });
+
+    if (!user) {
+      return sendErrorResponse('User not found', 404);
+    }
+
+    const { assistant, thread } = await createOrUpdateAssistant(
+      user,
+      name,
+      description,
+      isAssistantEnabled,
+      usersCollection,
+      files
+    );
+
+    return NextResponse.json({
+      message: 'Assistant updated',
+      assistantId: assistant.id,
+      threadId: thread.id,
+      isAssistantEnabled,
+      status: 200,
+    });
+  } catch (error: any) {
+    console.error('Error in assistant update: ', error);
+    return sendErrorResponse('Error in assistant update', 400);
+  }
 }
 
 async function createOrUpdateAssistant(
@@ -23,6 +71,7 @@ async function createOrUpdateAssistant(
 ): Promise<{ assistant: any; thread: any }> {
   let assistant, thread;
   const isVisionEnabled = isAssistantEnabled ? false : user.isVisionEnabled;
+  const isRagEnabled = isAssistantEnabled ? false : user.isRagEnabled;
 
   if (!user.assistantId) {
     // Create a new assistant and thread
@@ -54,66 +103,10 @@ async function createOrUpdateAssistant(
         threadId: thread.id,
         isAssistantEnabled: isAssistantEnabled,
         isVisionEnabled: isVisionEnabled,
+        isRagEnabled: isRagEnabled,
       },
     }
   );
 
   return { assistant, thread };
-}
-
-export async function POST(req: NextRequest): Promise<NextResponse> {
-  try {
-    const client = await clientPromise;
-    const db = client.db();
-    const requestBody = await req.json();
-    const { userEmail, name, description, isAssistantEnabled, files } =
-      requestBody as AssistantUpdateRequest;
-
-    if (
-      !userEmail ||
-      !name ||
-      !description ||
-      isAssistantEnabled === undefined
-    ) {
-      return NextResponse.json(
-        { message: 'Missing required parameters' },
-        { status: 400 }
-      );
-    }
-
-    const usersCollection = db.collection<IUser>('users');
-    const user = await usersCollection.findOne({ email: userEmail });
-
-    if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
-    }
-
-    const { assistant, thread } = await createOrUpdateAssistant(
-      user,
-      name,
-      description,
-      isAssistantEnabled,
-      usersCollection,
-      files
-    );
-
-    return NextResponse.json(
-      {
-        message: 'Assistant updated',
-        assistantId: assistant.id,
-        threadId: thread.id,
-        isAssistantEnabled,
-      },
-      { status: 200 }
-    );
-  } catch (error: any) {
-    console.error('Error in assistant update:', error);
-    return NextResponse.json(
-      {
-        message: 'Error in assistant update',
-        error: error.message,
-      },
-      { status: 500 }
-    );
-  }
 }

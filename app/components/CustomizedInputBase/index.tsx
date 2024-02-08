@@ -8,6 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import VisionIcon from '@mui/icons-material/Visibility';
+import RagIcon from '@mui/icons-material/Storage';
 import RecordVoiceOver from '@mui/icons-material/RecordVoiceOver';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -16,6 +17,7 @@ import AssistantDialog from '../Assistant';
 import VisionDialog from '../Vision';
 import SpeechDialog from '../Speech/tts';
 import { Microphone } from '../Speech/stt';
+import RagDialog from '../Rag';
 
 const CustomizedInputBase = ({
   onSendMessage,
@@ -33,15 +35,18 @@ const CustomizedInputBase = ({
     isAssistantDialogOpen,
     isVisionDialogOpen,
     isSpeechDialogOpen,
+    isRagDialogOpen,
     handleAssistantsClick,
     handleVisionClick,
     handleSpeechClick,
+    handleRagClick,
     handleMenuOpen,
     handleMenuClose,
     anchorEl,
     setIsAssistantDialogOpen,
     setIsVisionDialogOpen,
     setIsSpeechDialogOpen,
+    setIsRagDialogOpen,
   } = useCustomInput({ onSendMessage });
 
   return (
@@ -82,6 +87,12 @@ const CustomizedInputBase = ({
             horizontal: 'right',
           }}
         >
+          <MenuItem onClick={handleRagClick}>
+            <ListItemIcon>
+              <RagIcon />
+            </ListItemIcon>
+            R.A.G.
+          </MenuItem>
           <MenuItem onClick={handleAssistantsClick}>
             <ListItemIcon>
               <AssistantIcon />
@@ -130,6 +141,11 @@ const CustomizedInputBase = ({
       <SpeechDialog
         open={isSpeechDialogOpen}
         onClose={() => setIsSpeechDialogOpen(false)}
+      />
+
+      <RagDialog
+        open={isRagDialogOpen}
+        onClose={() => setIsRagDialogOpen(false)}
       />
     </>
   );

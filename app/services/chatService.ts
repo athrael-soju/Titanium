@@ -39,7 +39,7 @@ const retrieveTextFromSpeech = async (
       playNextAudio();
     }
   } catch (error) {
-    console.error('STT conversion error:', error);
+    console.error('STT conversion error: ', error);
     return undefined;
   }
 };
@@ -48,7 +48,6 @@ const retrieveAIResponse = async (
   userMessage: string,
   userEmail: string,
   isAssistantEnabled: boolean,
-  isVisionEnabled: boolean
 ): Promise<Response | ReadableStreamDefaultReader<Uint8Array> | undefined> => {
   try {
     const response = await fetch('/api/chat', {
@@ -58,13 +57,11 @@ const retrieveAIResponse = async (
     });
     if (isAssistantEnabled) {
       return response;
-    } else if (isVisionEnabled) {
-      return response.body?.getReader();
     } else {
       return response.body?.getReader();
     }
   } catch (error) {
-    console.error('Failed to fetch AI response:', error);
+    console.error('Failed to fetch AI response: ', error);
     return undefined;
   }
 };

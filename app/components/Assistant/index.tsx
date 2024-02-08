@@ -55,6 +55,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     setValue('isAssistantEnabled', enabled);
     if (enabled) {
       setValue('isVisionEnabled', false);
+      setValue('isRagEnabled', false);
     }
 
     if (onToggleAssistant) {
@@ -95,7 +96,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
         throw new Error('No session found');
       }
     } catch (error) {
-      console.error('Error updating assistant:', error);
+      console.error('Error updating assistant: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -124,13 +125,9 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           'isAssistantEnabled',
           retrieveAssistantResponse.isAssistantEnabled
         );
-      } else {
-        setValue('name', '');
-        setValue('description', '');
-        setValue('isAssistantEnabled', false);
       }
     } catch (error) {
-      console.error('Failed to close assistant dialog:', error);
+      console.error('Failed to close assistant dialog: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -146,14 +143,14 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     }
   };
 
-  const handleFileDelete = async (file: any) => {
+  const handleFileDelete = async (file: string) => {
     try {
       setValue('isLoading', true);
       await deleteAssistantFile({ file });
       console.log('File successfully deleted from the assistant:', file);
       files.splice(files.indexOf(file), 1);
     } catch (error) {
-      console.error('Failed to remove file from the assistant:', error);
+      console.error('Failed to remove file from the assistant: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -176,7 +173,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           setValue('assistantFiles', retrieveAssistantResponse.fileList);
         }
         if (fileUploadResponse?.status === 200) {
-          console.log('File uploaded successfully', fileUploadResponse);
+          console.log('File uploaded successfully: ', fileUploadResponse);
         }
       } catch (error) {
         console.error('Failed to upload file:', error);
@@ -201,7 +198,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       handleReset();
       setValue('isAssistantDefined', false);
     } catch (error) {
-      console.error('Error deleting assistant:', error);
+      console.error('Error deleting assistant: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -212,11 +209,30 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
       <DialogTitle style={{ textAlign: 'center' }}>
         {!isAssistantDefined
           ? 'Create Assistant'
-          : `Customize Assistant: ${name}`}
+          : `Assistant Settings: ${name}`}
       </DialogTitle>
-      <DialogContent style={{ paddingBottom: 8 }}>
+      <DialogContent style={{ paddingTop: 5, paddingBottom: 5 }}>
         <AssistantForm error={error} />
         <AssistantFileList files={files} onDelete={handleFileDelete} />
+        <Button
+          fullWidth
+          onClick={handleCreate}
+          style={{ marginBottom: '8px' }}
+          variant="outlined"
+          color="success"
+        >
+          {isAssistantDefined ? 'Update' : 'Create'}
+        </Button>
+        <Button
+          fullWidth
+          onClick={handleAssistantDelete}
+          disabled={!isAssistantDefined}
+          style={{ marginBottom: '8px' }}
+          variant="outlined"
+          color="error"
+        >
+          Delete
+        </Button>
       </DialogContent>
       <DialogActions style={{ paddingTop: 0 }}>
         <Box
@@ -225,23 +241,6 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
           alignItems="stretch"
           width="100%"
         >
-          <Button
-            onClick={handleCreate}
-            style={{ marginBottom: '8px' }}
-            variant="outlined"
-            color="success"
-          >
-            {isAssistantDefined ? 'Update' : 'Create'}
-          </Button>
-          <Button
-            onClick={handleAssistantDelete}
-            disabled={!isAssistantDefined}
-            style={{ marginBottom: '8px' }}
-            variant="outlined"
-            color="error"
-          >
-            Delete
-          </Button>
           <Box display="flex" justifyContent="center" alignItems="center">
             <Button onClick={handleCloseClick}>Close Window</Button>
             <Button onClick={handleUploadClick} disabled={!isAssistantDefined}>

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDatabaseAndUser, getDb } from '@/app/lib/utils/db';
 import {
-  getDatabaseAndUser,
-  getDb,
-  handleErrorResponse,
   sendErrorResponse,
-} from '@/app/lib/utils/db';
+  sendInformationResponse,
+} from '@/app/lib/utils/response';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -14,24 +13,22 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const { user } = await getDatabaseAndUser(db, userEmail);
 
     if (serviceName === 'vision' && user.visionId) {
-      const fileCollection = db.collection<IFile>('files');
+      const fileCollection = db.collection<VisionFile>('files');
       const visionFileList = await fileCollection
         .find({ visionId: user.visionId })
         .toArray();
 
-      return NextResponse.json(
-        {
-          message: 'Vision retrieved',
-          visionId: user.visionId,
-          visionFileList,
-          isVisionEnabled: user.isVisionEnabled,
-        },
-        { status: 200 }
-      );
+      return NextResponse.json({
+        message: 'Vision retrieved',
+        visionId: user.visionId,
+        visionFileList,
+        isVisionEnabled: user.isVisionEnabled,
+        status: 200,
+      });
+    } else {
+      return sendInformationResponse('Vision not configured for the user', 200);
     }
-
-    return sendErrorResponse('Vision not configured for the user', 200);
   } catch (error: any) {
-    return handleErrorResponse(error);
+    return sendErrorResponse('Vision retrieval failed', 400);
   }
 }

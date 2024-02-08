@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  getDatabaseAndUser,
-  getDb,
-  handleErrorResponse,
-} from '@/app/lib/utils/db';
+import { getDatabaseAndUser, getDb } from '@/app/lib/utils/db';
+import { sendErrorResponse } from '@/app/lib/utils/response';
 import OpenAI from 'openai';
 
 const openai = new OpenAI();
@@ -33,25 +30,21 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         })
       );
 
-      return NextResponse.json(
-        {
-          message: 'Assistant retrieved',
-          assistant,
-          threadId: thread?.id,
-          fileList: filesWithNames,
-          isAssistantEnabled: user.isAssistantEnabled,
-        },
-        { status: 200 }
-      );
+      return NextResponse.json({
+        message: 'Assistant retrieved',
+        assistant,
+        threadId: thread?.id,
+        fileList: filesWithNames,
+        isAssistantEnabled: user.isAssistantEnabled,
+        status: 200,
+      });
     }
 
-    return NextResponse.json(
-      {
-        message: 'Assistant cannot be retrieved, as it has not been created',
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      message: 'Assistant cannot be retrieved, as it has not been created',
+      status: 200,
+    });
   } catch (error: any) {
-    return handleErrorResponse(error);
+    return sendErrorResponse('Assistant retrieval unsuccessful', 400);
   }
 }

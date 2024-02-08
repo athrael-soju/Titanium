@@ -1,6 +1,6 @@
+import { NextRequest, NextResponse } from 'next/server';
 import OpenAI, { ClientOptions } from 'openai';
 import clientPromise from '../../lib/client/mongodb';
-import { NextRequest, NextResponse } from 'next/server';
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error('OPENAI_API_KEY is not set');
@@ -8,6 +8,12 @@ if (!process.env.OPENAI_API_KEY) {
 
 const options: ClientOptions = { apiKey: process.env.OPENAI_API_KEY };
 const openai = new OpenAI(options);
+
+import { sendErrorResponse } from '@/app/lib/utils/response';
+
+export async function POST(req: NextRequest) {
+  return await handlePostRequest(req);
+}
 
 async function fetchAssistantMessage(
   threadId: string,
@@ -50,7 +56,6 @@ async function handlePostRequest(req: NextRequest) {
         userMessage
       );
 
-      // Process and respond with the assistant's message
       if (!assistantMessage) {
         return NextResponse.json(
           { error: 'No assistant message found' },
@@ -69,7 +74,7 @@ async function handlePostRequest(req: NextRequest) {
       return new Response(assistantMessageContent.text.value);
     } else if (user.isVisionEnabled && user.visionId) {
       const content = [{ type: 'text', text: userMessage }] as any[];
-      const fileCollection = db.collection<IFile>('files');
+      const fileCollection = db.collection<VisionFile>('files');
       const visionFileList = await fileCollection
         .find({ visionId: user.visionId })
         .toArray();
@@ -105,14 +110,7 @@ async function handlePostRequest(req: NextRequest) {
       return new Response(completion.toReadableStream());
     }
   } catch (error: any) {
-    console.error('Error processing request:', error);
-    return NextResponse.json(
-      { message: 'Error processing request', error: error.message },
-      { status: 500 }
-    );
+    console.error('Error processing request: ', error);
+    return sendErrorResponse('Error processing request', 400);
   }
-}
-
-export async function POST(req: NextRequest) {
-  return await handlePostRequest(req);
 }

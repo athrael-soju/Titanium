@@ -13,12 +13,14 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
   const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
   const [isVisionDialogOpen, setIsVisionDialogOpen] = useState(false);
   const [isSpeechDialogOpen, setIsSpeechDialogOpen] = useState(false);
+  const [isRagDialogOpen, setIsRagDialogOpen] = useState(false);
   const { setValue } = useFormContext();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const prefetchAssistant = useCallback(
+  const prefetchServices = useCallback(
     async (userEmail: string) => {
-      const response = await retrieveServices({
+      // Prefetch assistant data
+      let response = await retrieveServices({
         userEmail,
         serviceName: 'assistant',
       });
@@ -31,12 +33,8 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
       } else {
         setValue('isAssistantDefined', false);
       }
-    },
-    [setValue]
-  );
-  const prefetchVision = useCallback(
-    async (userEmail: string) => {
-      const response = await retrieveServices({
+      // Prefetch vision data
+      response = await retrieveServices({
         userEmail,
         serviceName: 'vision',
       });
@@ -47,13 +45,8 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
       } else {
         setValue('isVisionDefined', false);
       }
-    },
-    [setValue]
-  );
-
-  const prefetchSpeech = useCallback(
-    async (userEmail: string) => {
-      const response = await retrieveServices({
+      // Prefetch speech data
+      response = await retrieveServices({
         userEmail,
         serviceName: 'speech',
       });
@@ -62,6 +55,18 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
         setValue('model', response.model);
         setValue('voice', response.voice);
       }
+      // Prefetch rag data
+      response = await retrieveServices({
+        userEmail,
+        serviceName: 'rag',
+      });
+      if (response.ragId) {
+        setValue('isRagEnabled', response.isRagEnabled);
+        setValue('ragFiles', response.ragFileList);
+        setValue('topK', response.topK);
+        setValue('chunkBatch', response.chunkBatch);
+        setValue('parsingStrategy', response.parsingStrategy);
+      }
     },
     [setValue]
   );
@@ -69,21 +74,13 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
   const prefetchData = useCallback(async () => {
     try {
       setValue('isLoading', true);
-      await prefetchAssistant(session?.user?.email as string);
-      await prefetchVision(session?.user?.email as string);
-      await prefetchSpeech(session?.user?.email as string);
+      await prefetchServices(session?.user?.email as string);
     } catch (error) {
-      console.error('Error prefetching services:', error);
+      console.error('Error prefetching services: ', error);
     } finally {
       setValue('isLoading', false);
     }
-  }, [
-    prefetchAssistant,
-    prefetchSpeech,
-    prefetchVision,
-    session?.user?.email,
-    setValue,
-  ]);
+  }, [prefetchServices, session?.user?.email, setValue]);
 
   useEffect(() => {
     prefetchData();
@@ -127,6 +124,11 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
     handleMenuClose();
   };
 
+  const handleRagClick = () => {
+    setIsRagDialogOpen(true);
+    handleMenuClose();
+  };
+
   return {
     inputValue,
     appendText,
@@ -135,14 +137,17 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
     isAssistantDialogOpen,
     isVisionDialogOpen,
     isSpeechDialogOpen,
+    isRagDialogOpen,
     handleAssistantsClick,
     handleVisionClick,
     handleSpeechClick,
+    handleRagClick,
     handleMenuOpen,
     handleMenuClose,
     anchorEl,
     setIsAssistantDialogOpen,
     setIsVisionDialogOpen,
     setIsSpeechDialogOpen,
+    setIsRagDialogOpen,
   };
 };

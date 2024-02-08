@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getDatabaseAndUser, getDb } from '@/app/lib/utils/db';
 import {
-  getDatabaseAndUser,
-  getDb,
-  handleErrorResponse,
   sendErrorResponse,
-} from '@/app/lib/utils/db';
+  sendInformationResponse,
+} from '@/app/lib/utils/response';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -16,19 +15,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     if (serviceName === 'speech') {
       const { isTextToSpeechEnabled, model, voice } = user;
 
-      return NextResponse.json(
-        {
-          message: 'Speech retrieved',
-          isTextToSpeechEnabled,
-          model,
-          voice,
-        },
-        { status: 200 }
-      );
+      return NextResponse.json({
+        message: 'Speech retrieved',
+        isTextToSpeechEnabled,
+        model,
+        voice,
+        status: 200,
+      });
     }
-
-    return sendErrorResponse('Speech not configured for the user', 200);
+    return sendInformationResponse('Speech not configured for the user', 200);
   } catch (error: any) {
-    return handleErrorResponse(error);
+    return sendErrorResponse('Failed to retrieve Speech', 400);
   }
 }
