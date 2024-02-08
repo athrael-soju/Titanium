@@ -29,15 +29,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       voice
     );
 
-    return NextResponse.json(
-      {
-        message: 'Speech updated',
-        isTextToSpeechEnabled: isTextToSpeechEnabled,
-        model: model,
-        voice: voice,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      message: 'Speech updated',
+      isTextToSpeechEnabled: isTextToSpeechEnabled,
+      model: model,
+      voice: voice,
+      status: 200,
+    });
   } catch (error: any) {
     console.error('Error in Speech update:', error);
     return sendErrorResponse('Error in Speech update', 500);

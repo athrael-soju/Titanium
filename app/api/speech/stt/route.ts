@@ -7,6 +7,8 @@ import { join } from 'path';
 const options: ClientOptions = { apiKey: process.env.OPENAI_API_KEY };
 const openai = new OpenAI(options);
 
+import { sendErrorResponse } from '@/app/lib/utils/response';
+
 export async function POST(req: NextRequest) {
   const tempFilePath = join(tmpdir(), 'audio.mp3');
   try {
@@ -25,14 +27,11 @@ export async function POST(req: NextRequest) {
       });
       return new NextResponse(transcription.text);
     } else {
-      throw new Error('File not provided or incorrect format');
+      return sendErrorResponse('File not provided or incorrect format', 400);
     }
   } catch (error) {
-    console.error('STT error:', error);
-    return new NextResponse(
-      JSON.stringify({ message: 'Error generating transcript', error: error }),
-      { status: 500 }
-    );
+    console.error('Error generating transcript from Speech', error);
+    return sendErrorResponse('Error generating transcript from Speech', 400);
   } finally {
     await fs.unlink(tempFilePath);
   }

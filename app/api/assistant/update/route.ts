@@ -5,6 +5,8 @@ import { Collection } from 'mongodb';
 
 const openai = new OpenAI();
 
+import { sendErrorResponse } from '@/app/lib/utils/response';
+
 interface AssistantUpdateRequest {
   userEmail: string;
   name: string;
@@ -27,17 +29,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       !description ||
       isAssistantEnabled === undefined
     ) {
-      return NextResponse.json(
-        { message: 'Missing required parameters' },
-        { status: 400 }
-      );
+      return sendErrorResponse('Missing required parameters', 400);
     }
 
     const usersCollection = db.collection<IUser>('users');
     const user = await usersCollection.findOne({ email: userEmail });
 
     if (!user) {
-      return NextResponse.json({ message: 'User not found' }, { status: 404 });
+      return sendErrorResponse('User not found', 404);
     }
 
     const { assistant, thread } = await createOrUpdateAssistant(
@@ -49,24 +48,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       files
     );
 
-    return NextResponse.json(
-      {
-        message: 'Assistant updated',
-        assistantId: assistant.id,
-        threadId: thread.id,
-        isAssistantEnabled,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      message: 'Assistant updated',
+      assistantId: assistant.id,
+      threadId: thread.id,
+      isAssistantEnabled,
+      status: 200,
+    });
   } catch (error: any) {
     console.error('Error in assistant update:', error);
-    return NextResponse.json(
-      {
-        message: 'Error in assistant update',
-        error: error.message,
-      },
-      { status: 500 }
-    );
+    return sendErrorResponse('Error in assistant update', 400);
   }
 }
 

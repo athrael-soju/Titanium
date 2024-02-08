@@ -20,14 +20,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     await updateVision(user, usersCollection, isVisionEnabled);
 
-    return NextResponse.json(
-      {
-        message: 'Vision updated',
-        visionId: user.visionId,
-        isVisionEnabled: isVisionEnabled,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      message: 'Vision updated',
+      visionId: user.visionId,
+      isVisionEnabled: isVisionEnabled,
+      status: 200,
+    });
   } catch (error: any) {
     console.error('Error in vision update:', error);
     return sendErrorResponse('Error in vision update', 500);

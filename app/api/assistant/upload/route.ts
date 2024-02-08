@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb, getUserByEmail } from '@/app/lib/utils/db';
-import {sendErrorResponse } from '@/app/lib/utils/response';
+import { sendErrorResponse } from '@/app/lib/utils/response';
 import fs from 'fs/promises';
 import OpenAI from 'openai';
 import { createReadStream } from 'fs';
@@ -30,10 +30,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (user.assistantId) {
       const fileResponse = await addFileToAssistant(user, file);
-      return NextResponse.json(
-        { message: 'File uploaded', file: fileResponse },
-        { status: 200 }
-      );
+      return NextResponse.json({
+        message: 'File uploaded',
+        file: fileResponse,
+        status: 200,
+      });
     } else {
       return sendErrorResponse(
         'Assistant must be created before files can be uploaded',

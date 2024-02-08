@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDatabaseAndUser, getDb } from '@/app/lib/utils/db';
 import {
-  handleErrorResponse,
+  sendErrorResponse,
   sendInformationResponse,
 } from '@/app/lib/utils/response';
 
@@ -18,19 +18,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         .find({ visionId: user.visionId })
         .toArray();
 
-      return NextResponse.json(
-        {
-          message: 'Vision retrieved',
-          visionId: user.visionId,
-          visionFileList,
-          isVisionEnabled: user.isVisionEnabled,
-        },
-        { status: 200 }
-      );
+      return NextResponse.json({
+        message: 'Vision retrieved',
+        visionId: user.visionId,
+        visionFileList,
+        isVisionEnabled: user.isVisionEnabled,
+        status: 200,
+      });
     } else {
       return sendInformationResponse('Vision not configured for the user', 200);
     }
   } catch (error: any) {
-    return handleErrorResponse(error);
+    return sendErrorResponse('Vision retrieval failed', 400);
   }
 }

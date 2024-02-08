@@ -17,22 +17,20 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       const ragFileList = await fileCollection
         .find({ ragId: user.ragId })
         .toArray();
-      return NextResponse.json(
-        {
-          message: 'R.A.G. retrieved',
-          ragId: user.ragId,
-          topK: user.topK,
-          chunkBatch: user.chunkBatch,
-          parsingStrategy: user.parsingStrategy,
-          ragFileList,
-          isRagEnabled: user.isRagEnabled,
-        },
-        { status: 200 }
-      );
+      return NextResponse.json({
+        message: 'R.A.G. retrieved',
+        ragId: user.ragId,
+        topK: user.topK,
+        chunkBatch: user.chunkBatch,
+        parsingStrategy: user.parsingStrategy,
+        ragFileList,
+        isRagEnabled: user.isRagEnabled,
+        status: 200,
+      });
     } else {
       return sendInformationResponse('R.A.G. not configured for the user', 200);
     }
   } catch (error: any) {
-    return sendErrorResponse(error, 400);
+    return sendErrorResponse('R.A.G. Retrieval failed', 400);
   }
 }

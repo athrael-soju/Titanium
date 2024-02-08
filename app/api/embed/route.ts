@@ -60,14 +60,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
     );
 
-    return NextResponse.json(
-      {
-        message: 'Embeddings generated successfully',
-        chunks: chunkIdList,
-        embeddings: embeddings,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({
+      message: 'Embeddings generated successfully',
+      chunks: chunkIdList,
+      embeddings: embeddings,
+      status: 200,
+    });
   } catch (error: any) {
     console.error('Error generating embeddings:', error);
     return sendErrorResponse('Error generating embeddings', 400);

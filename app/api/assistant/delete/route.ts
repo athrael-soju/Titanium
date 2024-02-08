@@ -19,15 +19,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (user.assistantId) {
       await deleteUserAssistant(user.assistantId, userEmail, usersCollection);
-      return NextResponse.json(
-        { message: 'Assistant deleted (With all associated files)' },
-        { status: 200 }
-      );
+      return NextResponse.json({
+        message: 'Assistant deleted (With all associated files)',
+        status: 200,
+      });
     }
 
     return sendErrorResponse('No assistant found for the user', 404);
   } catch (error: any) {
-    return sendErrorResponse('Assistant deletion unsuccessful', 500);
+    return sendErrorResponse('Assistant deletion unsuccessful', 400);
   }
 }
 

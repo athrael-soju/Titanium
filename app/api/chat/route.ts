@@ -9,6 +9,8 @@ if (!process.env.OPENAI_API_KEY) {
 const options: ClientOptions = { apiKey: process.env.OPENAI_API_KEY };
 const openai = new OpenAI(options);
 
+import { sendErrorResponse } from '@/app/lib/utils/response';
+
 export async function POST(req: NextRequest) {
   return await handlePostRequest(req);
 }
@@ -54,7 +56,6 @@ async function handlePostRequest(req: NextRequest) {
         userMessage
       );
 
-      // Process and respond with the assistant's message
       if (!assistantMessage) {
         return NextResponse.json(
           { error: 'No assistant message found' },
@@ -110,9 +111,6 @@ async function handlePostRequest(req: NextRequest) {
     }
   } catch (error: any) {
     console.error('Error processing request:', error);
-    return NextResponse.json(
-      { message: 'Error processing request', error: error.message },
-      { status: 500 }
-    );
+    return sendErrorResponse('Error processing request', 400);
   }
 }
