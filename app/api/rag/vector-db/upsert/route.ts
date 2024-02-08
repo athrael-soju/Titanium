@@ -13,6 +13,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (user.ragId) {
       const response = await pinecone.upsert(data, user, chunkBatch);
+      if (response.success === false) {
+        return sendErrorResponse('Pinecone upsert unsuccessful', 400);
+      }
       return NextResponse.json({
         message: 'Pinecone upserted successfully',
         ragId: user.ragId,
@@ -27,7 +30,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
   } catch (error: any) {
-    console.error('Error upserting Pinecone:', error);
-    return sendErrorResponse('Error upserting Pinecone', 400);
+    console.error('Pinecone upsert unsuccessful:', error);
+    return sendErrorResponse('Pinecone upsert unsuccessful', 400);
   }
 }

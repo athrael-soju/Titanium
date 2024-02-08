@@ -34,7 +34,7 @@ const upsert = async (data: any[], user: IUser, chunkBatch: string) => {
     for (const chunk of chunkedData) {
       await index.namespace(user.ragId as string).upsert(chunk);
     }
-    return { success: 'true' };
+    return { success: true };
   } catch (error: any) {
     console.error('Error upserting in Pinecone:', error);
     throw error;
@@ -65,10 +65,22 @@ const deleteOne = async (id: string, user: IUser) => {
   return result;
 };
 
-const deleteMany = async (idList: string[], user: IUser) => {
-  const index = await getIndex();
-  const result = await index.namespace(user.ragId as string).deleteMany(idList);
-  return result;
+const deleteMany = async (
+  idList: string[],
+  user: IUser,
+  chunkBatch: string
+) => {
+  try {
+    const index = await getIndex();
+    const chunkedIdList = chunkArray(idList, parseInt(chunkBatch));
+    for (const chunk of chunkedIdList) {
+      await index.namespace(user.ragId as string).deleteMany(chunk);
+    }
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error deleting many in Pinecone:', error);
+    throw error;
+  }
 };
 
 const deleteAll = async (user: IUser) => {

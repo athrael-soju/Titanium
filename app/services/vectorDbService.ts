@@ -22,7 +22,8 @@ const upsertToVectorDb = async (
 
 const deleteFileFromVectorDb = async (
   file: RagFile,
-  userEmail: string
+  userEmail: string,
+  chunkBatch: string
 ): Promise<any> => {
   try {
     const response = await fetch('/api/rag/vector-db/delete-file', {
@@ -30,7 +31,7 @@ const deleteFileFromVectorDb = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ file, userEmail }),
+      body: JSON.stringify({ file, userEmail, chunkBatch }),
     });
     const jsonResponse = await response.json();
     console.log(jsonResponse.message);

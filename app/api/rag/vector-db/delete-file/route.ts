@@ -7,6 +7,7 @@ import { pinecone } from '@/app/lib/client/pinecone';
 interface DeleteFileRequest {
   file: RagFile;
   userEmail: string;
+  chunkBatch: string;
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   try {
     const db = await getDb();
-    const { file, userEmail } = requestBody as DeleteFileRequest;
+    const { file, userEmail, chunkBatch } = requestBody as DeleteFileRequest;
     const { user } = await getDatabaseAndUser(db, userEmail);
 
     if (user.ragId !== file.ragId) {
@@ -22,9 +23,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
     const fileDeletedFromVectorDB = await pinecone.deleteMany(
       file.chunks,
-      user
+      user,
+      chunkBatch
     );
-
+    if (fileDeletedFromVectorDB.success === false) {
+      return sendErrorResponse('Vector DB file deletion unsuccessful', 400);
+    }
     return NextResponse.json({
       message: 'Vector DB file deletion successful',
       fileDeletedFromVectorDB: fileDeletedFromVectorDB,
