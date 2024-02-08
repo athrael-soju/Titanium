@@ -2,18 +2,18 @@
 
 Titanium is a modern web application built with Next.js, leveraging the latest OpenAI API to offer an advanced Generative and Conversational AI experience. It's still in very early stages, but I aim to add implementations for the latest OpenAI API's, including:
 
-- Multi-user Authentication using next-auth ✅ (Including a custom CredentialProvider for guest accounts)
-- Customizable, Multipurpose Assistants with File Upload support. ✅ (Also supports complete deletion of all Assistant related data)
-- Code Interpretation/Generation. ✅ (Supported as part of Assistants implementation)
-- Query/Discussion of uploaded documents. ✅ (Supported as part of Assistants implementation)
-- Vision via 'gpt-4-vision-preview'. ✅ (Currently supports Image Analysis for multiple urls. File uploads may come later, but not a priority)
-- Speech (TTS) ✅ (Supports tts-1 and tts-1-hd and all available voice models)
-- Speech (STT) ✅ (Available via button toggle in the input chat box)
-- RAG - ✅ (Uses advanced document parsing by Unstructured.io API, ada-003 Embeddings by OpenAIand Pinecone Serverless)
-- Update documentation to include corrections and new features - 🚧 (In progress)
-- Refactoring the spaghetti - 📌 (In progress)
-- Persistent multi-user memory - 📌 (todo)
-- Image Generation via DALLE-3 - 📌 (todo)
+- ✅ Multi-user Authentication using next-auth (Including a custom CredentialProvider for guest accounts)
+- ✅ Customizable, Multipurpose Assistants with File Upload support. (Also supports complete deletion of all Assistant related data)
+- ✅ Code Interpretation/Generation. (Supported as part of Assistants implementation)
+- ✅ Query/Discussion of uploaded documents (Supported as part of Assistants implementation)
+- ✅ Vision via 'gpt-4-vision-preview' (Currently supports Image Analysis for multiple urls. File uploads may come later, but not a priority)
+- ✅ Speech (TTS - Supports tts-1 and tts-1-hd and all available voice models)
+- ✅ Speech (STT- Available via button toggle in the input chat box)
+- ✅ RAG (Uses advanced document parsing by Unstructured.io API, ada-003 Embeddings by OpenAIand Pinecone Serverless)
+- 🚧 Update documentation to include corrections and new features (In progress)
+- 📌 Refactoring the spaghetti (todo)
+- 📌 Persistent multi-user memory (todo)
+- 📌 Image Generation via DALLE-3 (todo)
 
 # Libraries
 
