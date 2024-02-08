@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await response.arrayBuffer());
     return new NextResponse(buffer);
   } catch (error) {
-    console.error('TTS error:', error);
-    return sendErrorResponse('Error in text to speech', 500);
+    console.error('Error generating speech from text:', error);
+    return sendErrorResponse('Error generating speech from text', 500);
   }
 }

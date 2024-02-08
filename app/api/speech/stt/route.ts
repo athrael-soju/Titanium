@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
       return sendErrorResponse('File not provided or incorrect format', 400);
     }
   } catch (error) {
-    console.error('Error generating transcript from Speech', error);
-    return sendErrorResponse('Error generating transcript from Speech', 400);
+    console.error('Error generating transcript from speech', error);
+    return sendErrorResponse('Error generating transcript from speech', 400);
   } finally {
     await fs.unlink(tempFilePath);
   }
