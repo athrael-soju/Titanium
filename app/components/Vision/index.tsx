@@ -44,6 +44,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     setValue('isVisionEnabled', enabled);
     if (enabled) {
       setValue('isAssistantEnabled', false);
+      setValue('isRagEnabled', false);
     }
 
     if (onToggleVision) {
@@ -99,7 +100,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           serviceName: 'vision',
         });
         setValue('isVisionEnabled', retrieveVisionResponse.isVisionEnabled);
-      } 
+      }
     } catch (error) {
       console.error('Failed to close assistant dialog: ', error);
     } finally {
