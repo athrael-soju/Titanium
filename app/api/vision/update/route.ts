@@ -37,7 +37,7 @@ async function updateVision(
   usersCollection: Collection<IUser>,
   isVisionEnabled: boolean
 ): Promise<void> {
-  let isAssistantEnabled = isVisionEnabled ? false : user.isAssistantEnabled;
+  let disableOtherServices = isVisionEnabled ? false : user.isAssistantEnabled;
   let visionId = user.visionId;
   if (!visionId) {
     console.log('No visionId found. Creating a new one');
@@ -47,7 +47,8 @@ async function updateVision(
     { email: user.email },
     {
       $set: {
-        isAssistantEnabled: isAssistantEnabled,
+        isAssistantEnabled: disableOtherServices,
+        isRagEnabled: disableOtherServices,
         isVisionEnabled: isVisionEnabled,
         visionId: visionId,
       },
