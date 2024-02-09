@@ -21,7 +21,7 @@ export const useBufferProcessing = () => {
   const isRagEnabled = watch('isRagEnabled');
   const model = watch('model');
   const voice = watch('voice');
-  const chunkBatch = watch('chunkBatch');
+  const topK = watch('topK');
   const sentences = useRef<string[]>([]);
   const sentenceIndex = useRef<number>(0);
 
@@ -167,7 +167,7 @@ export const useBufferProcessing = () => {
     const vectorResponse = await queryVectorDbByNamespace(
       embeddedMessage.embeddings,
       userEmail,
-      chunkBatch
+      topK
     );
 
     const context = vectorResponse.response.matches.map((item: any) => {
