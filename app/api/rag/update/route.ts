@@ -49,7 +49,7 @@ async function updateRag(
   chunkBatch: string,
   parsingStrategy: string
 ): Promise<void> {
-  let isAssistantEnabled = isRagEnabled ? false : user.isAssistantEnabled;
+  let disableOtherServices = isRagEnabled ? false : user.isAssistantEnabled;
   let ragId = user.ragId;
   if (!ragId) {
     console.log('No ragId found. Creating a new one');
@@ -61,7 +61,8 @@ async function updateRag(
     {
       $set: {
         isRagEnabled: isRagEnabled,
-        isAssistantEnabled: isAssistantEnabled,
+        isAssistantEnabled: disableOtherServices,
+        isVisionEnabled: disableOtherServices,
         ragId: ragId,
         topK: topK,
         chunkBatch: chunkBatch,
