@@ -63,6 +63,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
     setValue('isRagEnabled', enabled);
     if (enabled) {
       setValue('isAssistantEnabled', false);
+      setValue('isVisionEnabled', false);
     }
 
     if (onToggleRag) {
