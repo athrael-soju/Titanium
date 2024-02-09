@@ -173,7 +173,6 @@ export const useBufferProcessing = () => {
     const context = vectorResponse.response.matches.map((item: any) => {
       return {
         text: item.metadata.text,
-        metadata: item.metadata,
       };
     });
     return `
