@@ -16,7 +16,7 @@ Titanium is a modern web application built with Next.js, leveraging the latest O
 
 # Libraries
 
-- Next.js Framework: Full stack web application framework built on top of React. It includes server-side rendering and generating static websites for React based web applications.
+- Next.js is a React framework that allows you to build server-rendered applications. It is a complete full-stack solution that includes a variety of features, such as server-side rendering, static site generation, and API routes.
 - Next-auth + mongodb adapter for authentication
 - OpenAI API to leverage the latest Generative and Conversational capabilities of OpenAI's GPT-4. [OpenAI's API](https://platform.openai.com/docs/api-reference).
 - Material UI for the UI components.
@@ -137,7 +137,6 @@ Keep in mind that upon logout from a guest account, you will lose access to your
 
 To access the features, you can click the humburger icon at the left of the inpupt box. A menu will pop up, allowing you to make a selection. Available features are:
 
-- Streaming Chat
 - R.A.G. (Retrieval Augmented Generation)
 - Assistant
 - Vision
@@ -211,7 +210,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 # That's all folks!
 
-Do you want to collaborate, or have suggestions for improvement? You can reach to me on:
+Do you want to collaborate, or have suggestions for improvement? You can reach me on:
 
 - [LinkedIn](https://www.linkedin.com/in/athosg/)
 - [Professional Website](https://athosgeorgiou.com/)
