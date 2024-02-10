@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 
 interface SpeechFormProps {
   error: { model: boolean; voice: boolean };
@@ -12,8 +12,8 @@ const SpeechForm: React.FC<SpeechFormProps> = ({ error }) => {
   const voice = watch('voice');
 
   return (
-    <>
-      <FormControl fullWidth margin="dense">
+    <Box display="flex" justifyContent="space-between" width="100%">
+      <FormControl margin="dense" sx={{ flexGrow: 1, marginRight: '16px' }}>
         <InputLabel id="model-select-label">Model</InputLabel>
         <Select
           labelId="model-select-label"
@@ -27,7 +27,7 @@ const SpeechForm: React.FC<SpeechFormProps> = ({ error }) => {
           <MenuItem value={'tts-1-hd'}>TTS-1 HD</MenuItem>
         </Select>
       </FormControl>
-      <FormControl fullWidth margin="dense">
+      <FormControl margin="dense" sx={{ flexGrow: 1 }}>
         <InputLabel id="voice-select-label">Voice</InputLabel>
         <Select
           labelId="voice-select-label"
@@ -45,7 +45,7 @@ const SpeechForm: React.FC<SpeechFormProps> = ({ error }) => {
           <MenuItem value={'shimmer'}>Shimmer</MenuItem>
         </Select>
       </FormControl>
-    </>
+    </Box>
   );
 };
 

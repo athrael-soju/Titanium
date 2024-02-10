@@ -6,6 +6,7 @@ interface ChatFormValues {
   model: string;
   voice: string;
   topK: string;
+  chunkSize: string;
   chunkBatch: string;
   parsingStrategy: string;
   isAssistantEnabled: boolean;
@@ -43,6 +44,7 @@ export const useChatForm = () => {
       model: '',
       voice: '',
       topK: '',
+      chunkSize: '',
       chunkBatch: '',
       parsingStrategy: '',
       isAssistantEnabled: false,
