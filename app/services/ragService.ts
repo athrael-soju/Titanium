@@ -2,6 +2,7 @@ interface RagUpdateData {
   isRagEnabled: boolean;
   userEmail: string;
   topK: string;
+  chunkSize: string;
   chunkBatch: string;
   parsingStrategy: string;
 }
@@ -10,6 +11,7 @@ const updateRag = async ({
   isRagEnabled,
   userEmail,
   topK,
+  chunkSize,
   chunkBatch,
   parsingStrategy,
 }: RagUpdateData): Promise<any> => {
@@ -23,6 +25,7 @@ const updateRag = async ({
         isRagEnabled,
         userEmail,
         topK,
+        chunkSize,
         chunkBatch,
         parsingStrategy,
       }),

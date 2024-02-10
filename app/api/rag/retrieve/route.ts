@@ -21,6 +21,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         message: 'R.A.G. retrieved',
         ragId: user.ragId,
         topK: user.topK,
+        chunkSize: user.chunkSize,
         chunkBatch: user.chunkBatch,
         parsingStrategy: user.parsingStrategy,
         ragFileList,

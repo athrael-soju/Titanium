@@ -1,5 +1,6 @@
 const parseDocument = async (
   file: RagFile,
+  chunkSize: string,
   parsingStrategy: string
 ): Promise<any> => {
   try {
@@ -8,7 +9,7 @@ const parseDocument = async (
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ file, parsingStrategy }),
+      body: JSON.stringify({ file, chunkSize, parsingStrategy }),
     });
 
     if (!response.ok) {

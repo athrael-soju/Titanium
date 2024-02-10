@@ -42,10 +42,12 @@ const RagDialog: React.FC<RagDialogProps> = ({
   const { data: session } = useSession();
   const [error, setError] = useState<{
     topK: boolean;
+    chunkSize: boolean;
     chunkBatch: boolean;
     parsingStrategy: boolean;
   }>({
     topK: false,
+    chunkSize: false,
     chunkBatch: false,
     parsingStrategy: false,
   });
@@ -55,6 +57,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
   const isRagEnabled = watch('isRagEnabled');
   const ragFiles = watch('ragFiles');
   const topK = getValues('topK');
+  const chunkSize = getValues('chunkSize');
   const chunkBatch = getValues('chunkBatch');
   const parsingStrategy = getValues('parsingStrategy');
 
@@ -86,6 +89,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
       });
       setValue('isRagEnabled', retrieveRagResponse.isRagEnabled);
       setValue('topK', retrieveRagResponse.topK);
+      setValue('chunkSize', retrieveRagResponse.chunkSize);
       setValue('chunkBatch', retrieveRagResponse.chunkBatch);
       setValue('parsingStrategy', retrieveRagResponse.parsingStrategy);
     } catch (error) {
@@ -101,6 +105,10 @@ const RagDialog: React.FC<RagDialogProps> = ({
       setError((prev) => ({ ...prev, topK: true }));
       hasError = true;
     }
+    if (!chunkSize) {
+      setError((prev) => ({ ...prev, chunkSize: true }));
+      hasError = true;
+    }
     if (!chunkBatch) {
       setError((prev) => ({ ...prev, chunkBatch: true }));
       hasError = true;
@@ -112,7 +120,12 @@ const RagDialog: React.FC<RagDialogProps> = ({
     if (hasError) {
       return;
     } else {
-      setError({ topK: false, chunkBatch: false, parsingStrategy: false });
+      setError({
+        topK: false,
+        chunkSize: false,
+        chunkBatch: false,
+        parsingStrategy: false,
+      });
     }
     try {
       setValue('isLoading', true);
@@ -122,6 +135,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
           isRagEnabled,
           userEmail,
           topK,
+          chunkSize,
           chunkBatch,
           parsingStrategy,
         });
@@ -204,7 +218,11 @@ const RagDialog: React.FC<RagDialogProps> = ({
       }
       console.log('Document processing started for: ', file.name);
 
-      const parsedDocumentResponse = await parseDocument(file, parsingStrategy);
+      const parsedDocumentResponse = await parseDocument(
+        file,
+        chunkSize,
+        parsingStrategy
+      );
 
       const generateEmbeddingsResponse = await generateEmbeddings(
         parsedDocumentResponse.file,
@@ -243,7 +261,11 @@ const RagDialog: React.FC<RagDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      sx={{ '& .MuiDialog-paper': { width: '90%' } }}
+    >
       <DialogTitle style={{ textAlign: 'center' }}>R.A.G. Settings</DialogTitle>
       <DialogContent style={{ paddingTop: 5, paddingBottom: 5 }}>
         <RagForm error={error} />

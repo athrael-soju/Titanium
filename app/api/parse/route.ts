@@ -14,7 +14,7 @@ const client = new UnstructuredClient({
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const { file, parsingStrategy } = await req.json();
+    const { file, chunkSize, parsingStrategy } = await req.json();
     const fileData = fs.readFileSync(file.path);
     let parsedDataResponse = await client.general.partition({
       files: {
@@ -22,9 +22,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         fileName: file.name,
       },
       strategy: parsingStrategy,
-      pdfInferTableStructure: false,
+      combineUnderNChars: parseInt(chunkSize),
     });
-
     return NextResponse.json({
       message: 'Unstructured partition parsed successfully',
       file: parsedDataResponse?.elements,

@@ -6,8 +6,14 @@ import { Collection } from 'mongodb';
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
-    const { isRagEnabled, userEmail, topK, chunkBatch, parsingStrategy } =
-      await req.json();
+    const {
+      isRagEnabled,
+      userEmail,
+      topK,
+      chunkSize,
+      chunkBatch,
+      parsingStrategy,
+    } = await req.json();
 
     const usersCollection = db.collection<IUser>('users');
     const fileCollection = db.collection<RagFile>('files');
@@ -21,6 +27,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       usersCollection,
       isRagEnabled,
       topK,
+      chunkSize,
       chunkBatch,
       parsingStrategy
     );
@@ -46,6 +53,7 @@ async function updateRag(
   usersCollection: Collection<IUser>,
   isRagEnabled: boolean,
   topK: string,
+  chunkSize: string,
   chunkBatch: string,
   parsingStrategy: string
 ): Promise<void> {
@@ -65,6 +73,7 @@ async function updateRag(
         isVisionEnabled: disableOtherServices,
         ragId: ragId,
         topK: topK,
+        chunkSize: chunkSize,
         chunkBatch: chunkBatch,
         parsingStrategy: parsingStrategy,
       },

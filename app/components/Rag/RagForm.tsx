@@ -3,12 +3,18 @@ import { useFormContext } from 'react-hook-form';
 import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 
 interface RagFormProps {
-  error: { topK: boolean; chunkBatch: boolean; parsingStrategy: boolean };
+  error: {
+    topK: boolean;
+    chunkSize: boolean;
+    chunkBatch: boolean;
+    parsingStrategy: boolean;
+  };
 }
 
 const RagForm: React.FC<RagFormProps> = ({ error }) => {
   const { watch, setValue } = useFormContext();
   const topK = watch('topK');
+  const chunkSize = watch('chunkSize');
   const chunkBatch = watch('chunkBatch');
   const parsingStrategy = watch('parsingStrategy');
 
@@ -29,6 +35,22 @@ const RagForm: React.FC<RagFormProps> = ({ error }) => {
           <MenuItem value={'50'}>50</MenuItem>
           <MenuItem value={'100'}>100</MenuItem>
           <MenuItem value={'1000'}>1000</MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl margin="dense" sx={{ flexGrow: 1, marginRight: '16px' }}>
+        <InputLabel id="chunkSize-select-label">Chunk Size</InputLabel>
+        <Select
+          labelId="chunkSize-select-label"
+          id="chunkSize-select"
+          value={chunkSize}
+          label="ChunkSize"
+          onChange={(e) => setValue('chunkSize', e.target.value as string)}
+          error={error.chunkSize}
+        >
+          <MenuItem value={'500'}>500</MenuItem>
+          <MenuItem value={'1000'}>1000</MenuItem>
+          <MenuItem value={'1500'}>1500</MenuItem>
+          <MenuItem value={'2000'}>2000</MenuItem>
         </Select>
       </FormControl>
       <FormControl margin="dense" sx={{ flexGrow: 1, marginRight: '16px' }}>

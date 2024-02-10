@@ -3,6 +3,7 @@ interface IUser {
   name: string;
   model: string;
   topK: string;
+  chunkSize: string;
   chunkBatch: string;
   parsingStrategy: string;
   voice: string;
