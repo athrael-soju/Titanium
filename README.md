@@ -59,7 +59,7 @@ NextAuth requires credentials for the authentication providers you want to use. 
 
 1. Go to [GitHub Developer Settings](https://github.com/settings/developers) and click on "New OAuth App".
 2. Fill in the "Application name", "Homepage URL" and "Application description" as you see fit.
-3. For "Authorization callback URL", enter `http://localhost:3000/api/auth/callback/github` (replace `http://localhost:3000` with your deployment URL if you're deploying your app).
+3. For the "Authorization callback URL", enter `http://localhost:3000/api/auth/callback/github` (replace `http://localhost:3000` with your deployment URL if you're deploying your app).
 4. Click on "Register application".
 5. You'll now see a "Client ID" and a "Client Secret". Add these to your `.env.local` file:
 
