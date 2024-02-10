@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
 
 interface RagFormProps {
   error: { topK: boolean; chunkBatch: boolean; parsingStrategy: boolean };
@@ -13,8 +13,8 @@ const RagForm: React.FC<RagFormProps> = ({ error }) => {
   const parsingStrategy = watch('parsingStrategy');
 
   return (
-    <>
-      <FormControl fullWidth margin="dense">
+    <Box display="flex" justifyContent="space-between" width="100%">
+      <FormControl margin="dense" sx={{ flexGrow: 1, marginRight: '16px' }}>
         <InputLabel id="topK-select-label">Top K</InputLabel>
         <Select
           labelId="topK-select-label"
@@ -31,7 +31,7 @@ const RagForm: React.FC<RagFormProps> = ({ error }) => {
           <MenuItem value={'1000'}>1000</MenuItem>
         </Select>
       </FormControl>
-      <FormControl fullWidth margin="dense">
+      <FormControl margin="dense" sx={{ flexGrow: 1, marginRight: '16px' }}>
         <InputLabel id="chunkBatch-select-label">Batch Size</InputLabel>
         <Select
           labelId="chunkBatch-select-label"
@@ -48,7 +48,7 @@ const RagForm: React.FC<RagFormProps> = ({ error }) => {
           <MenuItem value={'250'}>250</MenuItem>
         </Select>
       </FormControl>
-      <FormControl fullWidth margin="dense">
+      <FormControl margin="dense" sx={{ flexGrow: 1 }}>
         <InputLabel id="parsingStrategy-select-label">
           Parsing Strategy
         </InputLabel>
@@ -64,10 +64,10 @@ const RagForm: React.FC<RagFormProps> = ({ error }) => {
         >
           <MenuItem value={'hi_res'}>Hi Res</MenuItem>
           <MenuItem value={'fast'}>Fast</MenuItem>
-          <MenuItem value={'auto'}>auto</MenuItem>
+          <MenuItem value={'auto'}>Auto</MenuItem>
         </Select>
       </FormControl>
-    </>
+    </Box>
   );
 };
 
