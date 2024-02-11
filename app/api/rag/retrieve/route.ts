@@ -32,6 +32,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return sendInformationResponse('R.A.G. not configured for the user', 200);
     }
   } catch (error: any) {
-    return sendErrorResponse('R.A.G. Retrieval failed', 400);
+    console.error('R.A.G. retrieval unsuccessful', error);
+    return sendErrorResponse('R.A.G. Retrieval unsuccessful', 400);
   }
 }
