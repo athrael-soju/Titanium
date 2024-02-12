@@ -45,6 +45,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       status: 200,
     });
   } catch (error: any) {
+    console.error('Assistant retrieval unsuccessful', error);
     return sendErrorResponse('Assistant retrieval unsuccessful', 400);
   }
 }

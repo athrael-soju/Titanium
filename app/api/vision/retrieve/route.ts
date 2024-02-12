@@ -29,6 +29,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       return sendInformationResponse('Vision not configured for the user', 200);
     }
   } catch (error: any) {
-    return sendErrorResponse('Vision retrieval failed', 400);
+    console.error('Vision retrieval unsuccessful', error);
+    return sendErrorResponse('Vision retrieval unsuccessful', 400);
   }
 }
