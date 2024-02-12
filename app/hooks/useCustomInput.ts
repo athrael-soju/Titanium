@@ -10,10 +10,13 @@ interface UseCustomInputProps {
 export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
   const { data: session } = useSession();
   const [inputValue, setInputValue] = useState('');
-  const [isAssistantDialogOpen, setIsAssistantDialogOpen] = useState(false);
-  const [isVisionDialogOpen, setIsVisionDialogOpen] = useState(false);
-  const [isSpeechDialogOpen, setIsSpeechDialogOpen] = useState(false);
-  const [isRagDialogOpen, setIsRagDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState({
+    assistant: false,
+    vision: false,
+    speech: false,
+    rag: false,
+  });
+
   const { setValue } = useFormContext();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -110,23 +113,8 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
     setAnchorEl(null);
   };
 
-  const handleAssistantsClick = () => {
-    setIsAssistantDialogOpen(true);
-    handleMenuClose();
-  };
-
-  const handleVisionClick = () => {
-    setIsVisionDialogOpen(true);
-    handleMenuClose();
-  };
-
-  const handleSpeechClick = () => {
-    setIsSpeechDialogOpen(true);
-    handleMenuClose();
-  };
-
-  const handleRagClick = () => {
-    setIsRagDialogOpen(true);
+  const toggleDialog = (dialog: keyof typeof isDialogOpen) => {
+    setIsDialogOpen((prev) => ({ ...prev, [dialog]: !prev[dialog] }));
     handleMenuClose();
   };
 
@@ -135,20 +123,10 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
     appendText,
     handleInputChange,
     handleSendClick,
-    isAssistantDialogOpen,
-    isVisionDialogOpen,
-    isSpeechDialogOpen,
-    isRagDialogOpen,
-    handleAssistantsClick,
-    handleVisionClick,
-    handleSpeechClick,
-    handleRagClick,
+    isDialogOpen,
+    toggleDialog,
     handleMenuOpen,
     handleMenuClose,
     anchorEl,
-    setIsAssistantDialogOpen,
-    setIsVisionDialogOpen,
-    setIsSpeechDialogOpen,
-    setIsRagDialogOpen,
   };
 };
