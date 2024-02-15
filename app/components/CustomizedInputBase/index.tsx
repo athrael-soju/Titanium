@@ -95,7 +95,7 @@ const CustomizedInputBase = ({
             </ListItemIcon>
             Vision
           </MenuItem>
-          <MenuItem onClick={() => toggleDialog('rag')}>
+          <MenuItem onClick={() => toggleDialog('speech')}>
             <ListItemIcon>
               <RecordVoiceOver />
             </ListItemIcon>
