@@ -32,21 +32,11 @@ const CustomizedInputBase = ({
     appendText,
     handleInputChange,
     handleSendClick,
-    isAssistantDialogOpen,
-    isVisionDialogOpen,
-    isSpeechDialogOpen,
-    isRagDialogOpen,
-    handleAssistantsClick,
-    handleVisionClick,
-    handleSpeechClick,
-    handleRagClick,
+    isDialogOpen,
+    toggleDialog,
     handleMenuOpen,
     handleMenuClose,
     anchorEl,
-    setIsAssistantDialogOpen,
-    setIsVisionDialogOpen,
-    setIsSpeechDialogOpen,
-    setIsRagDialogOpen,
   } = useCustomInput({ onSendMessage });
 
   return (
@@ -87,25 +77,25 @@ const CustomizedInputBase = ({
             horizontal: 'right',
           }}
         >
-          <MenuItem onClick={handleRagClick}>
+          <MenuItem onClick={() => toggleDialog('rag')}>
             <ListItemIcon>
               <RagIcon />
             </ListItemIcon>
             R.A.G.
           </MenuItem>
-          <MenuItem onClick={handleAssistantsClick}>
+          <MenuItem onClick={() => toggleDialog('assistant')}>
             <ListItemIcon>
               <AssistantIcon />
             </ListItemIcon>
             Assistant
           </MenuItem>
-          <MenuItem onClick={handleVisionClick}>
+          <MenuItem onClick={() => toggleDialog('vision')}>
             <ListItemIcon>
               <VisionIcon fontSize="small" />
             </ListItemIcon>
             Vision
           </MenuItem>
-          <MenuItem onClick={handleSpeechClick}>
+          <MenuItem onClick={() => toggleDialog('rag')}>
             <ListItemIcon>
               <RecordVoiceOver />
             </ListItemIcon>
@@ -129,24 +119,21 @@ const CustomizedInputBase = ({
       </Paper>
 
       <AssistantDialog
-        open={isAssistantDialogOpen}
-        onClose={() => setIsAssistantDialogOpen(false)}
+        open={isDialogOpen.assistant}
+        onClose={() => toggleDialog('assistant')}
       />
 
       <VisionDialog
-        open={isVisionDialogOpen}
-        onClose={() => setIsVisionDialogOpen(false)}
+        open={isDialogOpen.vision}
+        onClose={() => toggleDialog('vision')}
       />
 
       <SpeechDialog
-        open={isSpeechDialogOpen}
-        onClose={() => setIsSpeechDialogOpen(false)}
+        open={isDialogOpen.speech}
+        onClose={() => toggleDialog('speech')}
       />
 
-      <RagDialog
-        open={isRagDialogOpen}
-        onClose={() => setIsRagDialogOpen(false)}
-      />
+      <RagDialog open={isDialogOpen.rag} onClose={() => toggleDialog('rag')} />
     </>
   );
 };
