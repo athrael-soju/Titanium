@@ -5,6 +5,8 @@ import OpenAI from 'openai';
 
 const openai = new OpenAI();
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();

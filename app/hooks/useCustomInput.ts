@@ -20,75 +20,61 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
   const { setValue } = useFormContext();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  const prefetchServices = useCallback(
-    async (userEmail: string) => {
-      // Prefetch assistant data
-      let response = await retrieveServices({
-        userEmail,
-        serviceName: 'assistant',
-      });
-      if (response.assistant) {
-        setValue('name', response.assistant.name);
-        setValue('description', response.assistant.instructions);
-        setValue('isAssistantEnabled', response.isAssistantEnabled);
-        setValue('assistantFiles', response.fileList);
-        setValue('isAssistantDefined', true);
-      } else {
-        setValue('isAssistantDefined', false);
-      }
-      // Prefetch vision data
-      response = await retrieveServices({
-        userEmail,
-        serviceName: 'vision',
-      });
-      if (response.visionId) {
-        setValue('isVisionEnabled', response.isVisionEnabled);
-        setValue('visionFiles', response.visionFileList);
-        setValue('isVisionDefined', true);
-      } else {
-        setValue('isVisionDefined', false);
-      }
-      // Prefetch speech data
-      response = await retrieveServices({
-        userEmail,
-        serviceName: 'speech',
-      });
-      if (response.isTextToSpeechEnabled !== undefined) {
-        setValue('isTextToSpeechEnabled', response.isTextToSpeechEnabled);
-        setValue('model', response.model);
-        setValue('voice', response.voice);
-      }
-      // Prefetch rag data
-      response = await retrieveServices({
-        userEmail,
-        serviceName: 'rag',
-      });
-      if (response.ragId) {
-        setValue('isRagEnabled', response.isRagEnabled);
-        setValue('ragFiles', response.ragFileList);
-        setValue('topK', response.topK);
-        setValue('chunkSize', response.chunkSize);
-        setValue('chunkBatch', response.chunkBatch);
-        setValue('parsingStrategy', response.parsingStrategy);
-      }
-    },
-    [setValue]
-  );
-
-  const prefetchData = useCallback(async () => {
-    try {
-      setValue('isLoading', true);
-      await prefetchServices(session?.user?.email as string);
-    } catch (error) {
-      console.error('Error prefetching services: ', error);
-    } finally {
-      setValue('isLoading', false);
+  const prefetchServices = useCallback(async () => {
+    const userEmail = session?.user?.email as string;
+    // Prefetch assistant data
+    let response = await retrieveServices({
+      userEmail,
+      serviceName: 'assistant',
+    });
+    if (response.assistant) {
+      setValue('name', response.assistant.name);
+      setValue('description', response.assistant.instructions);
+      setValue('isAssistantEnabled', response.isAssistantEnabled);
+      setValue('assistantFiles', response.fileList);
+      setValue('isAssistantDefined', true);
+    } else {
+      setValue('isAssistantDefined', false);
     }
-  }, [prefetchServices, session?.user?.email, setValue]);
-
+    // Prefetch vision data
+    response = await retrieveServices({
+      userEmail,
+      serviceName: 'vision',
+    });
+    if (response.visionId) {
+      setValue('isVisionEnabled', response.isVisionEnabled);
+      setValue('visionFiles', response.visionFileList);
+      setValue('isVisionDefined', true);
+    } else {
+      setValue('isVisionDefined', false);
+    }
+    // Prefetch speech data
+    response = await retrieveServices({
+      userEmail,
+      serviceName: 'speech',
+    });
+    if (response.isTextToSpeechEnabled !== undefined) {
+      setValue('isTextToSpeechEnabled', response.isTextToSpeechEnabled);
+      setValue('model', response.model);
+      setValue('voice', response.voice);
+    }
+    // Prefetch rag data
+    response = await retrieveServices({
+      userEmail,
+      serviceName: 'rag',
+    });
+    if (response.ragId) {
+      setValue('isRagEnabled', response.isRagEnabled);
+      setValue('ragFiles', response.ragFileList);
+      setValue('topK', response.topK);
+      setValue('chunkSize', response.chunkSize);
+      setValue('chunkBatch', response.chunkBatch);
+      setValue('parsingStrategy', response.parsingStrategy);
+    }
+  }, [session?.user?.email, setValue]);
   useEffect(() => {
-    prefetchData();
-  }, [prefetchData]);
+    prefetchServices();
+  }, [prefetchServices]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
