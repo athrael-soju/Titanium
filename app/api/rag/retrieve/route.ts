@@ -5,6 +5,8 @@ import {
   sendInformationResponse,
 } from '@/app/lib/utils/response';
 
+export const dynamic = 'force-dynamic'
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
