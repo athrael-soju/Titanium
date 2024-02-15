@@ -1,19 +1,19 @@
 # What is Titanium?
 
-Titanium is a modern web application built with Next.js, leveraging the latest OpenAI API to offer an advanced Generative and Conversational AI experience. It's still in very early stages, but I aim to add implementations for the latest OpenAI API's, including:
+Titanium is a modern web application built with Next.js, leveraging the latest OpenAI APIs to offer an advanced Generative and Conversational AI experience. It's still pretty much a prototype, but I think it's a good start. Here's a list of some of the features:
 
-- Multi-user Authentication using next-auth ✅ (Including a custom CredentialProvider for guest accounts)
-- Customizable, Multipurpose Assistants with File Upload support. ✅ (Also supports complete deletion of all Assistant related data)
-- Code Interpretation/Generation. ✅ (Supported as part of Assistants implementation)
-- Query/Discussion of uploaded documents. ✅ (Supported as part of Assistants implementation)
-- Vision via 'gpt-4-vision-preview'. ✅ (Currently supports Image Analysis for multiple urls. File uploads may come later, but not a priority)
-- Speech (TTS) ✅ (Supports tts-1 and tts-1-hd and all available voice models)
-- Speech (STT) ✅ (Available via button toggle in the input chat box)
-- RAG - ✅ (Uses advanced document parsing by Unstructured.io API, ada-003 Embeddings by OpenAIand Pinecone Serverless)
-- Refactoring the spaghetti - 🚧 (In progress)
-- Persistent multi-user memory - 📌 (todo)
-- Image Generation via DALLE-3 - 📌 (todo)
-- Video (TTV) 📌 Inspired from OpenAI's latest Diffusion Model reveal, called [Sora](https://openai.com/sora) (todo)
+- Multi-user Authentication using next-auth, including a custom CredentialProvider for guest accounts.✅
+- Customizable, Multipurpose Assistants with File Upload support. Also supports complete deletion of all Assistant related data.✅
+- Vision via 'gpt-4-vision-preview'. Currently supports Image Analysis for multiple urls. File uploads may come later, but not a priority.✅
+- Text to Speech, Supporting tts-1, tts-1-hd and all available voice models.✅
+- Speech to Text, available via button toggle in the input chat box.✅
+- RAG, Using advanced document parsing by Unstructured.io API, ada-003 Embeddings by OpenAI and Pinecone Serverless.✅
+
+Some of the features I'm working on include:
+
+- Persistent multi-user memory.📌
+- Image Generation via DALLE-3.📌
+- Video (TTV) - As per latest reveal from OpenAI's latest Diffusion Model, called [Sora](https://openai.com/sora).📌
 
 # Libraries
 
