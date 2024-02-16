@@ -9,6 +9,8 @@ interface ChatFormValues {
   chunkSize: string;
   chunkBatch: string;
   parsingStrategy: string;
+  memoryType: string;
+  historyLength: string;
   isAssistantEnabled: boolean;
   isAssistantDefined: boolean;
   isVisionEnabled: boolean;
@@ -16,6 +18,7 @@ interface ChatFormValues {
   isTextToSpeechEnabled: boolean;
   isSpeechToTextEnabled: boolean;
   isRagEnabled: boolean;
+  isLongTermMemoryEnabled: boolean;
   transcript: string;
   isLoading: boolean;
   assistantFiles: { name: string; id: string; assistandId: string }[];
@@ -47,6 +50,8 @@ export const useChatForm = () => {
       chunkSize: '',
       chunkBatch: '',
       parsingStrategy: '',
+      memoryType: '',
+      historyLength: '',
       isAssistantEnabled: false,
       isAssistantDefined: false,
       isVisionEnabled: false,
@@ -54,6 +59,7 @@ export const useChatForm = () => {
       isTextToSpeechEnabled: false,
       isSpeechToTextEnabled: false,
       isRagEnabled: false,
+      isLongTermMemoryEnabled: false,
       transcript: '',
       isLoading: false,
       assistantFiles: [],

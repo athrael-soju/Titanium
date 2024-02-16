@@ -13,38 +13,41 @@ import { useSession } from 'next-auth/react';
 import { useFormContext } from 'react-hook-form';
 
 import { retrieveServices } from '@/app/services/commonService';
-import { updateSpeech } from '@/app/services/textToSpeechService';
-import SpeechForm from './SpeechForm';
+import { updateLongTermMemory } from '@/app/services/longTermMemoryService';
+import LongTermMemoryForm from './LongTermMemoryForm';
 
-interface SpeechDialogProps {
+interface LongTermMemoryDialogProps {
   open: boolean;
   onClose: () => void;
-  onToggleSpeech?: (isTextToSpeechEnabled: boolean) => void;
+  onToggleLongTermMemory?: (isLongTermMemoryEnabled: boolean) => void;
 }
 
-const SpeechDialog: React.FC<SpeechDialogProps> = ({
+const LongTermMemoryDialog: React.FC<LongTermMemoryDialogProps> = ({
   open,
   onClose,
-  onToggleSpeech,
+  onToggleLongTermMemory,
 }) => {
   const { data: session } = useSession();
-  const [error, setError] = useState<{ model: boolean; voice: boolean }>({
-    model: false,
-    voice: false,
+  const [error, setError] = useState<{
+    memoryType: boolean;
+    historyLength: boolean;
+  }>({
+    memoryType: false,
+    historyLength: false,
   });
-  const speechFileInputRef = useRef<HTMLInputElement>(null);
+  const longTermMemoryInputFileRef = useRef<HTMLInputElement>(null);
   const { getValues, setValue, watch } = useFormContext();
 
-  const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
-  const model = getValues('model');
-  const voice = getValues('voice');
+  const isLongTermMemoryEnabled = watch('isLongTermMemoryEnabled');
+  const memoryType = getValues('memoryType');
+  const historyLength = getValues('historyLength');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
-    setValue('isTextToSpeechEnabled', enabled);
+    setValue('isLongTermMemoryEnabled', enabled);
 
-    if (onToggleSpeech) {
-      onToggleSpeech(enabled);
+    if (onToggleLongTermMemory) {
+      onToggleLongTermMemory(enabled);
     }
   };
 
@@ -53,18 +56,18 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
       onClose();
       setValue('isLoading', true);
       const userEmail = session?.user?.email as string;
-      const retrieveSpeechResponse = await retrieveServices({
+      const retrieveLongTermMemoryResponse = await retrieveServices({
         userEmail,
-        serviceName: 'speech',
+        serviceName: 'memory',
       });
       setValue(
-        'isTextToSpeechEnabled',
-        retrieveSpeechResponse.isTextToSpeechEnabled
+        'isLongTermMemoryEnabled',
+        retrieveLongTermMemoryResponse.isLongTermMemoryEnabled
       );
-      setValue('model', retrieveSpeechResponse.model);
-      setValue('voice', retrieveSpeechResponse.voice);
+      setValue('memoryType', retrieveLongTermMemoryResponse.memoryType);
+      setValue('historyLength', retrieveLongTermMemoryResponse.historyLength);
     } catch (error) {
-      console.error('Failed to close speech dialog: ', error);
+      console.error('Failed to close Long term memory dialog: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -72,35 +75,38 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
 
   const handleUpdate = async () => {
     let hasError = false;
-    if (!model) {
-      setError((prev) => ({ ...prev, model: true }));
+    if (!memoryType) {
+      setError((prev) => ({ ...prev, memoryType: true }));
       hasError = true;
     }
-    if (!voice) {
-      setError((prev) => ({ ...prev, voice: true }));
+    if (!historyLength) {
+      setError((prev) => ({ ...prev, historyLength: true }));
       hasError = true;
     }
     if (hasError) {
       return;
     } else {
-      setError({ model: false, voice: false });
+      setError({ memoryType: false, historyLength: false });
     }
     try {
       setValue('isLoading', true);
       if (session) {
         const userEmail = session.user?.email as string;
-        const updateSpeechResponse = await updateSpeech({
-          isTextToSpeechEnabled,
+        const updateLongTermMemoryResponse = await updateLongTermMemory({
+          isLongTermMemoryEnabled,
           userEmail,
-          model,
-          voice,
+          memoryType,
+          historyLength,
         });
-        console.log('Speech updated successfully', updateSpeechResponse);
+        console.log(
+          'Long term memory updated successfully',
+          updateLongTermMemoryResponse
+        );
       } else {
         throw new Error('No session found');
       }
     } catch (error) {
-      console.error('Error updating Vision: ', error);
+      console.error('Error updating Long term memory: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -108,9 +114,11 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
 
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle style={{ textAlign: 'center' }}>Speech Settings</DialogTitle>
+      <DialogTitle style={{ textAlign: 'center' }}>
+        Long Term Memory Settings
+      </DialogTitle>
       <DialogContent style={{ paddingTop: 5, paddingBottom: 5 }}>
-        <SpeechForm error={error} />
+        <LongTermMemoryForm error={error} />
         <Button
           fullWidth
           onClick={handleUpdate}
@@ -134,16 +142,16 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
               Disable
             </Typography>
             <Switch
-              checked={isTextToSpeechEnabled}
+              checked={isLongTermMemoryEnabled}
               onChange={handleToggle}
-              name="activeSpeech"
+              name="activeLongTermMemory"
             />
             <Typography variant="caption" sx={{ mx: 1 }}>
               Enable
             </Typography>
             <input
               type="file"
-              ref={speechFileInputRef}
+              ref={longTermMemoryInputFileRef}
               style={{ display: 'none' }}
             />
           </Box>
@@ -153,4 +161,4 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
   );
 };
 
-export default SpeechDialog;
+export default LongTermMemoryDialog;
