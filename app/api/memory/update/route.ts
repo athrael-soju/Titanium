@@ -20,7 +20,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return sendErrorResponse('User not found', 404);
     }
 
-    await updateLongTermMemory(
+    await updateSettings(
       user,
       usersCollection,
       isLongTermMemoryEnabled,
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-async function updateLongTermMemory(
+async function updateSettings(
   user: IUser,
   usersCollection: Collection<IUser>,
   isLongTermMemoryEnabled: boolean,

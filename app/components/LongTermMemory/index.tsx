@@ -13,7 +13,7 @@ import { useSession } from 'next-auth/react';
 import { useFormContext } from 'react-hook-form';
 
 import { retrieveServices } from '@/app/services/commonService';
-import { updateLongTermMemory } from '@/app/services/longTermMemoryService';
+import { updateSettings } from '@/app/services/longTermMemoryService';
 import LongTermMemoryForm from './LongTermMemoryForm';
 
 interface LongTermMemoryDialogProps {
@@ -92,7 +92,7 @@ const LongTermMemoryDialog: React.FC<LongTermMemoryDialogProps> = ({
       setValue('isLoading', true);
       if (session) {
         const userEmail = session.user?.email as string;
-        const updateLongTermMemoryResponse = await updateLongTermMemory({
+        const updateSettingsResponse = await updateSettings({
           isLongTermMemoryEnabled,
           userEmail,
           memoryType,
@@ -100,7 +100,7 @@ const LongTermMemoryDialog: React.FC<LongTermMemoryDialogProps> = ({
         });
         console.log(
           'Long term memory updated successfully',
-          updateLongTermMemoryResponse
+          updateSettingsResponse
         );
       } else {
         throw new Error('No session found');

@@ -8,6 +8,7 @@ import {
   retrieveAIResponse,
   retrieveTextFromSpeech,
 } from '@/app/services/chatService';
+import { appendConversation } from '@/app/services/longTermMemoryService';
 import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
 import { generateEmbeddings } from '@/app/services/embeddingService';
 const nlp = winkNLP(model);
@@ -19,9 +20,12 @@ export const useBufferProcessing = () => {
   const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
   const isAssistantEnabled = watch('isAssistantEnabled');
   const isRagEnabled = watch('isRagEnabled');
+  const isLongTermMemoryEnabled = watch('isLongTermMemoryEnabled');
   const model = watch('model');
   const voice = watch('voice');
   const topK = watch('topK');
+  const memoryType = watch('memoryType');
+
   const sentences = useRef<string[]>([]);
   const sentenceIndex = useRef<number>(0);
 
