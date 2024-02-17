@@ -34,7 +34,7 @@ export async function getDatabaseAndUser(
 export async function getConversation(
   db: Db,
   userEmail: string
-): Promise<{ conversation: IConversation }> {
+): Promise<{ conversation: IConversation | null }> {
   if (!userEmail) {
     throw new Error('User email is required');
   }
@@ -44,10 +44,6 @@ export async function getConversation(
     conversationCollection,
     userEmail
   );
-
-  if (!conversation) {
-    throw new Error('Conversation not found');
-  }
 
   return { conversation };
 }
