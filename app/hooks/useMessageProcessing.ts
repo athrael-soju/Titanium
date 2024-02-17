@@ -41,7 +41,7 @@ export const useMessageProcessing = (session: any) => {
       id: userMessageId,
       conversationId: session?.user?.email,
       sender: 'user',
-      text: message,
+      text: `🧑‍💻${message}`,
       createdAt: new Date(),
       metadata: '',
     };
@@ -176,10 +176,10 @@ export const useMessageProcessing = (session: any) => {
           historyLength,
         });
         if (augmentedMessage) {
-          message = augmentedMessage;
+          //message = JSON.stringify(augmentedMessage.formattedConversationHistory);
+          //console.log('augmentedMessage: ', message);
         }
       }
-
       const response = await retrieveAIResponse(
         message,
         userEmail,

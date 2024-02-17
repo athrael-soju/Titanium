@@ -103,7 +103,7 @@ async function handlePostRequest(req: NextRequest) {
       return new Response(response.toReadableStream());
     } else {
       const completion = openai.beta.chat.completions.stream({
-        model: process.env.OPENAI_API_MODEL ?? 'gpt-4-1106-preview',
+        model: process.env.OPENAI_API_MODEL as string,
         messages: [{ role: 'user', content: userMessage }],
         stream: true,
       });

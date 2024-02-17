@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Collection } from 'mongodb';
-import { getDb, getUserByEmail } from '@/app/lib/utils/db';
+import {
+  getDb,
+  updateMemorySettings,
+  getUserByEmail,
+} from '@/app/lib/utils/db';
 import { sendErrorResponse } from '@/app/lib/utils/response';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -20,7 +23,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return sendErrorResponse('User not found', 404);
     }
 
-    await updateSettings(
+    await updateMemorySettings(
       user,
       usersCollection,
       isLongTermMemoryEnabled,
@@ -38,23 +41,4 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     console.error('Error updating long term memory: ', error);
     return sendErrorResponse('Error updating long term memory', 500);
   }
-}
-
-async function updateSettings(
-  user: IUser,
-  usersCollection: Collection<IUser>,
-  isLongTermMemoryEnabled: boolean,
-  memoryType: string,
-  historyLength: string
-): Promise<void> {
-  await usersCollection.updateOne(
-    { email: user.email },
-    {
-      $set: {
-        isLongTermMemoryEnabled: isLongTermMemoryEnabled,
-        memoryType: memoryType,
-        historyLength: historyLength,
-      },
-    }
-  );
 }

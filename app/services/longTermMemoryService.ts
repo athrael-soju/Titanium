@@ -77,7 +77,7 @@ const augmentUserMessageWithHistory = async ({
   message,
   userEmail,
   historyLength,
-}: AugmentUserMessageData): Promise<string> => {
+}: AugmentUserMessageData): Promise<any> => {
   try {
     const response = await fetch('/api/memory/augment', {
       method: 'POST',

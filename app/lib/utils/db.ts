@@ -34,7 +34,7 @@ export async function getDatabaseAndUser(
 export async function getConversation(
   db: Db,
   userEmail: string
-): Promise<{ conversation: IConversation | null }> {
+): Promise<{ conversation: IConversation }> {
   if (!userEmail) {
     throw new Error('User email is required');
   }
@@ -45,7 +45,7 @@ export async function getConversation(
     userEmail
   );
 
-  return { conversation };
+  return { conversation: conversation! };
 }
 
 export const getConversationByEmail = async (
@@ -75,4 +75,61 @@ export async function updateConversationSettings(
       },
     }
   );
+}
+
+export async function updateMemorySettings(
+  user: IUser,
+  usersCollection: Collection<IUser>,
+  isLongTermMemoryEnabled: boolean,
+  memoryType: string,
+  historyLength: string
+): Promise<void> {
+  await usersCollection.updateOne(
+    { email: user.email },
+    {
+      $set: {
+        isLongTermMemoryEnabled: isLongTermMemoryEnabled,
+        memoryType: memoryType,
+        historyLength: historyLength,
+      },
+    }
+  );
+}
+
+export async function getFormattedConversationHistory(
+  message: string,
+  historyLength: string,
+  conversation: IConversation
+) {
+  try {
+    // Check if the conversation has messages and filter out any null messages
+    const messages = conversation.messages?.filter((msg) => msg != null) ?? [];
+
+    // Filter out messages with null 'createdAt' and sort the rest by 'createdAt' in descending order
+    const sortedMessages = messages
+      .filter((msg) => msg.createdAt != null)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+    // Adjust slice to start from 0, and ensure parsing 'historyLength' to integer
+    const historyLengthInt = parseInt(historyLength, 10);
+    const recentMessages = sortedMessages
+      .slice(1, historyLengthInt)
+      .map((msg) => ({
+        Date: new Date(msg.createdAt).toISOString(),
+        Sender: msg.sender === 'user' ? 'User' : 'AI',
+        Message: msg.text,
+      }));
+
+    // Return the history and the latest user message as an object, safely handling potential nulls
+    return {
+      history: { recentMessages },
+      latestUserMessage: { message },
+    };
+  } catch (error) {
+    console.error('Error retrieving conversation history:', error);
+    throw error; // Rethrow or handle as needed
+  }
 }
