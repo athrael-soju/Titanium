@@ -79,6 +79,12 @@ const CustomizedInputBase = ({
             horizontal: 'right',
           }}
         >
+          <MenuItem onClick={() => toggleDialog('memory')}>
+            <ListItemIcon>
+              <LongTermMemoryIcon />
+            </ListItemIcon>
+            Memory
+          </MenuItem>
           <MenuItem onClick={() => toggleDialog('rag')}>
             <ListItemIcon>
               <RagIcon />
@@ -103,12 +109,6 @@ const CustomizedInputBase = ({
             </ListItemIcon>
             Speech
           </MenuItem>
-          <MenuItem onClick={() => toggleDialog('memory')}>
-            <ListItemIcon>
-              <LongTermMemoryIcon />
-            </ListItemIcon>
-            Memory
-          </MenuItem>
         </Menu>
         <InputBase
           sx={{ ml: 1, flex: 1 }}
@@ -126,6 +126,11 @@ const CustomizedInputBase = ({
         </IconButton>
       </Paper>
 
+      <LongTermMemoryDialog
+        open={isDialogOpen.memory}
+        onClose={() => toggleDialog('memory')}
+      />
+
       <AssistantDialog
         open={isDialogOpen.assistant}
         onClose={() => toggleDialog('assistant')}
@@ -142,11 +147,6 @@ const CustomizedInputBase = ({
       />
 
       <RagDialog open={isDialogOpen.rag} onClose={() => toggleDialog('rag')} />
-
-      <LongTermMemoryDialog
-        open={isDialogOpen.memory}
-        onClose={() => toggleDialog('memory')}
-      />
     </>
   );
 };

@@ -37,6 +37,7 @@ const LongTermMemoryForm: React.FC<LongTermMemoryProps> = ({ error }) => {
           onChange={(e) => setValue('historyLength', e.target.value as string)}
           error={error.historyLength}
         >
+          <MenuItem value={'0'}>None</MenuItem>
           <MenuItem value={'10'}>10</MenuItem>
           <MenuItem value={'20'}>20</MenuItem>
           <MenuItem value={'50'}>20</MenuItem>
