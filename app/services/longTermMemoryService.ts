@@ -5,7 +5,13 @@ interface LongTermMemoryData {
   historyLength: string;
 }
 
-const updateLongTermMemory = async ({
+interface AppendMessageToConversationData {
+  userEmail: string;
+  message: IMessage;
+  memoryType: string;
+}
+
+const updateSettings = async ({
   isLongTermMemoryEnabled,
   userEmail,
   memoryType,
@@ -31,4 +37,34 @@ const updateLongTermMemory = async ({
   }
 };
 
-export { updateLongTermMemory };
+const appendMessageToConversation = async ({
+  userEmail,
+  message,
+  memoryType,
+}: AppendMessageToConversationData): Promise<any> => {
+  try {
+    switch (memoryType) {
+      case 'NoSQL': {
+        const response = await fetch('/api/memory/append/nosql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userEmail,
+            message,
+          }),
+        });
+        return response.json();
+      }
+      case 'vector': {
+        console.warn('Vector memory type not yet implemented');
+      }
+    }
+  } catch (error) {
+    console.error('Unexpected error: ', error);
+    throw error;
+  }
+};
+
+export { updateSettings, appendMessageToConversation };

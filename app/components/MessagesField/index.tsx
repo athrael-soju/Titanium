@@ -3,12 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import styles from './index.module.css';
 
-interface IMessage {
-  text: string;
-  sender: 'user' | 'ai';
-  id: string;
-}
-
 interface MessagesFieldProps {
   messages: IMessage[];
 }

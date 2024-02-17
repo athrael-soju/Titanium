@@ -13,7 +13,7 @@ const Chat = () => {
   const { data: session } = useSession();
   const { watch } = useFormContext();
   const isLoading = watch('isLoading');
-  const { messages, sendUserMessage } = useBufferProcessing();
+  const { messages, sendUserMessage } = useBufferProcessing(session);
 
   if (session) {
     return (

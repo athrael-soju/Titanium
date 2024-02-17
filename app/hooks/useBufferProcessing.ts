@@ -8,15 +8,15 @@ import {
   retrieveAIResponse,
   retrieveTextFromSpeech,
 } from '@/app/services/chatService';
-import { appendConversation } from '@/app/services/longTermMemoryService';
+import { appendMessageToConversation } from '@/app/services/longTermMemoryService';
 import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
 import { generateEmbeddings } from '@/app/services/embeddingService';
 const nlp = winkNLP(model);
 
-export const useBufferProcessing = () => {
+export const useBufferProcessing = (session: any) => {
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const { data: session } = useSession();
   const { watch, setValue } = useFormContext();
+
   const isTextToSpeechEnabled = watch('isTextToSpeechEnabled');
   const isAssistantEnabled = watch('isAssistantEnabled');
   const isRagEnabled = watch('isRagEnabled');
@@ -25,7 +25,7 @@ export const useBufferProcessing = () => {
   const voice = watch('voice');
   const topK = watch('topK');
   const memoryType = watch('memoryType');
-
+  const historyLength = watch('historyLength');
   const sentences = useRef<string[]>([]);
   const sentenceIndex = useRef<number>(0);
 
@@ -33,20 +33,36 @@ export const useBufferProcessing = () => {
     sentences.current = [];
     sentenceIndex.current = 0;
     const userMessageId = uuidv4();
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: `🧑‍💻 ${message}`, sender: 'user', id: userMessageId },
-    ]);
+
+    const newIMessage: IMessage = {
+      id: userMessageId,
+      conversationId: session?.user?.email,
+      sender: 'user',
+      text: message,
+      createdAt: new Date(),
+      metadata: '',
+    };
+    setMessages((prevMessages) => [...prevMessages, newIMessage]);
+    return newIMessage;
   };
 
   const addAiMessageToState = (
     aiResponseText: string,
     aiResponseId: string
   ) => {
+    const newIMessage: IMessage = {
+      id: aiResponseId,
+      conversationId: session?.user?.email,
+      text: `🤖 ${aiResponseText}`,
+      sender: 'ai',
+      createdAt: new Date(),
+    };
+
     setMessages((prevMessages) => [
       ...prevMessages.filter((msg) => msg.id !== aiResponseId),
-      { text: `🤖 ${aiResponseText}`, sender: 'ai', id: aiResponseId },
+      newIMessage,
     ]);
+    return newIMessage;
   };
 
   const processAIResponseStream = async (
@@ -62,11 +78,16 @@ export const useBufferProcessing = () => {
     const decoder = new TextDecoder();
     let buffer = '';
     let aiResponseText = '';
-
+    let newMessage = {} as IMessage;
     const processChunk = async () => {
       const { done, value } = await reader.read();
+
       if (done) {
-        await processBuffer(buffer, aiResponseId, aiResponseText);
+        newMessage = (await processBuffer(
+          buffer,
+          aiResponseId,
+          aiResponseText
+        )) as IMessage;
         return true;
       }
       buffer += value ? decoder.decode(value, { stream: true }) : '';
@@ -77,6 +98,9 @@ export const useBufferProcessing = () => {
     let isDone = false;
     while (!isDone) {
       isDone = await processChunk();
+    }
+    if (isLongTermMemoryEnabled) {
+      await storeMessageInMemory(newMessage);
     }
     if (isTextToSpeechEnabled) {
       await retrieveTextFromSpeech(
@@ -111,7 +135,7 @@ export const useBufferProcessing = () => {
 
     const doc = nlp.readDoc(aiResponseText);
     sentences.current = doc.sentences().out();
-    addAiMessageToState(aiResponseText, aiResponseId);
+    const newMessage = addAiMessageToState(aiResponseText, aiResponseId);
     if (isTextToSpeechEnabled) {
       if (sentences.current.length > sentenceIndex.current + 1) {
         await retrieveTextFromSpeech(
@@ -121,6 +145,7 @@ export const useBufferProcessing = () => {
         );
       }
     }
+    return newMessage;
   };
 
   const sendUserMessage = async (message: string) => {
@@ -128,7 +153,11 @@ export const useBufferProcessing = () => {
 
     try {
       setValue('isLoading', true);
-      addUserMessageToState(message);
+      const newMessage = addUserMessageToState(message);
+
+      if (isLongTermMemoryEnabled) {
+        await storeMessageInMemory(newMessage);
+      }
       const aiResponseId = uuidv4();
       const userEmail = session?.user?.email as string;
 
@@ -157,6 +186,18 @@ export const useBufferProcessing = () => {
     }
   };
 
+  async function storeMessageInMemory(message: IMessage) {
+    const appendMessageToConversationResponse =
+      await appendMessageToConversation({
+        userEmail: session?.user?.email,
+        message,
+        memoryType,
+      });
+    console.log(
+      'appendMessageToConversationResponse: ',
+      appendMessageToConversationResponse
+    );
+  }
   async function enhanceUserResponse(message: string, userEmail: string) {
     const jsonMessage = [
       {
