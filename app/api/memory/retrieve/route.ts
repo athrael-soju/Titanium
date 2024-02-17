@@ -27,7 +27,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     }
     return sendInformationResponse(
       'Long term memory not configured for the user',
-      200
+      202
     );
   } catch (error: any) {
     console.error('Long term memory retrieval unsuccessful:', error);

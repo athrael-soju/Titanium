@@ -28,7 +28,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         status: 200,
       });
     } else {
-      return sendInformationResponse('Vision not configured for the user', 200);
+      return sendInformationResponse('Vision not configured for the user', 202);
     }
   } catch (error: any) {
     console.error('Vision retrieval unsuccessful', error);

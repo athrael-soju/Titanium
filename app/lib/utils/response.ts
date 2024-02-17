@@ -12,7 +12,9 @@ export const sendInformationResponse = (
   message: string,
   status: number
 ): NextResponse => {
-  console.log(message);
+  if (status !== 202) {
+    console.log(message);
+  }
   return NextResponse.json({ message }, { status });
 };
 

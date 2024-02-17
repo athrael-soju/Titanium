@@ -16,7 +16,7 @@ import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
 import { generateEmbeddings } from '@/app/services/embeddingService';
 const nlp = winkNLP(model);
 
-export const useBufferProcessing = (session: any) => {
+export const useMessageProcessing = (session: any) => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const { watch, setValue } = useFormContext();
 

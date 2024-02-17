@@ -25,7 +25,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         status: 200,
       });
     }
-    return sendInformationResponse('Speech not configured for the user', 200);
+    return sendInformationResponse('Speech not configured for the user', 202);
   } catch (error: any) {
     console.error('Speech retrieval unsuccessful:', error);
     return sendErrorResponse('Speech retrieval unsuccessful', 400);
