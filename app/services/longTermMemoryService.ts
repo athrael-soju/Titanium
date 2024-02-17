@@ -11,6 +11,12 @@ interface AppendMessageToConversationData {
   memoryType: string;
 }
 
+interface AugmentUserMessageData {
+  message: string;
+  userEmail: string;
+  historyLength: string;
+}
+
 const updateSettings = async ({
   isLongTermMemoryEnabled,
   userEmail,
@@ -67,4 +73,32 @@ const appendMessageToConversation = async ({
   }
 };
 
-export { updateSettings, appendMessageToConversation };
+const augmentUserMessageWithHistory = async ({
+  message,
+  userEmail,
+  historyLength,
+}: AugmentUserMessageData): Promise<string> => {
+  try {
+    const response = await fetch('/api/memory/augment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userEmail,
+        message,
+        historyLength,
+      }),
+    });
+    return response.json();
+  } catch (error) {
+    console.error('Unexpected error: ', error);
+    throw error;
+  }
+};
+
+export {
+  updateSettings,
+  appendMessageToConversation,
+  augmentUserMessageWithHistory,
+};

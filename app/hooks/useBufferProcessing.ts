@@ -8,7 +8,10 @@ import {
   retrieveAIResponse,
   retrieveTextFromSpeech,
 } from '@/app/services/chatService';
-import { appendMessageToConversation } from '@/app/services/longTermMemoryService';
+import {
+  appendMessageToConversation,
+  augmentUserMessageWithHistory,
+} from '@/app/services/longTermMemoryService';
 import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
 import { generateEmbeddings } from '@/app/services/embeddingService';
 const nlp = winkNLP(model);
@@ -163,6 +166,18 @@ export const useBufferProcessing = (session: any) => {
 
       if (isRagEnabled) {
         message = await enhanceUserResponse(message, userEmail);
+      }
+
+      if (isLongTermMemoryEnabled && historyLength > 0) {
+        const userEmail = session?.user?.email as string;
+        const augmentedMessage = await augmentUserMessageWithHistory({
+          message,
+          userEmail,
+          historyLength,
+        });
+        if (augmentedMessage) {
+          message = augmentedMessage;
+        }
       }
 
       const response = await retrieveAIResponse(
