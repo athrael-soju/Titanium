@@ -116,18 +116,22 @@ export async function getFormattedConversationHistory(
     // Adjust slice to start from 0, and ensure parsing 'historyLength' to integer
     const historyLengthInt = parseInt(historyLength, 10);
     const recentMessages = sortedMessages
-      .slice(1, historyLengthInt)
-      .map((msg) => ({
-        Date: new Date(msg.createdAt).toISOString(),
-        Sender: msg.sender === 'user' ? 'User' : 'AI',
-        Message: msg.text,
-      }));
+      .slice(0, historyLengthInt)
+      .map(
+        (msg) =>
+          `- ${new Date(msg.createdAt).toISOString()}, ${
+            msg.sender === 'user' ? 'User' : 'AI'
+          }, ${msg.text}`
+      )
+      .join('\n');
 
-    // Return the history and the latest user message as an object, safely handling potential nulls
-    return {
-      history: { recentMessages },
-      latestUserMessage: { message },
-    };
+    // Construct the final human-readable string
+    const formattedHistory = `Instruction 1: This is your conversation History: Draw inspiration to respond to the user's prompt:\nHISTORY:\n${recentMessages}`;
+
+    const formattedMessage = `\nInstruction 2: The message below is the user's latest prompt. Use the History above to respond to it\nMESSAGE:\n${message}`;
+
+    // Return the combined history and latest user message in the specified format
+    return `${formattedHistory}${formattedMessage}`;
   } catch (error) {
     console.error('Error retrieving conversation history:', error);
     throw error; // Rethrow or handle as needed

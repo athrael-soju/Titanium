@@ -40,7 +40,7 @@ export const useMessageProcessing = (session: any) => {
       id: userMessageId,
       conversationId: session?.user?.email,
       sender: 'user',
-      text: `🧑‍💻${message}`,
+      text: message,
       createdAt: new Date(),
       metadata: '',
     };
@@ -55,7 +55,7 @@ export const useMessageProcessing = (session: any) => {
     const newIMessage: IMessage = {
       id: aiResponseId,
       conversationId: session?.user?.email,
-      text: `🤖 ${aiResponseText}`,
+      text: aiResponseText,
       sender: 'ai',
       createdAt: new Date(),
     };
@@ -175,8 +175,9 @@ export const useMessageProcessing = (session: any) => {
           historyLength,
         });
         if (augmentedMessage) {
-          message = JSON.stringify(
-            augmentedMessage.formattedConversationHistory
+          message = augmentedMessage.formattedConversationHistory;
+          console.log(
+            `Message has been augmented: ${augmentedMessage.formattedConversationHistory}`
           );
         }
       }
