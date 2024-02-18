@@ -28,7 +28,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
   } catch (error: any) {
     console.error('Error in vision update: ', error);
-    return sendErrorResponse('Error in vision update', 500);
+    return sendErrorResponse('Error in vision update', 400);
   }
 }
 

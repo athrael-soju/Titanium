@@ -34,6 +34,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
   } catch (error: any) {
     console.error('Error Augmenting message: ', error);
-    return sendErrorResponse('Error Augmenting message', 500);
+    return sendErrorResponse('Error Augmenting message', 400);
   }
 }

@@ -41,6 +41,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
   } catch (error: any) {
     console.error('Error appending message to nosql database: ', error);
-    return sendErrorResponse('Error appending message to nosql database.', 500);
+    return sendErrorResponse('Error appending message to nosql database.', 400);
   }
 }
