@@ -39,6 +39,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
   } catch (error: any) {
     console.error('Error updating long term memory: ', error);
-    return sendErrorResponse('Error updating long term memory', 500);
+    return sendErrorResponse('Error updating long term memory', 400);
   }
 }
