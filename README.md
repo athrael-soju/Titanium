@@ -12,6 +12,8 @@ Titanium is a modern web application built with Next.js, leveraging the latest O
 Some of the features I'm working on include:
 
 - Persistent multi-user memory.🚧
+  - NoSQL Based.✅
+  - Vector Based.🚧
 - Image Generation via DALLE-3.🚧
 - Video (TTV) - As per latest reveal from OpenAI's latest Diffusion Model, called [Sora](https://openai.com/sora).🚧
 
