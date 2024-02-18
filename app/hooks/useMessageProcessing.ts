@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useFormContext } from 'react-hook-form';
-import { useSession } from 'next-auth/react';
 import winkNLP from 'wink-nlp';
 import model from 'wink-eng-lite-web-model';
 import {
@@ -176,8 +175,9 @@ export const useMessageProcessing = (session: any) => {
           historyLength,
         });
         if (augmentedMessage) {
-          //message = JSON.stringify(augmentedMessage.formattedConversationHistory);
-          //console.log('augmentedMessage: ', message);
+          message = JSON.stringify(
+            augmentedMessage.formattedConversationHistory
+          );
         }
       }
       const response = await retrieveAIResponse(
