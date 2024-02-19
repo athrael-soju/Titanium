@@ -45,15 +45,15 @@ const retrieveTextFromSpeech = async (
 };
 
 const retrieveAIResponse = async (
-  userMessage: string,
+  message: string,
   userEmail: string,
-  isAssistantEnabled: boolean,
+  isAssistantEnabled: boolean
 ): Promise<Response | ReadableStreamDefaultReader<Uint8Array> | undefined> => {
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userMessage, userEmail }),
+      body: JSON.stringify({ userMessage: message, userEmail }),
     });
     if (isAssistantEnabled) {
       return response;

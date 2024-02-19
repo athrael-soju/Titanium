@@ -31,7 +31,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         status: 200,
       });
     } else {
-      return sendInformationResponse('R.A.G. not configured for the user', 200);
+      return sendInformationResponse('R.A.G. not configured for the user', 202);
     }
   } catch (error: any) {
     console.error('R.A.G. retrieval unsuccessful', error);

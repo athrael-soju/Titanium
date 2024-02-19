@@ -6,6 +6,8 @@ interface IUser {
   chunkSize: string;
   chunkBatch: string;
   parsingStrategy: string;
+  memoryType: string;
+  historyLength: string;
   voice: string;
   description: string;
   assistantId?: string | null;
@@ -16,4 +18,5 @@ interface IUser {
   isVisionEnabled: boolean;
   isTextToSpeechEnabled: boolean;
   isRagEnabled: boolean;
+  isLongTermMemoryEnabled: boolean;
 }

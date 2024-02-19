@@ -5,7 +5,7 @@ import {
   sendInformationResponse,
 } from '@/app/lib/utils/response';
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -14,20 +14,23 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const serviceName = req.headers.get('serviceName');
     const { user } = await getDatabaseAndUser(db, userEmail);
 
-    if (serviceName === 'speech') {
-      const { isTextToSpeechEnabled, model, voice } = user;
+    if (serviceName === 'memory') {
+      const { isLongTermMemoryEnabled, memoryType, historyLength } = user;
 
       return NextResponse.json({
-        message: 'Speech retrieved',
-        isTextToSpeechEnabled,
-        model,
-        voice,
+        message: 'Long term memory retrieved',
+        isLongTermMemoryEnabled,
+        memoryType,
+        historyLength,
         status: 200,
       });
     }
-    return sendInformationResponse('Speech not configured for the user', 202);
+    return sendInformationResponse(
+      'Long term memory not configured for the user',
+      202
+    );
   } catch (error: any) {
-    console.error('Speech retrieval unsuccessful:', error);
-    return sendErrorResponse('Speech retrieval unsuccessful', 400);
+    console.error('Long term memory retrieval unsuccessful:', error);
+    return sendErrorResponse('Long term memory retrieval unsuccessful', 400);
   }
 }

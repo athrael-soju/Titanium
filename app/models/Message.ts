@@ -1,5 +1,8 @@
 interface IMessage {
-  text: string;
-  sender: 'user' | 'ai';
   id: string;
+  conversationId: string;
+  sender: 'user' | 'ai';
+  text: string;
+  createdAt: Date;
+  metadata?: any;
 }

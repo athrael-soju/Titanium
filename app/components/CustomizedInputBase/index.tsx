@@ -6,6 +6,7 @@ import SendIcon from '@mui/icons-material/Send';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
+import LongTermMemoryIcon from '@mui/icons-material/Psychology';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import VisionIcon from '@mui/icons-material/Visibility';
 import RagIcon from '@mui/icons-material/Storage';
@@ -18,6 +19,7 @@ import VisionDialog from '../Vision';
 import SpeechDialog from '../Speech/tts';
 import { Microphone } from '../Speech/stt';
 import RagDialog from '../Rag';
+import LongTermMemoryDialog from '../LongTermMemory';
 
 const CustomizedInputBase = ({
   onSendMessage,
@@ -77,6 +79,12 @@ const CustomizedInputBase = ({
             horizontal: 'right',
           }}
         >
+          <MenuItem onClick={() => toggleDialog('memory')}>
+            <ListItemIcon>
+              <LongTermMemoryIcon />
+            </ListItemIcon>
+            Memory
+          </MenuItem>
           <MenuItem onClick={() => toggleDialog('rag')}>
             <ListItemIcon>
               <RagIcon />
@@ -117,6 +125,11 @@ const CustomizedInputBase = ({
           <SendIcon />
         </IconButton>
       </Paper>
+
+      <LongTermMemoryDialog
+        open={isDialogOpen.memory}
+        onClose={() => toggleDialog('memory')}
+      />
 
       <AssistantDialog
         open={isDialogOpen.assistant}

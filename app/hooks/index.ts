@@ -1,1 +1,1 @@
-export * from './useBufferProcessing';
+export * from './useMessageProcessing';

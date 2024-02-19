@@ -27,7 +27,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       chunkBatch
     );
     if (fileDeletedFromVectorDB.success === false) {
-      return sendErrorResponse('Vector DB file deletion unsuccessful', 400);
+      return sendErrorResponse('Vector DB file deletion unsuccessful', 500);
     }
     return NextResponse.json({
       message: 'Vector DB file deletion successful',
@@ -36,6 +36,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
   } catch (error: any) {
     console.error('Vector DB file deletion unsuccessful: ', error);
-    return sendErrorResponse('Vector DB file deletion unsuccessful', 400);
+    return sendErrorResponse('Vector DB file deletion unsuccessful', 500);
   }
 }
