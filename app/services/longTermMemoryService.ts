@@ -15,6 +15,7 @@ interface AugmentUserMessageData {
   message: string;
   userEmail: string;
   historyLength: string;
+  memoryType: string;
 }
 
 const updateSettings = async ({
@@ -49,24 +50,18 @@ const appendMessageToConversation = async ({
   memoryType,
 }: AppendMessageToConversationData): Promise<any> => {
   try {
-    switch (memoryType) {
-      case 'NoSQL': {
-        const response = await fetch('/api/memory/append/nosql', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userEmail,
-            message,
-          }),
-        });
-        return response.json();
-      }
-      case 'vector': {
-        console.warn('Vector memory type not yet implemented');
-      }
-    }
+    const response = await fetch('/api/memory/append', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userEmail,
+        message,
+        memoryType,
+      }),
+    });
+    return response.json();
   } catch (error) {
     console.error('Unexpected error: ', error);
     throw error;
@@ -77,6 +72,7 @@ const augmentUserMessageWithHistory = async ({
   message,
   userEmail,
   historyLength,
+  memoryType,
 }: AugmentUserMessageData): Promise<any> => {
   try {
     const response = await fetch('/api/memory/augment', {
@@ -88,6 +84,7 @@ const augmentUserMessageWithHistory = async ({
         userEmail,
         message,
         historyLength,
+        memoryType,
       }),
     });
     return response.json();

@@ -173,6 +173,7 @@ export const useMessageProcessing = (session: any) => {
           message,
           userEmail,
           historyLength,
+          memoryType,
         });
         if (augmentedMessage) {
           message = augmentedMessage.formattedConversationHistory;
