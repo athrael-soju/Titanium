@@ -15,7 +15,9 @@ Some of the features I'm working on include:
   - NoSQL Based.✅
   - Vector Based.🚧
 - Image Generation via DALLE-3.🚧
-- Video (TTV) - As per latest reveal from OpenAI's latest Diffusion Model, called [Sora](https://openai.com/sora).🚧
+- Video
+  - Video to Text (VTT) - For use in RAG based applications. 🚧
+  - Text to Video (TTV) - As per latest reveal from OpenAI's latest Diffusion Model, called [Sora](https://openai.com/sora).🚧
 
 And the obligatory:
 
