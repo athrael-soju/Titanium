@@ -103,7 +103,10 @@ export async function getFormattedConversationHistory(
 ) {
   try {
     // Check if the conversation has messages and filter out any null messages
-    const messages = conversation.messages?.filter((msg) => msg != null) ?? [];
+    const messages =
+      conversation.messages
+        ?.filter((msg) => msg != null)
+        ?.slice(0, parseInt(historyLength)) ?? [];
     // Filter out messages with null 'createdAt' and sort the rest by 'createdAt' in descending order
     const sortedMessages = messages
       .filter((msg) => msg.createdAt != null)
@@ -112,9 +115,7 @@ export async function getFormattedConversationHistory(
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
     // Adjust slice to start from 0, and ensure parsing 'historyLength' to integer
-    const historyLengthInt = parseInt(historyLength, 10);
     const recentMessages = sortedMessages
-      .slice(0, historyLengthInt)
       .map(
         (msg) =>
           `- ${new Date(msg.createdAt).toISOString()}, ${
@@ -124,8 +125,8 @@ export async function getFormattedConversationHistory(
       .join('\n');
 
     // Construct the final human-readable string
-    const formattedHistory = `Instruction 1: Below is your conversation History: Draw inspiration from it to respond to the user's message.\nHISTORY:\n${recentMessages}.`;
-    const formattedMessage = `\nInstruction 2: The message below is the user's latest message. Use the Conversation History above to respond to it.\nMESSAGE:\n${message}.`;
+    const formattedHistory = `Instruction 1: Below is your conversation History. Draw inspiration from it to respond to the user's message.\nHISTORY:\n${recentMessages}.`;
+    const formattedMessage = `\nInstruction 2: Below is the user's latest message. Use the Conversation History above to respond to it.\nMESSAGE:\n${message}.`;
     // Return the combined history and latest user message in the specified format
     return `${formattedHistory}${formattedMessage}`;
   } catch (error) {
