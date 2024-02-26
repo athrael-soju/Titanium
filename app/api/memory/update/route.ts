@@ -33,7 +33,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({
       message: 'Long term memory updated',
-      isTextToSpeechEnabled: isLongTermMemoryEnabled,
+      isLongTermMemoryEnabled: isLongTermMemoryEnabled,
       memoryType: memoryType,
       status: 200,
     });

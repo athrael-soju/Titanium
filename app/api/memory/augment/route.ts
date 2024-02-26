@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   getDb,
   getConversation,
-  getFormattedConversationHistory,
+  gethistoryFromNoSql,
+  getHistoryFromVector,
 } from '@/app/lib/utils/db';
 import { sendErrorResponse } from '@/app/lib/utils/response';
 
@@ -20,23 +21,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (memoryType === 'NoSQL') {
       const { conversation } = await getConversation(db, userEmail);
 
-      formattedConversationHistory = await getFormattedConversationHistory(
-        message,
+      formattedConversationHistory = await gethistoryFromNoSql(
         historyLength,
         conversation
       );
-      if (!formattedConversationHistory) {
-        return sendErrorResponse(
-          `Error Augmenting message with ${memoryType} database`,
-          404
-        );
-      }
     } else if (memoryType === 'Vector') {
-      return sendErrorResponse(
-        `Vector message augmentation not yet implemented`,
-        400
+      formattedConversationHistory = await getHistoryFromVector(
+        historyLength,
+        message,
+        userEmail,
+        memoryType,
       );
     }
+
+    if (!formattedConversationHistory) {
+      return sendErrorResponse(
+        `Error Augmenting message with ${memoryType} database`,
+        404
+      );
+    }
+
     return NextResponse.json({
       message: `${memoryType} Message augmentation successful`,
       userEmail: userEmail,

@@ -24,7 +24,7 @@ const LongTermMemoryForm: React.FC<LongTermMemoryProps> = ({ error }) => {
           error={error.memoryType}
         >
           <MenuItem value={'NoSQL'}>NoSQL</MenuItem>
-          {/* <MenuItem value={'Vector'}>Vector</MenuItem> */}
+          <MenuItem value={'Vector'}>Vector</MenuItem>
         </Select>
       </FormControl>
       <FormControl margin="dense" sx={{ flexGrow: 1 }}>

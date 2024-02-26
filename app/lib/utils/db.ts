@@ -1,5 +1,7 @@
 import { Collection, Db } from 'mongodb';
 import clientPromise from '@/app/lib/client/mongodb';
+import { generateEmbeddings } from '@/app/services/embeddingService';
+import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
 
 export const getDb = async (): Promise<Db> => {
   const client = await clientPromise;
@@ -96,8 +98,7 @@ export async function updateMemorySettings(
   );
 }
 
-export async function getFormattedConversationHistory(
-  message: string,
+export async function gethistoryFromNoSql(
   historyLength: string,
   conversation: IConversation
 ) {
@@ -105,7 +106,7 @@ export async function getFormattedConversationHistory(
     // Check if the conversation has messages and filter out any null messages
     const messages =
       conversation.messages
-        ?.filter((msg) => msg != null)
+        ?.filter((msg) => msg != null && msg.conversationId === conversation.id)
         ?.slice(0, parseInt(historyLength)) ?? [];
     // Filter out messages with null 'createdAt' and sort the rest by 'createdAt' in descending order
     const sortedMessages = messages
@@ -123,14 +124,45 @@ export async function getFormattedConversationHistory(
           }, ${msg.text}`
       )
       .join('\n');
-
-    // Construct the final human-readable string
-    const formattedHistory = `Instruction 1: Below is your conversation History. Draw inspiration from it to respond to the user's message.\nHISTORY:\n${recentMessages}.`;
-    const formattedMessage = `\nInstruction 2: Below is the user's latest message. Use the Conversation History above to respond to it.\nMESSAGE:\n${message}.`;
-    // Return the combined history and latest user message in the specified format
-    return `${formattedHistory}${formattedMessage}`;
+    // Return the latest user message in the specified format
+    return recentMessages;
   } catch (error) {
     console.error('Error retrieving conversation history:', error);
     throw error; // Rethrow or handle as needed
   }
+}
+
+export async function getHistoryFromVector(
+  historyLength: string,
+  message: string,
+  userEmail: string,
+  memoryType: string
+) {
+  const jsonMessage = [
+    {
+      text: message,
+      metadata: {
+        user_email: userEmail,
+      },
+    },
+  ];
+  const embeddedMessage = await generateEmbeddings(
+    jsonMessage,
+    userEmail,
+    memoryType,
+    false
+  );
+
+  const vectorResponse = await queryVectorDbByNamespace(
+    embeddedMessage.embeddings,
+    `${userEmail}_history`,
+    historyLength
+  );
+
+  const context = vectorResponse.response.matches.map((item: any) => {
+    return {
+      text: item.metadata.text,
+    };
+  });
+  return JSON.stringify(context);
 }

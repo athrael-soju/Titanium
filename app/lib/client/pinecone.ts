@@ -90,6 +90,7 @@ const deleteAll = async (user: IUser) => {
 };
 
 export const pinecone = {
+  getIndex,
   upsert,
   queryByNamespace,
   deleteOne,

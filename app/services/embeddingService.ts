@@ -1,12 +1,14 @@
 const generateEmbeddings = async (
   data: any,
-  userEmail: string
+  userEmail: string,
+  memoryType: string,
+  isRagEnabled: boolean
 ): Promise<any> => {
   try {
     const response = await fetch('/api/embed', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data, userEmail }),
+      body: JSON.stringify({ data, userEmail, memoryType, isRagEnabled }),
     });
 
     if (!response.ok) {

@@ -12,60 +12,75 @@ const openai = new OpenAI(options);
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const db = await getDb();
     const requestBody = await req.json();
-    const { data, userEmail } = requestBody;
-
-    if (!userEmail || !data) {
+    const { data, userEmail, memoryType, isRagEnabled } = requestBody;
+    console.log('Request body: ', requestBody);
+    if (!userEmail || !data || !memoryType) {
       throw new Error(
-        'Incomplete request headers. Please provide userEmail and data.'
+        'Incomplete request headers. Please provide userEmail, data and memoryType.'
       );
     }
 
-    const { user } = await getDatabaseAndUser(db, userEmail);
-    const fileCollection = db.collection<RagFile>('files');
-    const chunkIdList: string[] = [];
-    const ragId = user.ragId as string;
+    if (isRagEnabled) {
+      const db = await getDb();
+      const { user } = await getDatabaseAndUser(db, userEmail);
+      const fileCollection = db.collection<RagFile>('files');
+      const chunkIdList: string[] = [];
+      const ragId = user.ragId as string;
 
-    const embeddings = await Promise.all(
-      data.map(async (item: any) => {
-        const response = await openai.embeddings.create({
-          model: 'text-embedding-3-small',
-          input: item.text,
-          encoding_format: 'float',
-        });
-        const transformedMetadata = transformObjectValues(item.metadata);
-        const newId = crypto.randomUUID();
-        chunkIdList.push(newId);
-        const embeddingValues = response.data[0].embedding;
-        return {
-          id: newId,
-          values: embeddingValues,
-          metadata: {
-            ...transformedMetadata,
-            text: item.text,
-            rag_id: ragId,
-            user_email: user.email,
+      const embeddings = await Promise.all(
+        data.map(async (item: any) => {
+          const response = await openai.embeddings.create({
+            model: 'text-embedding-3-small',
+            input: item.text,
+            encoding_format: 'float',
+          });
+          const transformedMetadata = transformObjectValues(item.metadata);
+          const newId = crypto.randomUUID();
+          chunkIdList.push(newId);
+          const embeddingValues = response.data[0].embedding;
+          return {
+            id: newId,
+            values: embeddingValues,
+            metadata: {
+              ...transformedMetadata,
+              text: item.text,
+              rag_id: ragId,
+              user_email: user.email,
+            },
+          };
+        })
+      );
+
+      await fileCollection.updateOne(
+        { ragId: ragId },
+        {
+          $set: {
+            chunks: chunkIdList,
           },
-        };
-      })
-    );
+        }
+      );
 
-    await fileCollection.updateOne(
-      { ragId: ragId },
-      {
-        $set: {
-          chunks: chunkIdList,
-        },
-      }
-    );
-
-    return NextResponse.json({
-      message: 'Embeddings generated successfully',
-      chunks: chunkIdList,
-      embeddings: embeddings,
-      status: 200,
-    });
+      return NextResponse.json({
+        message: 'Embeddings generated successfully',
+        chunks: chunkIdList,
+        embeddings: embeddings,
+        status: 200,
+      });
+    } else if (memoryType === 'Vector') {
+      const response = await openai.embeddings.create({
+        model: 'text-embedding-3-small',
+        input: data,
+        encoding_format: 'float',
+      });
+      return NextResponse.json({
+        message: 'Embeddings generated successfully',
+        embeddings: response.data[0].embedding,
+        status: 200,
+      });
+    } else {
+      return sendErrorResponse('Invalid memoryType', 400);
+    }
   } catch (error: any) {
     console.error('Error generating embeddings: ', error);
     return sendErrorResponse('Error generating embeddings', 400);

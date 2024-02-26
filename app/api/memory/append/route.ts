@@ -5,7 +5,10 @@ import {
   createConversation,
   updateConversationSettings,
 } from '@/app/lib/utils/db';
+import { pinecone } from '@/app/lib/client/pinecone';
 import { sendErrorResponse } from '@/app/lib/utils/response';
+import { generateEmbeddings } from '@/app/services/embeddingService';
+import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const db = await getDb();
@@ -35,7 +38,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         await createConversation(conversation, conversationCollection);
       }
     } else if (memoryType === 'Vector') {
-      return sendErrorResponse('Vector memory not yet implemented', 400);
+      const jsonMessage = [
+        {
+          text: message,
+          metadata: {
+            user_email: userEmail,
+          },
+        },
+      ];
+      const data = await generateEmbeddings(
+        jsonMessage,
+        userEmail,
+        memoryType,
+        false
+      );
+
+      const index = await pinecone.getIndex();
+      await index.namespace(`history_${userEmail}`).upsert(data);
+      
     }
     return NextResponse.json({
       message: `Conversation message appended via ${memoryType} database.`,
