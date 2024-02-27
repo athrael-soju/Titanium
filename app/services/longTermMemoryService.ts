@@ -5,17 +5,21 @@ interface LongTermMemoryData {
   historyLength: string;
 }
 
-interface AppendMessageToConversationData {
+interface AppendMessageToNoSql {
   userEmail: string;
   message: IMessage;
-  memoryType: string;
+}
+
+interface AppendMessageToVectorDb {
+  userEmail: string;
+  message: IMessage;
+  embeddedMessage: any;
 }
 
 interface AugmentUserMessageData {
-  message: string;
   userEmail: string;
   historyLength: string;
-  memoryType: string;
+  message: string;
 }
 
 const updateSettings = async ({
@@ -44,13 +48,12 @@ const updateSettings = async ({
   }
 };
 
-const appendMessageToConversation = async ({
-  userEmail,
+const appendMessageToNoSql = async ({
   message,
-  memoryType,
-}: AppendMessageToConversationData): Promise<any> => {
+  userEmail,
+}: AppendMessageToNoSql): Promise<any> => {
   try {
-    const response = await fetch('/api/memory/append', {
+    const response = await fetch('/api/memory/append/nosql', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -58,7 +61,6 @@ const appendMessageToConversation = async ({
       body: JSON.stringify({
         userEmail,
         message,
-        memoryType,
       }),
     });
     return response.json();
@@ -68,14 +70,36 @@ const appendMessageToConversation = async ({
   }
 };
 
-const augmentUserMessageWithHistory = async ({
+const appendMessageToVector = async ({
+  userEmail,
+  message,
+  embeddedMessage,
+}: AppendMessageToVectorDb): Promise<any> => {
+  try {
+    const response = await fetch('/api/memory/append/vector', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userEmail,
+        embeddedMessage,
+      }),
+    });
+    return response.json();
+  } catch (error) {
+    console.error('Unexpected error: ', error);
+    throw error;
+  }
+};
+
+const augmentMessageViaNoSql = async ({
   message,
   userEmail,
   historyLength,
-  memoryType,
 }: AugmentUserMessageData): Promise<any> => {
   try {
-    const response = await fetch('/api/memory/augment', {
+    const response = await fetch('/api/memory/augment/nosql', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -84,7 +108,30 @@ const augmentUserMessageWithHistory = async ({
         userEmail,
         message,
         historyLength,
-        memoryType,
+      }),
+    });
+    return response.json();
+  } catch (error) {
+    console.error('Unexpected error: ', error);
+    throw error;
+  }
+};
+
+const augmentMessageViaVector = async ({
+  message,
+  userEmail,
+  historyLength,
+}: AugmentUserMessageData): Promise<any> => {
+  try {
+    const response = await fetch('/api/memory/augment/vector', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userEmail,
+        message,
+        historyLength,
       }),
     });
     return response.json();
@@ -96,6 +143,8 @@ const augmentUserMessageWithHistory = async ({
 
 export {
   updateSettings,
-  appendMessageToConversation,
-  augmentUserMessageWithHistory,
+  appendMessageToNoSql,
+  augmentMessageViaNoSql,
+  appendMessageToVector,
+  augmentMessageViaVector,
 };

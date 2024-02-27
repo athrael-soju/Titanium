@@ -8,11 +8,16 @@ import {
   retrieveTextFromSpeech,
 } from '@/app/services/chatService';
 import {
-  appendMessageToConversation,
-  augmentUserMessageWithHistory,
+  appendMessageToNoSql,
+  appendMessageToVector,
+  augmentMessageViaNoSql,
+  augmentMessageViaVector,
 } from '@/app/services/longTermMemoryService';
 import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
-import { generateEmbeddings } from '@/app/services/embeddingService';
+import {
+  embedConversation,
+  embedMessage,
+} from '@/app/services/embeddingService';
 const nlp = winkNLP(model);
 
 export const useMessageProcessing = (session: any) => {
@@ -171,19 +176,28 @@ export const useMessageProcessing = (session: any) => {
         const ragContext = await enhanceUserResponse(message, userEmail);
         augmentedMessage += `
 
-CONTEXT: ${ragContext || ''}`;
+CONTEXT:
+${ragContext || ''}`;
       }
 
       if (isLongTermMemoryEnabled && historyLength > 0) {
-        const userEmail = session?.user?.email as string;
-        const response = await augmentUserMessageWithHistory({
-          message,
-          userEmail,
-          historyLength,
-          memoryType,
-        });
+        let response;
+        if (memoryType === 'NoSQL') {
+          const userEmail = session?.user?.email as string;
+          response = await augmentMessageViaNoSql({
+            userEmail,
+            historyLength,
+            message,
+          });
+        } else if (memoryType === 'Vector') {
+          response = await augmentMessageViaVector({
+            userEmail,
+            historyLength,
+            message,
+          });
+        }
         augmentedMessage += `
-        
+
 HISTORY: 
 ${response.formattedConversationHistory || ''}`;
       }
@@ -215,12 +229,21 @@ ${message}
   };
 
   async function storeMessageInMemory(message: IMessage) {
-    const appendMessageToConversationResponse =
-      await appendMessageToConversation({
-        userEmail: session?.user?.email,
+    let appendMessageToConversationResponse,
+      userEmail = session?.user?.email;
+    if (memoryType === 'NoSQL') {
+      appendMessageToConversationResponse = await appendMessageToNoSql({
+        userEmail,
         message,
-        memoryType,
       });
+    } else if (memoryType === 'Vector') {
+      const embeddedMessage = await embedMessage(message.text, userEmail);
+      appendMessageToConversationResponse = await appendMessageToVector({
+        userEmail,
+        message,
+        embeddedMessage,
+      });
+    }
     console.log(
       'appendMessageToConversationResponse: ',
       appendMessageToConversationResponse
@@ -237,7 +260,7 @@ ${message}
       },
     ];
 
-    const embeddedMessage = await generateEmbeddings(jsonMessage, userEmail);
+    const embeddedMessage = await embedConversation(jsonMessage, userEmail);
 
     const vectorResponse = await queryVectorDbByNamespace(
       embeddedMessage.embeddings,
