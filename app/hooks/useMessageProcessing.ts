@@ -163,25 +163,36 @@ export const useMessageProcessing = (session: any) => {
       const aiResponseId = uuidv4();
       const userEmail = session?.user?.email as string;
 
+      let augmentedMessage = `FOLLOW THESE INSTRUCTIONS AT ALL TIMES:
+1. Make use of CONTEXT and HISTORY below, to briefly respond to the user prompt. 
+2. If you cannot find this information within the CONTEXT, or HISTORY, respond to the user prompt as best as you can. `;
+
       if (isRagEnabled) {
-        message = await enhanceUserResponse(message, userEmail);
+        const ragContext = await enhanceUserResponse(message, userEmail);
+        augmentedMessage += `
+
+CONTEXT: ${ragContext || ''}`;
       }
 
       if (isLongTermMemoryEnabled && historyLength > 0) {
         const userEmail = session?.user?.email as string;
-        const augmentedMessage = await augmentUserMessageWithHistory({
+        const response = await augmentUserMessageWithHistory({
           message,
           userEmail,
           historyLength,
           memoryType,
         });
-        if (augmentedMessage) {
-          message = augmentedMessage.formattedConversationHistory;
-          console.log(
-            `Message has been augmented: ${augmentedMessage.formattedConversationHistory}`
-          );
-        }
+        augmentedMessage += `
+        
+HISTORY: 
+${response.formattedConversationHistory || ''}`;
       }
+      message = `${augmentedMessage}
+
+PROMPT: 
+${message}
+      `;
+      console.log('Message to be sent to AI: ', message);
       const response = await retrieveAIResponse(
         message,
         userEmail,
@@ -215,6 +226,7 @@ export const useMessageProcessing = (session: any) => {
       appendMessageToConversationResponse
     );
   }
+
   async function enhanceUserResponse(message: string, userEmail: string) {
     const jsonMessage = [
       {
@@ -224,6 +236,7 @@ export const useMessageProcessing = (session: any) => {
         },
       },
     ];
+
     const embeddedMessage = await generateEmbeddings(jsonMessage, userEmail);
 
     const vectorResponse = await queryVectorDbByNamespace(
@@ -237,13 +250,7 @@ export const useMessageProcessing = (session: any) => {
         text: item.metadata.text,
       };
     });
-    return `
-        FOLLOW THESE INSTRUCTIONS AT ALL TIMES:
-        1. Please ONLY make use of context provided to very briefly respond to the user prompt. 
-        2. Otherwise, inform the user that you are unable to assist with their request.
-        CONTEXT: ${JSON.stringify(context)}
-        PROMPT: ${message}
-        `;
+    return JSON.stringify(context);
   }
 
   async function processResponse(
