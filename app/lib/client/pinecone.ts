@@ -31,6 +31,7 @@ const upsert = async (data: any[], user: IUser, chunkBatch: string) => {
   try {
     const index = await getIndex();
     const chunkedData = chunkArray(data, parseInt(chunkBatch));
+    console.log('chunkedData', chunkedData[0][0]);
     for (const chunk of chunkedData) {
       await index.namespace(user.ragId as string).upsert(chunk);
     }
@@ -41,20 +42,30 @@ const upsert = async (data: any[], user: IUser, chunkBatch: string) => {
   }
 };
 
+const upsertOne = async (vectorMessage: any[], nameSpace: string) => {
+  try {
+    const index = await getIndex();
+    await index.namespace(nameSpace).upsert(vectorMessage);
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error upserting in Pinecone: ', error);
+    throw error;
+  }
+};
+
 const queryByNamespace = async (
-  user: IUser,
+  namespace: string,
   messageEmbedding: any,
   topK: string
 ) => {
   const index = await getIndex();
-  const result = await index.namespace(user.ragId as string).query({
+  const result = await index.namespace(namespace).query({
     topK: parseInt(topK),
     vector: messageEmbedding[0].values,
     includeValues: false,
     includeMetadata: true,
     //filter: { genre: { $eq: 'action' } },
   });
-
   return result;
 };
 
@@ -90,6 +101,7 @@ const deleteAll = async (user: IUser) => {
 };
 
 export const pinecone = {
+  upsertOne,
   upsert,
   queryByNamespace,
   deleteOne,

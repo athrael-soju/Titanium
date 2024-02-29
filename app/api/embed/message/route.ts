@@ -12,17 +12,15 @@ const openai = new OpenAI(options);
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const requestBody = await req.json();
-    const { message, userEmail } = requestBody;
+    const { message } = requestBody;
 
-    if (!userEmail || !message) {
-      throw new Error(
-        'Incomplete request headers. Please provide userEmail and mesage.'
-      );
+    if (!message) {
+      throw new Error('Incomplete request headers. Please mesage.');
     }
-
+    const messageToEmbed = `Date: ${message.createdAt}. User: ${message.conversationId}. Message: ${message.text}. Metadata: ${message.metadata}`;
     const response = await openai.embeddings.create({
       model: 'text-embedding-3-small',
-      input: message,
+      input: messageToEmbed,
       encoding_format: 'float',
     });
 

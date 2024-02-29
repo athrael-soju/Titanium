@@ -12,8 +12,7 @@ interface AppendMessageToNoSql {
 
 interface AppendMessageToVectorDb {
   userEmail: string;
-  message: IMessage;
-  embeddedMessage: any;
+  vectorMessage: any;
 }
 
 interface AugmentUserMessageData {
@@ -72,8 +71,7 @@ const appendMessageToNoSql = async ({
 
 const appendMessageToVector = async ({
   userEmail,
-  message,
-  embeddedMessage,
+  vectorMessage,
 }: AppendMessageToVectorDb): Promise<any> => {
   try {
     const response = await fetch('/api/memory/append/vector', {
@@ -83,7 +81,7 @@ const appendMessageToVector = async ({
       },
       body: JSON.stringify({
         userEmail,
-        embeddedMessage,
+        vectorMessage,
       }),
     });
     return response.json();

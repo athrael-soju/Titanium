@@ -21,15 +21,12 @@ const embedConversation = async (
   }
 };
 
-const embedMessage = async (
-  message: string,
-  userEmail: string
-): Promise<any> => {
+const embedMessage = async (message: IMessage): Promise<any> => {
   try {
     const response = await fetch('/api/embed/message', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, userEmail }),
+      body: JSON.stringify({ message }),
     });
 
     if (!response.ok) {

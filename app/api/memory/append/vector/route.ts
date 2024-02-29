@@ -1,21 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import { sendErrorResponse } from '@/app/lib/utils/response';
+import { pinecone } from '@/app/lib/client/pinecone';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const { userEmail, message } = (await req.json()) as {
-    userEmail: string;
-    message: IMessage;
-  };
+  const { userEmail, vectorMessage } = await req.json();
   try {
-    //TODO: Implement Vector database append logic here
-    console.log('Vector database append logic not implemented yet.');
-    return NextResponse.json({
-      message: `Conversation message appended via Vector database.`,
-      userEmail,
-      newMessage: message,
-      status: 200,
-    });
+    if (userEmail) {
+      const nameSpace = `${userEmail}_history`;
+      const response = await pinecone.upsertOne([vectorMessage], nameSpace);
+      if (response.success === false) {
+        return sendErrorResponse(
+          'Error appending message to Vector database',
+          400
+        );
+      }
+      return NextResponse.json({
+        message: `Conversation message appended via Vector database.`,
+        id: userEmail,
+        response,
+        status: 200,
+      });
+    } else {
+      return sendErrorResponse(
+        'Upsert cannot proceed without a valid user userEmail',
+        400
+      );
+    }
   } catch (error: any) {
     console.error(`Error appending message to Vector database: ${error}`);
     return sendErrorResponse(`Error appending message to Vector database`, 400);

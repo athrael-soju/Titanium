@@ -11,9 +11,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const { embeddedMessage, userEmail, topK } = requestBody;
     const { user } = await getDatabaseAndUser(db, userEmail);
 
-    if (user.ragId) {
+    const ragId = user.ragId;
+    if (ragId) {
       const response = await pinecone.queryByNamespace(
-        user,
+        ragId,
         embeddedMessage,
         topK
       );

@@ -36,6 +36,8 @@ export const useMessageProcessing = (session: any) => {
   const sentences = useRef<string[]>([]);
   const sentenceIndex = useRef<number>(0);
 
+  let lastMessage = {} as IMessage;
+
   const addUserMessageToState = (message: string) => {
     sentences.current = [];
     sentenceIndex.current = 0;
@@ -161,7 +163,6 @@ export const useMessageProcessing = (session: any) => {
     try {
       setValue('isLoading', true);
       const newMessage = addUserMessageToState(message);
-
       if (isLongTermMemoryEnabled) {
         await storeMessageInMemory(newMessage);
       }
@@ -206,7 +207,6 @@ ${response.formattedConversationHistory || ''}`;
 PROMPT: 
 ${message}
       `;
-      console.log('Message to be sent to AI: ', message);
       const response = await retrieveAIResponse(
         message,
         userEmail,
@@ -236,18 +236,39 @@ ${message}
         userEmail,
         message,
       });
+      console.log(
+        'appendMessageToConversationResponse: ',
+        appendMessageToConversationResponse
+      );
     } else if (memoryType === 'Vector') {
-      const embeddedMessage = await embedMessage(message.text, userEmail);
-      appendMessageToConversationResponse = await appendMessageToVector({
-        userEmail,
-        message,
-        embeddedMessage,
-      });
+      if (message.sender === 'user') {
+        const embeddedMessage = await embedMessage(message);
+        const vectorMessage = {
+          id: message.id,
+          values: embeddedMessage.embeddings,
+          metadata: {
+            user: `Date: ${message.createdAt}. User: ${message.conversationId}. Message: ${message.text}. Metadata: ${message.metadata}`,
+          },
+        };
+        appendMessageToConversationResponse = await appendMessageToVector({
+          userEmail,
+          vectorMessage,
+        });
+        lastMessage = message;
+        console.log(
+          'appendMessageToConversationResponse: ',
+          appendMessageToConversationResponse
+        );
+      } else if (message.sender === 'ai') {
+        console.log('AI message: ', lastMessage);
+        // TODO this should be updated to append the AI response to the user message in the vector db, by providing the ID of the user message.
+        // const updateAppendedMessageInVectorResponse = await updateAppendedMessageInVector({
+        //   lastMessage.id
+        //   message.medadata
+        // });
+        lastMessage = message;
+      }
     }
-    console.log(
-      'appendMessageToConversationResponse: ',
-      appendMessageToConversationResponse
-    );
   }
 
   async function enhanceUserResponse(message: string, userEmail: string) {
