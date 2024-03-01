@@ -199,11 +199,13 @@ ${ragContext || ''}`;
             embeddedMessage,
           });
         }
-
+        const conversationHistory =
+          response.formattedConversationHistory.messages.join('\n');
+          
         augmentedMessage += `
 
 HISTORY: 
-${response.formattedConversationHistory || ''}`;
+${conversationHistory || ''}`;
       }
       message = `${augmentedMessage}
 

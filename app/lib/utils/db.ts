@@ -97,7 +97,6 @@ export async function updateMemorySettings(
 }
 
 export async function getFormattedConversationHistory(
-  message: string,
   historyLength: string,
   conversation: IConversation
 ) {

@@ -15,7 +15,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const { conversation } = await getConversation(db, userEmail);
 
     formattedConversationHistory = await getFormattedConversationHistory(
-      message,
       historyLength,
       conversation
     );

@@ -2,22 +2,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sendErrorResponse } from '@/app/lib/utils/response';
 
 import { pinecone } from '@/app/lib/client/pinecone';
+import { getFormattedConversationHistory } from '@/app/lib/utils/vectorDb';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const { userEmail, historyLength, embeddedMessage } = await req.json();
   try {
     if (userEmail) {
       const namespace = `${userEmail}_history`;
-      const response = await pinecone.queryByNamespace(
+      const conversationHistoryResults = await pinecone.queryByNamespace(
         namespace,
         historyLength,
         embeddedMessage
       );
-      // TODO: Add a function similar to formattedConversationHistory to format the history, so that it can be properly appended to the message.
+
+      const formattedConversationHistory =
+        await getFormattedConversationHistory(
+          conversationHistoryResults.matches
+        );
+
       return NextResponse.json({
         message: 'Pinecone message augmentation successful',
         namespace,
-        response,
+        formattedConversationHistory,
         status: 200,
       });
     } else {
