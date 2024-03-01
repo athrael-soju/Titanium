@@ -4,15 +4,14 @@ import { sendErrorResponse } from '@/app/lib/utils/response';
 import { pinecone } from '@/app/lib/client/pinecone';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const { userEmail, message, historyLength } = await req.json();
-
+  const { userEmail, historyLength, embeddedMessage } = await req.json();
   try {
     if (userEmail) {
       const namespace = `${userEmail}_history`;
       const response = await pinecone.queryByNamespace(
         namespace,
-        message,
-        historyLength
+        historyLength,
+        embeddedMessage
       );
 
       return NextResponse.json({

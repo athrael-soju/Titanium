@@ -15,10 +15,22 @@ interface AppendMessageToVectorDb {
   vectorMessage: any;
 }
 
-interface AugmentUserMessageData {
+interface AugmentUserMessageDataViaNoSql {
   userEmail: string;
   historyLength: string;
   message: string;
+}
+
+interface AugmentUserMessageDataViaVector {
+  userEmail: string;
+  historyLength: string;
+  embeddedMessage: any;
+}
+
+interface UpdateMetadataInVectorDb {
+  userEmail: string;
+  id: string;
+  metadata: any;
 }
 
 const updateSettings = async ({
@@ -91,11 +103,35 @@ const appendMessageToVector = async ({
   }
 };
 
+const updateMessageMetadataInVector = async ({
+  userEmail,
+  id,
+  metadata,
+}: UpdateMetadataInVectorDb): Promise<any> => {
+  try {
+    const response = await fetch('/api/memory/update-metadata/vector', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userEmail,
+        id,
+        metadata,
+      }),
+    });
+    return response.json();
+  } catch (error) {
+    console.error('Unexpected error: ', error);
+    throw error;
+  }
+};
+
 const augmentMessageViaNoSql = async ({
   message,
   userEmail,
   historyLength,
-}: AugmentUserMessageData): Promise<any> => {
+}: AugmentUserMessageDataViaNoSql): Promise<any> => {
   try {
     const response = await fetch('/api/memory/augment/nosql', {
       method: 'POST',
@@ -116,10 +152,10 @@ const augmentMessageViaNoSql = async ({
 };
 
 const augmentMessageViaVector = async ({
-  message,
   userEmail,
   historyLength,
-}: AugmentUserMessageData): Promise<any> => {
+  embeddedMessage,
+}: AugmentUserMessageDataViaVector): Promise<any> => {
   try {
     const response = await fetch('/api/memory/augment/vector', {
       method: 'POST',
@@ -128,8 +164,8 @@ const augmentMessageViaVector = async ({
       },
       body: JSON.stringify({
         userEmail,
-        message,
         historyLength,
+        embeddedMessage,
       }),
     });
     return response.json();
@@ -145,4 +181,5 @@ export {
   augmentMessageViaNoSql,
   appendMessageToVector,
   augmentMessageViaVector,
+  updateMessageMetadataInVector,
 };

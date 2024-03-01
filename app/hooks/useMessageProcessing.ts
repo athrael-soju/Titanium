@@ -12,6 +12,7 @@ import {
   appendMessageToVector,
   augmentMessageViaNoSql,
   augmentMessageViaVector,
+  updateMessageMetadataInVector,
 } from '@/app/services/longTermMemoryService';
 import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
 import {
@@ -191,12 +192,14 @@ ${ragContext || ''}`;
             message,
           });
         } else if (memoryType === 'Vector') {
+          const embeddedMessage = await embedMessage(newMessage);
           response = await augmentMessageViaVector({
             userEmail,
             historyLength,
-            message,
+            embeddedMessage,
           });
         }
+
         augmentedMessage += `
 
 HISTORY: 
@@ -246,9 +249,6 @@ ${message}
         const vectorMessage = {
           id: message.id,
           values: embeddedMessage.embeddings,
-          metadata: {
-            user: `Date: ${message.createdAt}. User: ${message.conversationId}. Message: ${message.text}. Metadata: ${message.metadata}`,
-          },
         };
         appendMessageToConversationResponse = await appendMessageToVector({
           userEmail,
@@ -260,13 +260,24 @@ ${message}
           appendMessageToConversationResponse
         );
       } else if (message.sender === 'ai') {
-        console.log('AI message: ', lastMessage);
-        // TODO this should be updated to append the AI response to the user message in the vector db, by providing the ID of the user message.
-        // const updateAppendedMessageInVectorResponse = await updateAppendedMessageInVector({
-        //   lastMessage.id
-        //   message.medadata
-        // });
+        const metadata = {
+          user: `Date: ${lastMessage.createdAt}. Sender: ${lastMessage.conversationId}. Message: ${lastMessage.text}`,
+          ai: `Date: ${message.createdAt}. Sender: AI. Message: ${message.text}`,
+        };
+
+        const id = lastMessage.id;
+        const updateMessageMetadataInVectorResponse =
+          await updateMessageMetadataInVector({
+            userEmail,
+            id,
+            metadata,
+          });
+
         lastMessage = message;
+        console.log(
+          'updateMessageMetadataInVectorResponse: ',
+          updateMessageMetadataInVectorResponse
+        );
       }
     }
   }

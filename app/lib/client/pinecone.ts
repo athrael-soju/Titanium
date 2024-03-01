@@ -53,15 +53,26 @@ const upsertOne = async (vectorMessage: any[], nameSpace: string) => {
   }
 };
 
+const updateMetadata = async (id: string, metadata: any, nameSpace: string) => {
+  try {
+    const index = await getIndex();
+    await index.namespace(nameSpace).update({ id, metadata });
+    return { success: true };
+  } catch (error: any) {
+    console.error('Error updating in Pinecone: ', error);
+    throw error;
+  }
+};
+
 const queryByNamespace = async (
   namespace: string,
-  messageEmbedding: any,
-  topK: string
+  topK: string,
+  embeddedMessage: any
 ) => {
   const index = await getIndex();
   const result = await index.namespace(namespace).query({
     topK: parseInt(topK),
-    vector: messageEmbedding[0].values,
+    vector: embeddedMessage.embeddings,
     includeValues: false,
     includeMetadata: true,
     //filter: { genre: { $eq: 'action' } },
@@ -107,4 +118,5 @@ export const pinecone = {
   deleteOne,
   deleteMany,
   deleteAll,
+  updateMetadata,
 };
