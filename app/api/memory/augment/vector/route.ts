@@ -13,7 +13,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         historyLength,
         embeddedMessage
       );
-
+      // TODO: Add a function similar to formattedConversationHistory to format the history, so that it can be properly appended to the message.
       return NextResponse.json({
         message: 'Pinecone message augmentation successful',
         namespace,
