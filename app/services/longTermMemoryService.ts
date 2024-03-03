@@ -5,17 +5,32 @@ interface LongTermMemoryData {
   historyLength: string;
 }
 
-interface AppendMessageToConversationData {
+interface AppendMessageToNoSql {
   userEmail: string;
   message: IMessage;
-  memoryType: string;
 }
 
-interface AugmentUserMessageData {
-  message: string;
+interface AppendMessageToVectorDb {
+  userEmail: string;
+  vectorMessage: any;
+}
+
+interface AugmentUserMessageDataViaNoSql {
   userEmail: string;
   historyLength: string;
-  memoryType: string;
+  message: string;
+}
+
+interface AugmentUserMessageDataViaVector {
+  userEmail: string;
+  historyLength: string;
+  embeddedMessage: any;
+}
+
+interface UpdateMetadataInVectorDb {
+  userEmail: string;
+  id: string;
+  metadata: any;
 }
 
 const updateSettings = async ({
@@ -44,13 +59,12 @@ const updateSettings = async ({
   }
 };
 
-const appendMessageToConversation = async ({
-  userEmail,
+const appendMessageToNoSql = async ({
   message,
-  memoryType,
-}: AppendMessageToConversationData): Promise<any> => {
+  userEmail,
+}: AppendMessageToNoSql): Promise<any> => {
   try {
-    const response = await fetch('/api/memory/append', {
+    const response = await fetch('/api/memory/append/nosql', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -58,7 +72,6 @@ const appendMessageToConversation = async ({
       body: JSON.stringify({
         userEmail,
         message,
-        memoryType,
       }),
     });
     return response.json();
@@ -68,14 +81,59 @@ const appendMessageToConversation = async ({
   }
 };
 
-const augmentUserMessageWithHistory = async ({
+const appendMessageToVector = async ({
+  userEmail,
+  vectorMessage,
+}: AppendMessageToVectorDb): Promise<any> => {
+  try {
+    const response = await fetch('/api/memory/append/vector', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userEmail,
+        vectorMessage,
+      }),
+    });
+    return response.json();
+  } catch (error) {
+    console.error('Unexpected error: ', error);
+    throw error;
+  }
+};
+
+const updateMessageMetadataInVector = async ({
+  userEmail,
+  id,
+  metadata,
+}: UpdateMetadataInVectorDb): Promise<any> => {
+  try {
+    const response = await fetch('/api/memory/update-metadata/vector', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userEmail,
+        id,
+        metadata,
+      }),
+    });
+    return response.json();
+  } catch (error) {
+    console.error('Unexpected error: ', error);
+    throw error;
+  }
+};
+
+const augmentMessageViaNoSql = async ({
   message,
   userEmail,
   historyLength,
-  memoryType,
-}: AugmentUserMessageData): Promise<any> => {
+}: AugmentUserMessageDataViaNoSql): Promise<any> => {
   try {
-    const response = await fetch('/api/memory/augment', {
+    const response = await fetch('/api/memory/augment/nosql', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -84,7 +142,30 @@ const augmentUserMessageWithHistory = async ({
         userEmail,
         message,
         historyLength,
-        memoryType,
+      }),
+    });
+    return response.json();
+  } catch (error) {
+    console.error('Unexpected error: ', error);
+    throw error;
+  }
+};
+
+const augmentMessageViaVector = async ({
+  userEmail,
+  historyLength,
+  embeddedMessage,
+}: AugmentUserMessageDataViaVector): Promise<any> => {
+  try {
+    const response = await fetch('/api/memory/augment/vector', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userEmail,
+        historyLength,
+        embeddedMessage,
       }),
     });
     return response.json();
@@ -96,6 +177,9 @@ const augmentUserMessageWithHistory = async ({
 
 export {
   updateSettings,
-  appendMessageToConversation,
-  augmentUserMessageWithHistory,
+  appendMessageToNoSql,
+  augmentMessageViaNoSql,
+  appendMessageToVector,
+  augmentMessageViaVector,
+  updateMessageMetadataInVector,
 };

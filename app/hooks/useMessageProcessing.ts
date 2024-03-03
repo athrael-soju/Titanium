@@ -8,11 +8,17 @@ import {
   retrieveTextFromSpeech,
 } from '@/app/services/chatService';
 import {
-  appendMessageToConversation,
-  augmentUserMessageWithHistory,
+  appendMessageToNoSql,
+  appendMessageToVector,
+  augmentMessageViaNoSql,
+  augmentMessageViaVector,
+  updateMessageMetadataInVector,
 } from '@/app/services/longTermMemoryService';
 import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
-import { generateEmbeddings } from '@/app/services/embeddingService';
+import {
+  embedConversation,
+  embedMessage,
+} from '@/app/services/embeddingService';
 const nlp = winkNLP(model);
 
 export const useMessageProcessing = (session: any) => {
@@ -30,6 +36,8 @@ export const useMessageProcessing = (session: any) => {
   const historyLength = watch('historyLength');
   const sentences = useRef<string[]>([]);
   const sentenceIndex = useRef<number>(0);
+
+  let lastMessage = {} as IMessage;
 
   const addUserMessageToState = (message: string) => {
     sentences.current = [];
@@ -156,32 +164,54 @@ export const useMessageProcessing = (session: any) => {
     try {
       setValue('isLoading', true);
       const newMessage = addUserMessageToState(message);
-
       if (isLongTermMemoryEnabled) {
         await storeMessageInMemory(newMessage);
       }
       const aiResponseId = uuidv4();
       const userEmail = session?.user?.email as string;
 
+      let augmentedMessage = `FOLLOW THESE INSTRUCTIONS AT ALL TIMES:
+1. Make use of CONTEXT and HISTORY below, to briefly respond to the user prompt. 
+2. If you cannot find this information within the CONTEXT, or HISTORY, respond to the user prompt as best as you can. `;
+
       if (isRagEnabled) {
-        message = await enhanceUserResponse(message, userEmail);
+        const ragContext = await enhanceUserResponse(message, userEmail);
+        augmentedMessage += `
+
+CONTEXT:
+${ragContext || ''}`;
       }
 
       if (isLongTermMemoryEnabled && historyLength > 0) {
-        const userEmail = session?.user?.email as string;
-        const augmentedMessage = await augmentUserMessageWithHistory({
-          message,
-          userEmail,
-          historyLength,
-          memoryType,
-        });
-        if (augmentedMessage) {
-          message = augmentedMessage.formattedConversationHistory;
-          console.log(
-            `Message has been augmented: ${augmentedMessage.formattedConversationHistory}`
-          );
+        let response;
+        if (memoryType === 'NoSQL') {
+          const userEmail = session?.user?.email as string;
+          response = await augmentMessageViaNoSql({
+            userEmail,
+            historyLength,
+            message,
+          });
+        } else if (memoryType === 'Vector') {
+          const embeddedMessage = await embedMessage(newMessage);
+          response = await augmentMessageViaVector({
+            userEmail,
+            historyLength,
+            embeddedMessage,
+          });
         }
+        const conversationHistory =
+          response.formattedConversationHistory.messages.join('\n');
+          
+        augmentedMessage += `
+
+HISTORY: 
+${conversationHistory || ''}`;
       }
+      message = `${augmentedMessage}
+
+PROMPT: 
+${message}
+      `;
       const response = await retrieveAIResponse(
         message,
         userEmail,
@@ -204,17 +234,56 @@ export const useMessageProcessing = (session: any) => {
   };
 
   async function storeMessageInMemory(message: IMessage) {
-    const appendMessageToConversationResponse =
-      await appendMessageToConversation({
-        userEmail: session?.user?.email,
+    let appendMessageToConversationResponse,
+      userEmail = session?.user?.email;
+    if (memoryType === 'NoSQL') {
+      appendMessageToConversationResponse = await appendMessageToNoSql({
+        userEmail,
         message,
-        memoryType,
       });
-    console.log(
-      'appendMessageToConversationResponse: ',
-      appendMessageToConversationResponse
-    );
+      console.log(
+        'appendMessageToConversationResponse: ',
+        appendMessageToConversationResponse
+      );
+    } else if (memoryType === 'Vector') {
+      if (message.sender === 'user') {
+        const embeddedMessage = await embedMessage(message);
+        const vectorMessage = {
+          id: message.id,
+          values: embeddedMessage.embeddings,
+        };
+        appendMessageToConversationResponse = await appendMessageToVector({
+          userEmail,
+          vectorMessage,
+        });
+        lastMessage = message;
+        console.log(
+          'appendMessageToConversationResponse: ',
+          appendMessageToConversationResponse
+        );
+      } else if (message.sender === 'ai') {
+        const metadata = {
+          user: `Date: ${lastMessage.createdAt}. Sender: ${lastMessage.conversationId}. Message: ${lastMessage.text}`,
+          ai: `Date: ${message.createdAt}. Sender: AI. Message: ${message.text}`,
+        };
+
+        const id = lastMessage.id;
+        const updateMessageMetadataInVectorResponse =
+          await updateMessageMetadataInVector({
+            userEmail,
+            id,
+            metadata,
+          });
+
+        lastMessage = message;
+        console.log(
+          'updateMessageMetadataInVectorResponse: ',
+          updateMessageMetadataInVectorResponse
+        );
+      }
+    }
   }
+
   async function enhanceUserResponse(message: string, userEmail: string) {
     const jsonMessage = [
       {
@@ -224,7 +293,8 @@ export const useMessageProcessing = (session: any) => {
         },
       },
     ];
-    const embeddedMessage = await generateEmbeddings(jsonMessage, userEmail);
+
+    const embeddedMessage = await embedConversation(jsonMessage, userEmail);
 
     const vectorResponse = await queryVectorDbByNamespace(
       embeddedMessage.embeddings,
@@ -237,13 +307,7 @@ export const useMessageProcessing = (session: any) => {
         text: item.metadata.text,
       };
     });
-    return `
-        FOLLOW THESE INSTRUCTIONS AT ALL TIMES:
-        1. Please ONLY make use of context provided to very briefly respond to the user prompt. 
-        2. Otherwise, inform the user that you are unable to assist with their request.
-        CONTEXT: ${JSON.stringify(context)}
-        PROMPT: ${message}
-        `;
+    return JSON.stringify(context);
   }
 
   async function processResponse(

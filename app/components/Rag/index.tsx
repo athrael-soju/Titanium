@@ -22,7 +22,7 @@ import {
 import RagFileList from './RagFileList';
 import RagForm from './RagForm';
 import { parseDocument } from '@/app/services/unstructuredService';
-import { generateEmbeddings } from '@/app/services/embeddingService';
+import { embedConversation } from '@/app/services/embeddingService';
 import {
   upsertToVectorDb,
   deleteFileFromVectorDb,
@@ -224,16 +224,16 @@ const RagDialog: React.FC<RagDialogProps> = ({
         parsingStrategy
       );
 
-      const generateEmbeddingsResponse = await generateEmbeddings(
+      const embedConversationResponse = await embedConversation(
         parsedDocumentResponse.file,
         userEmail
       );
 
       ragFiles[ragFiles.indexOf(file)].chunks =
-        generateEmbeddingsResponse.chunks;
+      embedConversationResponse.chunks;
 
       const upsertToVectorDbResponse = await upsertToVectorDb(
-        generateEmbeddingsResponse.embeddings,
+        embedConversationResponse.embeddings,
         userEmail,
         chunkBatch
       );
