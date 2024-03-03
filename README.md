@@ -11,9 +11,9 @@ Titanium is a modern web application built with Next.js, leveraging the latest O
 
 Some of the features I'm working on include:
 
-- Persistent multi-user memory.🚧
+- Persistent multi-user memory.✅
   - NoSQL Based.✅
-  - Vector Based.🚧
+  - Vector Based.✅
 - Image Generation via DALLE-3.🚧
 - Video
   - Video to Text (VTT) - For use in RAG based applications. 🚧
