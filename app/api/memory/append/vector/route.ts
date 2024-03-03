@@ -22,7 +22,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       });
     } else {
       return sendErrorResponse(
-        'Upsert cannot proceed without a valid user userEmail',
+        'Append cannot proceed without a valid user userEmail',
         400
       );
     }
