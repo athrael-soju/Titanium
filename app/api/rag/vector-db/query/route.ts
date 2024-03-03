@@ -15,8 +15,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (ragId) {
       const response = await pinecone.queryByNamespace(
         ragId,
-        embeddedMessage,
-        topK
+        topK,
+        embeddedMessage
       );
 
       return NextResponse.json({
