@@ -31,7 +31,6 @@ const upsert = async (data: any[], user: IUser, chunkBatch: string) => {
   try {
     const index = await getIndex();
     const chunkedData = chunkArray(data, parseInt(chunkBatch));
-    console.log('chunkedData', chunkedData[0][0]);
     for (const chunk of chunkedData) {
       await index.namespace(user.ragId as string).upsert(chunk);
     }
@@ -72,7 +71,7 @@ const queryByNamespace = async (
   const index = await getIndex();
   const result = await index.namespace(namespace).query({
     topK: parseInt(topK),
-    vector: embeddedMessage.embeddings,
+    vector: embeddedMessage[0].values,
     includeValues: false,
     includeMetadata: true,
     //filter: { genre: { $eq: 'action' } },

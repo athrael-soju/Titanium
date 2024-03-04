@@ -122,7 +122,6 @@ export async function getFormattedConversationHistory(
           }, ${msg.text}`
       )
       .join('\n');
-
     // Return the latest user message in the specified format
     return recentMessages;
   } catch (error) {
