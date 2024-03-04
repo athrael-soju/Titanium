@@ -179,7 +179,6 @@ ${ragContext || ''}`;
           newMessage,
           session
         );
-        console.log('recentMessages:', conversationHistory);
         augmentedMessage += `
 
 HISTORY: 
@@ -190,7 +189,6 @@ ${conversationHistory || ''}`;
 PROMPT: 
 ${message}
       `;
-      console.log('message: ', message);
       const response = await retrieveAIResponse(
         message,
         userEmail,
