@@ -7,18 +7,10 @@ import {
   retrieveAIResponse,
   retrieveTextFromSpeech,
 } from '@/app/services/chatService';
-import {
-  appendMessageToNoSql,
-  appendMessageToVector,
-  augmentMessageViaNoSql,
-  augmentMessageViaVector,
-  updateMessageMetadataInVector,
-} from '@/app/services/longTermMemoryService';
+
+import { persistentMemoryUtils } from '@/app/utils/persistentMemoryUtils';
 import { queryVectorDbByNamespace } from '@/app/services/vectorDbService';
-import {
-  embedConversation,
-  embedMessage,
-} from '@/app/services/embeddingService';
+import { embedConversation } from '@/app/services/embeddingService';
 const nlp = winkNLP(model);
 
 export const useMessageProcessing = (session: any) => {
@@ -37,7 +29,7 @@ export const useMessageProcessing = (session: any) => {
   const sentences = useRef<string[]>([]);
   const sentenceIndex = useRef<number>(0);
 
-  let lastMessage = {} as IMessage;
+  const userEmail = session?.user?.email as string;
 
   const addUserMessageToState = (message: string) => {
     sentences.current = [];
@@ -110,7 +102,7 @@ export const useMessageProcessing = (session: any) => {
       isDone = await processChunk();
     }
     if (isLongTermMemoryEnabled) {
-      await storeMessageInMemory(newMessage);
+      persistentMemoryUtils.append(memoryType, newMessage, userEmail);
     }
     if (isTextToSpeechEnabled) {
       await retrieveTextFromSpeech(
@@ -165,11 +157,9 @@ export const useMessageProcessing = (session: any) => {
       setValue('isLoading', true);
       const newMessage = addUserMessageToState(message);
       if (isLongTermMemoryEnabled) {
-        await storeMessageInMemory(newMessage);
+        persistentMemoryUtils.append(memoryType, newMessage, userEmail);
       }
       const aiResponseId = uuidv4();
-      const userEmail = session?.user?.email as string;
-
       let augmentedMessage = `FOLLOW THESE INSTRUCTIONS AT ALL TIMES:
 1. Make use of CONTEXT and HISTORY below, to briefly respond to the user prompt. 
 2. If you cannot find this information within the CONTEXT, or HISTORY, respond to the user prompt as best as you can. `;
@@ -181,27 +171,15 @@ export const useMessageProcessing = (session: any) => {
 CONTEXT:
 ${ragContext || ''}`;
       }
-
-      if (isLongTermMemoryEnabled && historyLength > 0) {
-        let response;
-        if (memoryType === 'NoSQL') {
-          const userEmail = session?.user?.email as string;
-          response = await augmentMessageViaNoSql({
-            userEmail,
-            historyLength,
-            message,
-          });
-        } else if (memoryType === 'Vector') {
-          const embeddedMessage = await embedMessage(newMessage);
-          response = await augmentMessageViaVector({
-            userEmail,
-            historyLength,
-            embeddedMessage,
-          });
-        }
-        const conversationHistory =
-          response.formattedConversationHistory.messages.join('\n');
-          
+      if (isLongTermMemoryEnabled && parseInt(historyLength) > 0) {
+        const conversationHistory = await persistentMemoryUtils.augment(
+          historyLength,
+          memoryType,
+          message,
+          newMessage,
+          session
+        );
+        console.log('recentMessages:', conversationHistory);
         augmentedMessage += `
 
 HISTORY: 
@@ -212,6 +190,7 @@ ${conversationHistory || ''}`;
 PROMPT: 
 ${message}
       `;
+      console.log('message: ', message);
       const response = await retrieveAIResponse(
         message,
         userEmail,
@@ -232,57 +211,6 @@ ${message}
       setValue('isLoading', false);
     }
   };
-
-  async function storeMessageInMemory(message: IMessage) {
-    let appendMessageToConversationResponse,
-      userEmail = session?.user?.email;
-    if (memoryType === 'NoSQL') {
-      appendMessageToConversationResponse = await appendMessageToNoSql({
-        userEmail,
-        message,
-      });
-      console.log(
-        'appendMessageToConversationResponse: ',
-        appendMessageToConversationResponse
-      );
-    } else if (memoryType === 'Vector') {
-      if (message.sender === 'user') {
-        const embeddedMessage = await embedMessage(message);
-        const vectorMessage = {
-          id: message.id,
-          values: embeddedMessage.embeddings,
-        };
-        appendMessageToConversationResponse = await appendMessageToVector({
-          userEmail,
-          vectorMessage,
-        });
-        lastMessage = message;
-        console.log(
-          'appendMessageToConversationResponse: ',
-          appendMessageToConversationResponse
-        );
-      } else if (message.sender === 'ai') {
-        const metadata = {
-          user: `Date: ${lastMessage.createdAt}. Sender: ${lastMessage.conversationId}. Message: ${lastMessage.text}`,
-          ai: `Date: ${message.createdAt}. Sender: AI. Message: ${message.text}`,
-        };
-
-        const id = lastMessage.id;
-        const updateMessageMetadataInVectorResponse =
-          await updateMessageMetadataInVector({
-            userEmail,
-            id,
-            metadata,
-          });
-
-        lastMessage = message;
-        console.log(
-          'updateMessageMetadataInVectorResponse: ',
-          updateMessageMetadataInVectorResponse
-        );
-      }
-    }
-  }
 
   async function enhanceUserResponse(message: string, userEmail: string) {
     const jsonMessage = [

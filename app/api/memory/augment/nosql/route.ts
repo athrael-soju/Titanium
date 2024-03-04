@@ -13,11 +13,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   let formattedConversationHistory = message;
   try {
     const { conversation } = await getConversation(db, userEmail);
-
-    formattedConversationHistory = await getFormattedConversationHistory(
-      historyLength,
-      conversation
-    );
+    if (conversation.messages.length > 0) {
+      formattedConversationHistory = await getFormattedConversationHistory(
+        historyLength,
+        conversation
+      );
+    }
     if (!formattedConversationHistory) {
       return sendErrorResponse(
         `Error Augmenting message with NoSQL database`,

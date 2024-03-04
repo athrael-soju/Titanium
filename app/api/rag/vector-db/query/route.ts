@@ -11,17 +11,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const { embeddedMessage, userEmail, topK } = requestBody;
     const { user } = await getDatabaseAndUser(db, userEmail);
 
-    const ragId = user.ragId;
-    if (ragId) {
+    const namespace = user.ragId;
+    if (namespace) {
       const response = await pinecone.queryByNamespace(
-        ragId,
+        namespace,
         topK,
         embeddedMessage
       );
 
       return NextResponse.json({
         message: 'Pinecone query successful',
-        ragId: user.ragId,
+        ragId: namespace,
         response,
         isRagEnabled: user.isRagEnabled,
         status: 200,
