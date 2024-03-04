@@ -9,11 +9,10 @@ import { sendErrorResponse } from '@/app/lib/utils/response';
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const db = await getDb();
   const { userEmail, message, historyLength } = await req.json();
-
   let formattedConversationHistory = message;
   try {
     const { conversation } = await getConversation(db, userEmail);
-    if (conversation.messages.length > 0) {
+    if (conversation?.messages?.length > 0) {
       formattedConversationHistory = await getFormattedConversationHistory(
         historyLength,
         conversation
