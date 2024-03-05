@@ -19,6 +19,9 @@ Some of the features I'm working on include:
   - Video to Text (VTT) - For use in RAG based applications. 🚧
   - Text to Video (TTV) - As per latest reveal from OpenAI's latest Diffusion Model, called [Sora](https://openai.com/sora).🚧
 
+Planned additions
+- Support for additional models, such as claude-3.🚧
+
 And the obligatory:
 
 - Bug fixes and performance improvements.🐛
