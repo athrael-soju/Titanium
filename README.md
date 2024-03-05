@@ -5,8 +5,9 @@ Titanium is a modern web application built with Next.js, leveraging the latest O
 - Multi-user Authentication using next-auth, including a custom CredentialProvider for guest accounts.✅
 - Customizable, Multipurpose Assistants with File Upload support. Also supports complete deletion of all Assistant related data.✅
 - Vision via 'gpt-4-vision-preview'. Currently supports Image Analysis for multiple urls. File uploads may come later, but not a priority.✅
-- Text to Speech (TTS), Supporting tts-1, tts-1-hd and all available voice models.✅
-- Speech to Text (STT), available via button toggle in the input chat box.✅
+- Speech
+  - Text to Speech (TTS), Supporting tts-1, tts-1-hd and all available voice models.✅
+  - Speech to Text (STT), available via button toggle in the input chat box.✅
 - Retrieval Augmented Generation (RAG), Using advanced document parsing by Unstructured.io API, ada-003 Embeddings by OpenAI and Pinecone Serverless for fast and efficient indexing & retrieval.✅
 
 Some of the features I'm working on include:
