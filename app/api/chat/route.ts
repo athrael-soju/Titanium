@@ -72,8 +72,12 @@ async function handlePostRequest(req: NextRequest) {
       }
 
       return new Response(assistantMessageContent.text.value);
-    } else if (user.isVisionEnabled && user.visionId) {
-      const content = [{ type: 'text', text: userMessage }] as any[];
+    }
+    let model = process.env.OPENAI_API_MODEL as string,
+      content = userMessage;
+    if (user.isVisionEnabled && user.visionId) {
+      model = 'gpt-4-vision-preview';
+      content = [{ type: 'text', text: userMessage }] as any[];
       const fileCollection = db.collection<VisionFile>('files');
       const visionFileList = await fileCollection
         .find({ visionId: user.visionId })
@@ -89,26 +93,14 @@ async function handlePostRequest(req: NextRequest) {
           });
         });
       }
-      const response = openai.beta.chat.completions.stream({
-        model: 'gpt-4-vision-preview',
-        messages: [
-          {
-            role: 'user',
-            content: content,
-          },
-        ],
-        stream: true,
-        max_tokens: 1024,
-      });
-      return new Response(response.toReadableStream());
-    } else {
-      const completion = openai.beta.chat.completions.stream({
-        model: process.env.OPENAI_API_MODEL as string,
-        messages: [{ role: 'user', content: userMessage }],
-        stream: true,
-      });
-      return new Response(completion.toReadableStream());
     }
+    const response = await openai.chat.completions.create({
+      model: model,
+      messages: [{ role: 'user', content: content }],
+      stream: true,
+      max_tokens: 1024,
+    });
+    return new Response(response.toReadableStream());
   } catch (error: any) {
     console.error('Error processing request: ', error);
     return sendErrorResponse('Error processing request', 400);

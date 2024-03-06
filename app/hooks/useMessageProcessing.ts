@@ -156,39 +156,13 @@ export const useMessageProcessing = (session: any) => {
     try {
       setValue('isLoading', true);
       const newMessage = addUserMessageToState(message);
+      // Append the user message to the long-term memory
       if (isLongTermMemoryEnabled) {
         persistentMemoryUtils.append(memoryType, newMessage, userEmail);
       }
       const aiResponseId = uuidv4();
-      let augmentedMessage = `FOLLOW THESE INSTRUCTIONS AT ALL TIMES:
-1. Make use of CONTEXT and HISTORY below, to briefly respond to the user prompt. 
-2. If you cannot find this information within the CONTEXT, or HISTORY, respond to the user prompt as best as you can. `;
-
-      if (isRagEnabled) {
-        const ragContext = await enhanceUserResponse(message, userEmail);
-        augmentedMessage += `
-
-CONTEXT:
-${ragContext || ''}`;
-      }
-      if (isLongTermMemoryEnabled && parseInt(historyLength) > 0) {
-        const conversationHistory = await persistentMemoryUtils.augment(
-          historyLength,
-          memoryType,
-          message,
-          newMessage,
-          session
-        );
-        augmentedMessage += `
-
-HISTORY: 
-${conversationHistory || ''}`;
-      }
-      message = `${augmentedMessage}
-
-PROMPT: 
-${message}
-      `;
+      // enhance the user message with context and history
+      message = await enhanceMessage(message, newMessage, userEmail);
       const response = await retrieveAIResponse(
         message,
         userEmail,
@@ -209,6 +183,45 @@ ${message}
       setValue('isLoading', false);
     }
   };
+
+  async function enhanceMessage(
+    message: string,
+    newMessage: IMessage,
+    userEmail: string
+  ) {
+    let augmentedMessage = `FOLLOW THESE INSTRUCTIONS AT ALL TIMES:
+    1. Make use of CONTEXT and HISTORY below, to briefly respond to the user prompt. 
+    2. If you cannot find this information within the CONTEXT, or HISTORY, respond to the user prompt as best as you can. `;
+
+    if (isRagEnabled) {
+      // Augment the message with context.
+      const ragContext = await enhanceUserResponse(message, userEmail);
+      augmentedMessage += `
+    
+    CONTEXT:
+    ${ragContext || ''}`;
+    }
+    // Augment the message with the conversation history.
+    if (isLongTermMemoryEnabled && parseInt(historyLength) > 0) {
+      const conversationHistory = await persistentMemoryUtils.augment(
+        historyLength,
+        memoryType,
+        message,
+        newMessage,
+        session
+      );
+      augmentedMessage += `
+    
+    HISTORY: 
+    ${conversationHistory || ''}`;
+    }
+    message = `${augmentedMessage}
+    
+    PROMPT: 
+    ${message}
+          `;
+    return message;
+  }
 
   async function enhanceUserResponse(message: string, userEmail: string) {
     const jsonMessage = [
