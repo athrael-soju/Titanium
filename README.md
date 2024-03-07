@@ -9,9 +9,6 @@ Titanium is a modern web application built with Next.js, leveraging the latest O
   - Text to Speech (TTS), Supporting tts-1, tts-1-hd and all available voice models.✅
   - Speech to Text (STT), available via button toggle in the input chat box.✅
 - Retrieval Augmented Generation (RAG), Using advanced document parsing by Unstructured.io API, ada-003 Embeddings by OpenAI and Pinecone Serverless for fast and efficient indexing & retrieval.✅
-
-Some of the features I'm working on include:
-
 - Persistent multi-user memory.✅
   - NoSQL Based.✅
   - Vector Based.✅
