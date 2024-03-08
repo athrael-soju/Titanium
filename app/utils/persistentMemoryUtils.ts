@@ -48,9 +48,7 @@ const append = async (
       userEmail,
       message,
     });
-    console.info(
-      `Appended ${response.newMessage.sender} message to NoSql:  ${response.newMessage.text}`
-    );
+    console.info(`Appended message to NoSql:  ${response.newMessage.text}`);
   } else if (memoryType === 'Vector') {
     if (message.sender === 'user') {
       const embeddedMessage = await embedMessage(message);
@@ -63,9 +61,7 @@ const append = async (
         vectorMessage,
       });
       lastMessage = message;
-      console.info(
-        `Appended ${response.newMessage.sender} message to Vector:  ${response}`
-      );
+      console.info(`Appended message to Vector:  ${response}`);
     } else if (message.sender === 'ai') {
       const metadata = {
         user: `Date: ${lastMessage.createdAt}. Sender: ${lastMessage.conversationId}. Message: ${lastMessage.text}`,
@@ -80,7 +76,7 @@ const append = async (
       });
 
       lastMessage = message;
-      console.info('Updated metadata in Vector:  ', response.newMessage.text);
+      console.info('Updated metadata in Vector:  ', response);
     }
   }
 };

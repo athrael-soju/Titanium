@@ -28,7 +28,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({
       message: 'Message embeddings generated successfully',
-      embeddings: embeddingValues,
+      values: embeddingValues,
       status: 200,
     });
   } catch (error: any) {
