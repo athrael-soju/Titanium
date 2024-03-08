@@ -117,9 +117,9 @@ export async function getFormattedConversationHistory(
     const recentMessages = sortedMessages
       .map(
         (msg) =>
-          `- ${new Date(msg.createdAt).toISOString()}, ${
+          `- Date: ${new Date(msg.createdAt).toISOString()}, Sender: ${
             msg.sender === 'user' ? 'User' : 'AI'
-          }, ${msg.text}`
+          }, Message: ${msg.text}`
       )
       .join('\n');
     // Return the latest user message in the specified format

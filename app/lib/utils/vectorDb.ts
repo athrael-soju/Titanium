@@ -27,7 +27,7 @@ function formatMessage(
   dateMatch: RegExpExecArray,
   messageMatch: RegExpExecArray
 ): string {
-  return `Date: ${dateMatch[1]}, Sender: ${type.toUpperCase()}, Message: ${
+  return `- Date: ${dateMatch[1]}, Sender: ${type.toUpperCase()}, Message: ${
     messageMatch[1]
   }`;
 }
