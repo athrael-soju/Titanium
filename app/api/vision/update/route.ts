@@ -6,8 +6,8 @@ import { sendErrorResponse } from '@/app/lib/utils/response';
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
-    const { isVisionEnabled, userEmail } = (await req.json()) as {
-      isVisionEnabled: boolean;
+    const { isImageToTextEnabled, userEmail } = (await req.json()) as {
+      isImageToTextEnabled: boolean;
       userEmail: string;
     };
 
@@ -18,30 +18,30 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return sendErrorResponse('User not found', 404);
     }
 
-    await updateVision(user, usersCollection, isVisionEnabled);
+    await updateImageToText(user, usersCollection, isImageToTextEnabled);
 
     return NextResponse.json({
-      message: 'Vision updated',
-      visionId: user.visionId,
-      isVisionEnabled: isVisionEnabled,
+      message: 'ImageToText updated',
+      imageId: user.imageId,
+      isImageToTextEnabled: isImageToTextEnabled,
       status: 200,
     });
   } catch (error: any) {
-    console.error('Error in vision update: ', error);
-    return sendErrorResponse('Error in vision update', 400);
+    console.error('Error in imageToText update: ', error);
+    return sendErrorResponse('Error in imageToText update', 400);
   }
 }
 
-async function updateVision(
+async function updateImageToText(
   user: IUser,
   usersCollection: Collection<IUser>,
-  isVisionEnabled: boolean
+  isImageToTextEnabled: boolean
 ): Promise<void> {
-  let disableOtherServices = isVisionEnabled ? false : user.isAssistantEnabled;
-  let visionId = user.visionId;
-  if (!visionId) {
-    console.log('No visionId found. Creating a new one');
-    visionId = crypto.randomUUID();
+  let disableOtherServices = isImageToTextEnabled ? false : user.isAssistantEnabled;
+  let imageId = user.imageId;
+  if (!imageId) {
+    console.log('No imageId found. Creating a new one');
+    imageId = crypto.randomUUID();
   }
   await usersCollection.updateOne(
     { email: user.email },
@@ -49,8 +49,8 @@ async function updateVision(
       $set: {
         isAssistantEnabled: disableOtherServices,
         isRagEnabled: disableOtherServices,
-        isVisionEnabled: isVisionEnabled,
-        visionId: visionId,
+        isImageToTextEnabled: isImageToTextEnabled,
+        imageId: imageId,
       },
     }
   );

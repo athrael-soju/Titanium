@@ -5,7 +5,7 @@ import {
   sendInformationResponse,
 } from '@/app/lib/utils/response';
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -14,17 +14,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const serviceName = req.headers.get('serviceName');
     const { user } = await getDatabaseAndUser(db, userEmail);
 
-    if (serviceName === 'vision' && user.visionId) {
-      const fileCollection = db.collection<VisionFile>('files');
-      const visionFileList = await fileCollection
-        .find({ visionId: user.visionId })
+    if (serviceName === 'vision' && user.imageId) {
+      const fileCollection = db.collection<ImageFile>('files');
+      const imageFileList = await fileCollection
+        .find({ imageId: user.imageId })
         .toArray();
 
       return NextResponse.json({
         message: 'Vision retrieved',
-        visionId: user.visionId,
-        visionFileList,
-        isVisionEnabled: user.isVisionEnabled,
+        imageId: user.imageId,
+        imageFileList,
+        isImageToTextEnabled: user.isImageToTextEnabled,
         status: 200,
       });
     } else {

@@ -1,5 +1,5 @@
-interface VisionFile {
-  visionId: string;
+interface ImageFile {
+  imageId: string;
   name: string;
   type: string;
   url: string;

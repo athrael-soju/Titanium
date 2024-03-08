@@ -1,22 +1,22 @@
-interface VisionUpdateData {
-  isVisionEnabled: boolean;
+interface ImageToTextUpdateData {
+  isImageToTextEnabled: boolean;
   userEmail: string;
 }
 
-interface VisionAddUrlData {
+interface ImageToTextAddUrlData {
   userEmail: string;
   file: {
     id: string;
-    visionId: string;
+    imageId: string;
     name: string;
     type: string;
     url: string;
   };
 }
-const updateVision = async ({
-  isVisionEnabled,
+const updateImageToText = async ({
+  isImageToTextEnabled,
   userEmail,
-}: VisionUpdateData): Promise<any> => {
+}: ImageToTextUpdateData): Promise<any> => {
   try {
     const response = await fetch('/api/vision/update', {
       method: 'POST',
@@ -24,7 +24,7 @@ const updateVision = async ({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        isVisionEnabled,
+        isImageToTextEnabled,
         userEmail,
       }),
     });
@@ -35,10 +35,10 @@ const updateVision = async ({
   }
 };
 
-const deleteVisionFile = async (
+const deleteImageFile = async (
   file: {
     id: string;
-    visionId: string;
+    imageId: string;
     name: string;
     type: string;
     url: string;
@@ -46,7 +46,7 @@ const deleteVisionFile = async (
   userEmail: string
 ): Promise<any> => {
   try {
-    const response = await fetch('/api/vision/delete-url', {
+    const response = await fetch('/api/vision/itt/delete-url', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,12 +60,12 @@ const deleteVisionFile = async (
   }
 };
 
-const addVisionUrl = async ({
+const addImageToTextUrl = async ({
   userEmail,
   file,
-}: VisionAddUrlData): Promise<any> => {
+}: ImageToTextAddUrlData): Promise<any> => {
   try {
-    const response = await fetch('/api/vision/add-url', {
+    const response = await fetch('/api/vision/itt/add-url', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,4 +81,4 @@ const addVisionUrl = async ({
   }
 };
 
-export { updateVision, deleteVisionFile, addVisionUrl };
+export { updateImageToText, deleteImageFile, addImageToTextUrl };

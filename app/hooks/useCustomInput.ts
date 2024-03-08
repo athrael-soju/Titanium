@@ -12,7 +12,7 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
   const [inputValue, setInputValue] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState({
     assistant: false,
-    vision: false,
+    imageToText: false,
     speech: false,
     rag: false,
     memory: false,
@@ -37,17 +37,17 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
     } else {
       setValue('isAssistantDefined', false);
     }
-    // Prefetch vision data
+    // Prefetch imageToText data
     response = await retrieveServices({
       userEmail,
       serviceName: 'vision',
     });
-    if (response.visionId) {
-      setValue('isVisionEnabled', response.isVisionEnabled);
-      setValue('visionFiles', response.visionFileList);
-      setValue('isVisionDefined', true);
+    if (response.imageId) {
+      setValue('isImageToTextEnabled', response.isImageToTextEnabled);
+      setValue('ImageFiles', response.imageFileList);
+      setValue('isImageToTextDefined', true);
     } else {
-      setValue('isVisionDefined', false);
+      setValue('isImageToTextDefined', false);
     }
     // Prefetch speech data
     response = await retrieveServices({

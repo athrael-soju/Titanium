@@ -13,8 +13,8 @@ interface ChatFormValues {
   historyLength: string;
   isAssistantEnabled: boolean;
   isAssistantDefined: boolean;
-  isVisionEnabled: boolean;
-  isVisionDefined: boolean;
+  isImageToTextEnabled: boolean;
+  isImageToTextDefined: boolean;
   isTextToSpeechEnabled: boolean;
   isSpeechToTextEnabled: boolean;
   isRagEnabled: boolean;
@@ -22,9 +22,9 @@ interface ChatFormValues {
   transcript: string;
   isLoading: boolean;
   assistantFiles: { name: string; id: string; assistandId: string }[];
-  visionFiles: {
+  ImageFiles: {
     id: string;
-    visionId: string;
+    imageId: string;
     name: string;
     type: string;
     url: string;
@@ -54,8 +54,8 @@ export const useChatForm = () => {
       historyLength: '',
       isAssistantEnabled: false,
       isAssistantDefined: false,
-      isVisionEnabled: false,
-      isVisionDefined: false,
+      isImageToTextEnabled: false,
+      isImageToTextDefined: false,
       isTextToSpeechEnabled: false,
       isSpeechToTextEnabled: false,
       isRagEnabled: false,
@@ -63,7 +63,7 @@ export const useChatForm = () => {
       transcript: '',
       isLoading: false,
       assistantFiles: [],
-      visionFiles: [],
+      ImageFiles: [],
       ragFiles: [],
     },
   });

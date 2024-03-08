@@ -27,7 +27,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const chunkIdList: string[] = [];
     const ragId = user.ragId as string;
 
-    const embeddings = await Promise.all(
+    const response = await Promise.all(
       data.map(async (item: any) => {
         const response = await openai.embeddings.create({
           model: 'text-embedding-3-small',
@@ -59,11 +59,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         },
       }
     );
-
+    const values = response[0];
     return NextResponse.json({
       message: 'Embeddings generated successfully',
       chunks: chunkIdList,
-      embeddings: embeddings,
+      values: values,
       status: 200,
     });
   } catch (error: any) {

@@ -100,7 +100,7 @@ const SpeechDialog: React.FC<SpeechDialogProps> = ({
         throw new Error('No session found');
       }
     } catch (error) {
-      console.error('Error updating Vision: ', error);
+      console.error('Error updating ImageToText: ', error);
     } finally {
       setValue('isLoading', false);
     }

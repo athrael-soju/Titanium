@@ -8,14 +8,14 @@ import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import LongTermMemoryIcon from '@mui/icons-material/Psychology';
 import AssistantIcon from '@mui/icons-material/Assistant';
-import VisionIcon from '@mui/icons-material/Visibility';
+import ImageToTextIcon from '@mui/icons-material/Visibility';
 import RagIcon from '@mui/icons-material/Storage';
 import RecordVoiceOver from '@mui/icons-material/RecordVoiceOver';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useCustomInput } from '@/app/hooks/useCustomInput';
 import AssistantDialog from '../Assistant';
-import VisionDialog from '../Vision';
+import ImageToTextDialog from '../Vision/ImageToText';
 import SpeechDialog from '../Speech/tts';
 import { Microphone } from '../Speech/stt';
 import RagDialog from '../Rag';
@@ -97,9 +97,9 @@ const CustomizedInputBase = ({
             </ListItemIcon>
             Assistant
           </MenuItem>
-          <MenuItem onClick={() => toggleDialog('vision')}>
+          <MenuItem onClick={() => toggleDialog('imageToText')}>
             <ListItemIcon>
-              <VisionIcon fontSize="small" />
+              <ImageToTextIcon fontSize="small" />
             </ListItemIcon>
             Vision
           </MenuItem>
@@ -136,9 +136,9 @@ const CustomizedInputBase = ({
         onClose={() => toggleDialog('assistant')}
       />
 
-      <VisionDialog
-        open={isDialogOpen.vision}
-        onClose={() => toggleDialog('vision')}
+      <ImageToTextDialog
+        open={isDialogOpen.imageToText}
+        onClose={() => toggleDialog('imageToText')}
       />
 
       <SpeechDialog

@@ -7,13 +7,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const db = await getDb();
     const { file, userEmail } = await req.json();
     const { user } = await getDatabaseAndUser(db, userEmail);
-    if (user.visionId !== file.visionId) {
-      return sendErrorResponse('User visionId not found', 404);
+    if (user.imageId !== file.imageId) {
+      return sendErrorResponse('User imageId not found', 404);
     }
 
-    const fileCollection = db.collection<VisionFile>('files');
+    const fileCollection = db.collection<ImageFile>('files');
     const deleteFileResponse = await fileCollection.deleteOne({
-      visionId: file.visionId,
+      imageId: file.imageId,
     });
 
     return NextResponse.json({

@@ -29,6 +29,7 @@ function chunkArray(array: any[], chunkSize: number): any[][] {
 
 const upsert = async (data: any[], user: IUser, chunkBatch: string) => {
   try {
+    console.log('Upserting data in Pinecone', data);
     const index = await getIndex();
     const chunkedData = chunkArray(data, parseInt(chunkBatch));
     for (const chunk of chunkedData) {
@@ -71,7 +72,7 @@ const queryByNamespace = async (
   const index = await getIndex();
   const result = await index.namespace(namespace).query({
     topK: parseInt(topK),
-    vector: embeddedMessage[0].values,
+    vector: embeddedMessage.values,
     includeValues: false,
     includeMetadata: true,
     //filter: { genre: { $eq: 'action' } },

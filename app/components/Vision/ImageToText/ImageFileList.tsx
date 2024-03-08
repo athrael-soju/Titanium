@@ -8,12 +8,12 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FolderIcon from '@mui/icons-material/Folder';
-import FilePaper from '../FileList';
+import FilePaper from '../../FileList';
 
-interface VisionFileListProps {
+interface ImageFileListProps {
   files: {
     id: string;
-    visionId: string;
+    imageId: string;
     name: string;
     type: string;
     url: string;
@@ -21,7 +21,7 @@ interface VisionFileListProps {
   onDelete: (file: any) => void;
 }
 
-const VisionFileList: React.FC<VisionFileListProps> = ({ files, onDelete }) => {
+const ImageFileList: React.FC<ImageFileListProps> = ({ files, onDelete }) => {
   return (
     <div style={{ paddingTop: 5 }}>
       <FilePaper
@@ -52,4 +52,4 @@ const VisionFileList: React.FC<VisionFileListProps> = ({ files, onDelete }) => {
   );
 };
 
-export default VisionFileList;
+export default ImageFileList;

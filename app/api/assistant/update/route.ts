@@ -70,7 +70,7 @@ async function createOrUpdateAssistant(
   files: { name: string; id: string; assistantId: string }[]
 ): Promise<{ assistant: any; thread: any }> {
   let assistant, thread;
-  const isVisionEnabled = isAssistantEnabled ? false : user.isVisionEnabled;
+  const isImageToTextEnabled = isAssistantEnabled ? false : user.isImageToTextEnabled;
   const isRagEnabled = isAssistantEnabled ? false : user.isRagEnabled;
 
   if (!user.assistantId) {
@@ -102,7 +102,7 @@ async function createOrUpdateAssistant(
         assistantId: assistant.id,
         threadId: thread.id,
         isAssistantEnabled: isAssistantEnabled,
-        isVisionEnabled: isVisionEnabled,
+        isImageToTextEnabled: isImageToTextEnabled,
         isRagEnabled: isRagEnabled,
       },
     }
