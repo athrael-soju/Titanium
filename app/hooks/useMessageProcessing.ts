@@ -220,6 +220,7 @@ export const useMessageProcessing = (session: any) => {
     PROMPT: 
     ${message}
           `;
+    //console.log('Enhanced message: ', message);
     return message;
   }
 

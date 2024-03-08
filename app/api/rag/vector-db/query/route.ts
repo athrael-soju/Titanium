@@ -16,7 +16,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       const response = await pinecone.queryByNamespace(
         namespace,
         topK,
-        embeddedMessage
+        embeddedMessage[0]
       );
 
       return NextResponse.json({
