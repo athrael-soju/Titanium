@@ -197,9 +197,9 @@ export const useMessageProcessing = (session: any) => {
       // Augment the message with context.
       const ragContext = await enhanceUserResponse(message, userEmail);
       augmentedMessage += `
-    
-    CONTEXT:
-    ${ragContext || ''}`;
+
+CONTEXT:
+${ragContext || ''}`;
     }
     // Augment the message with the conversation history.
     if (isLongTermMemoryEnabled && parseInt(historyLength) > 0) {
@@ -211,14 +211,14 @@ export const useMessageProcessing = (session: any) => {
         session
       );
       augmentedMessage += `
-    
-    HISTORY: 
-    ${conversationHistory || ''}`;
+
+HISTORY: 
+${conversationHistory || ''}`;
     }
     message = `${augmentedMessage}
-    
-    PROMPT: 
-    ${message}
+
+PROMPT: 
+${message}
           `;
     //console.info('Enhanced message: ', message);
     return message;
@@ -242,12 +242,7 @@ export const useMessageProcessing = (session: any) => {
       topK
     );
 
-    const context = vectorResponse.response.matches.map((item: any) => {
-      return {
-        text: item.metadata.text,
-      };
-    });
-    return JSON.stringify(context);
+    return vectorResponse.context;
   }
 
   async function processResponse(

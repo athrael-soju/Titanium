@@ -19,7 +19,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
     const messageToEmbed = `Date: ${message.createdAt}. User: ${message.conversationId}. Message: ${message.text}. Metadata: ${message.metadata}`;
     const response = await openai.embeddings.create({
-      model: 'text-embedding-3-small',
+      model: 'text-embedding-3-large',
       input: messageToEmbed,
       encoding_format: 'float',
     });

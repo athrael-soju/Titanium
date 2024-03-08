@@ -30,7 +30,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const embeddings = await Promise.all(
       data.map(async (item: any) => {
         const response = await openai.embeddings.create({
-          model: 'text-embedding-3-small',
+          model: 'text-embedding-3-large',
           input: item.text,
           encoding_format: 'float',
         });
