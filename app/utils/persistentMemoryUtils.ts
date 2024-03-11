@@ -44,7 +44,7 @@ const append = async (
 ) => {
   let response;
   if (memoryType === 'NoSQL') {
-    response = await appendMessageToNoSql({
+    await appendMessageToNoSql({
       userEmail,
       message,
     });
@@ -55,7 +55,7 @@ const append = async (
         id: message.id,
         values: embeddedMessage.embeddings,
       };
-      response = await appendMessageToVector({
+      await appendMessageToVector({
         userEmail,
         vectorMessage,
       });
