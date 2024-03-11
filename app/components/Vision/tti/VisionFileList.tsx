@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FolderIcon from '@mui/icons-material/Folder';
-import FilePaper from '../FileList';
+import FilePaper from '../../FileList';
 
 interface VisionFileListProps {
   files: {

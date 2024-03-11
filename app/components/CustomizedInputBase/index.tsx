@@ -15,7 +15,7 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useCustomInput } from '@/app/hooks/useCustomInput';
 import AssistantDialog from '../Assistant';
-import VisionDialog from '../Vision';
+import VisionDialog from '../Vision/tti';
 import SpeechDialog from '../Speech/tts';
 import { Microphone } from '../Speech/stt';
 import RagDialog from '../Rag';
