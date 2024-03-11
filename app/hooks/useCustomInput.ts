@@ -42,9 +42,9 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
       userEmail,
       serviceName: 'vision',
     });
-    if (response.visionId) {
+    if (response.textToImageId) {
       setValue('isVisionEnabled', response.isVisionEnabled);
-      setValue('visionFiles', response.visionFileList);
+      setValue('textToImageFiles', response.visionFileList);
       setValue('isVisionDefined', true);
     } else {
       setValue('isVisionDefined', false);

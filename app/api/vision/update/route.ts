@@ -22,7 +22,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({
       message: 'Vision updated',
-      visionId: user.visionId,
+      textToImageId: user.textToImageId,
       isVisionEnabled: isVisionEnabled,
       status: 200,
     });
@@ -38,10 +38,10 @@ async function updateVision(
   isVisionEnabled: boolean
 ): Promise<void> {
   let disableOtherServices = isVisionEnabled ? false : user.isAssistantEnabled;
-  let visionId = user.visionId;
-  if (!visionId) {
-    console.log('No visionId found. Creating a new one');
-    visionId = crypto.randomUUID();
+  let textToImageId = user.textToImageId;
+  if (!textToImageId) {
+    console.log('No textToImageId found. Creating a new one');
+    textToImageId = crypto.randomUUID();
   }
   await usersCollection.updateOne(
     { email: user.email },
@@ -50,7 +50,7 @@ async function updateVision(
         isAssistantEnabled: disableOtherServices,
         isRagEnabled: disableOtherServices,
         isVisionEnabled: isVisionEnabled,
-        visionId: visionId,
+        textToImageId: textToImageId,
       },
     }
   );

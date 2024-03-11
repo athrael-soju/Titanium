@@ -7,7 +7,7 @@ interface VisionAddUrlData {
   userEmail: string;
   file: {
     id: string;
-    visionId: string;
+    textToImageId: string;
     name: string;
     type: string;
     url: string;
@@ -38,7 +38,7 @@ const updateVision = async ({
 const deleteVisionFile = async (
   file: {
     id: string;
-    visionId: string;
+    textToImageId: string;
     name: string;
     type: string;
     url: string;

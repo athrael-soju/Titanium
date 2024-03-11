@@ -22,9 +22,9 @@ interface ChatFormValues {
   transcript: string;
   isLoading: boolean;
   assistantFiles: { name: string; id: string; assistandId: string }[];
-  visionFiles: {
+  textToImageFiles: {
     id: string;
-    visionId: string;
+    textToImageId: string;
     name: string;
     type: string;
     url: string;
@@ -63,7 +63,7 @@ export const useChatForm = () => {
       transcript: '',
       isLoading: false,
       assistantFiles: [],
-      visionFiles: [],
+      textToImageFiles: [],
       ragFiles: [],
     },
   });

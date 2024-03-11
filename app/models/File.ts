@@ -1,5 +1,5 @@
 interface VisionFile {
-  visionId: string;
+  textToImageId: string;
   name: string;
   type: string;
   url: string;

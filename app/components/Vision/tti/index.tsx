@@ -9,7 +9,7 @@ import {
   Typography,
   Box,
 } from '@mui/material';
-import VisionFileList from './VisionFileList';
+import TextToImageFileList from './TextToImageFileList';
 import AddUrlDialog from './AddUrlDialog';
 import { useSession } from 'next-auth/react';
 import {
@@ -37,7 +37,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   const { setValue, watch } = useFormContext();
   const isVisionEnabled = watch('isVisionEnabled');
   const isVisionDefined = watch('isVisionDefined');
-  const visionFiles = watch('visionFiles');
+  const textToImageFiles = watch('textToImageFiles');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
@@ -67,7 +67,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
 
       const newFile = {
         id: id,
-        visionId: '',
+        textToImageId: '',
         name: nameInput,
         type: 'url',
         url: urlInput,
@@ -75,9 +75,9 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
 
       const response = await addVisionUrl({ userEmail, file: newFile });
       if (response.status === 200) {
-        newFile.visionId = response.file.visionId;
-        const newVisionFiles = [...visionFiles, newFile];
-        setValue('visionFiles', newVisionFiles);
+        newFile.textToImageId = response.file.textToImageId;
+        const newVisionFiles = [...textToImageFiles, newFile];
+        setValue('textToImageFiles', newVisionFiles);
         await handleUpdate();
       } else {
         throw new Error('Failed to add URL to Vision');
@@ -131,7 +131,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
 
   const handleRemoveUrl = async (file: {
     id: string;
-    visionId: string;
+    textToImageId: string;
     name: string;
     type: string;
     url: string;
@@ -144,7 +144,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       }
       const response = await deleteVisionFile(file, userEmail);
       console.log('File successfully deleted from Vision:', response);
-      visionFiles.splice(visionFiles.indexOf(file), 1);
+      textToImageFiles.splice(textToImageFiles.indexOf(file), 1);
     } catch (error) {
       console.error('Failed to remove file from Vision: ', error);
     } finally {
@@ -159,7 +159,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           Vision Settings
         </DialogTitle>
         <DialogContent style={{ paddingBottom: 8 }}>
-          <VisionFileList files={visionFiles} onDelete={handleRemoveUrl} />
+          <TextToImageFileList files={textToImageFiles} onDelete={handleRemoveUrl} />
           <Button
             fullWidth
             onClick={handleUpdate}

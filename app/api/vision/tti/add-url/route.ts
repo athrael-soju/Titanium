@@ -8,19 +8,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const { file, userEmail } = await req.json();
     const { user } = await getDatabaseAndUser(db, userEmail);
-    let visionId;
+    let textToImageId;
     const usersCollection = db.collection<IUser>('users');
-    if (!user.visionId) {
-      console.log('No visionId found. Creating a new one');
-      visionId = crypto.randomUUID();
+    if (!user.textToImageId) {
+      console.log('No textToImageId found. Creating a new one');
+      textToImageId = crypto.randomUUID();
       await usersCollection.updateOne(
         { email: user.email },
-        { $set: { visionId: visionId } }
+        { $set: { textToImageId: textToImageId } }
       );
     } else {
-      visionId = user.visionId;
+      textToImageId = user.textToImageId;
     }
-    file.visionId = visionId;
+    file.textToImageId = textToImageId;
     const fileCollection = db.collection<VisionFile>('files');
     const insertFileResponse = await fileCollection.insertOne(file);
 

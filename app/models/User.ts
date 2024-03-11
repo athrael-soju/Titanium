@@ -12,7 +12,7 @@ interface IUser {
   description: string;
   assistantId?: string | null;
   threadId?: string | null;
-  visionId?: string | null;
+  textToImageId?: string | null;
   ragId?: string | null;
   isAssistantEnabled: boolean;
   isVisionEnabled: boolean;
