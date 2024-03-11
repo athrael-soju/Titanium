@@ -15,7 +15,7 @@ interface IUser {
   textToImageId?: string | null;
   ragId?: string | null;
   isAssistantEnabled: boolean;
-  isVisionEnabled: boolean;
+  isTextToImageEnabled: boolean;
   isTextToSpeechEnabled: boolean;
   isRagEnabled: boolean;
   isLongTermMemoryEnabled: boolean;

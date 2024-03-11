@@ -15,16 +15,16 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const { user } = await getDatabaseAndUser(db, userEmail);
 
     if (serviceName === 'vision' && user.textToImageId) {
-      const fileCollection = db.collection<VisionFile>('files');
-      const visionFileList = await fileCollection
+      const fileCollection = db.collection<TextToImageFile>('files');
+      const textToImageFileList = await fileCollection
         .find({ textToImageId: user.textToImageId })
         .toArray();
 
       return NextResponse.json({
         message: 'Vision retrieved',
         textToImageId: user.textToImageId,
-        visionFileList,
-        isVisionEnabled: user.isVisionEnabled,
+        textToImageFileList,
+        isTextToImageEnabled: user.isTextToImageEnabled,
         status: 200,
       });
     } else {

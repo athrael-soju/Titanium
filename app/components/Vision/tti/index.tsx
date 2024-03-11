@@ -14,15 +14,15 @@ import AddUrlDialog from './AddUrlDialog';
 import { useSession } from 'next-auth/react';
 import {
   updateVision,
-  addVisionUrl,
-  deleteVisionFile,
+  addTextToImageUrl,
+  deleteTextToImageFile,
 } from '@/app/services/visionService';
 import { retrieveServices } from '@/app/services/commonService';
 import { useFormContext } from 'react-hook-form';
 interface VisionDialogProps {
   open: boolean;
   onClose: () => void;
-  onToggleVision?: (isVisionEnabled: boolean) => void;
+  onToggleVision?: (isTextToImageEnabled: boolean) => void;
 }
 
 const VisionDialog: React.FC<VisionDialogProps> = ({
@@ -31,17 +31,17 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
   onToggleVision,
 }) => {
   const { data: session } = useSession();
-  const visionFileInputRef = useRef<HTMLInputElement>(null);
+  const textToImageFileInputRef = useRef<HTMLInputElement>(null);
   const [isAddUrlDialogOpen, setIsAddUrlDialogOpen] = useState(false);
 
   const { setValue, watch } = useFormContext();
-  const isVisionEnabled = watch('isVisionEnabled');
-  const isVisionDefined = watch('isVisionDefined');
+  const isTextToImageEnabled = watch('isTextToImageEnabled');
+  const isTextToImageDefined = watch('isTextToImageDefined');
   const textToImageFiles = watch('textToImageFiles');
 
   const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     const enabled = event.target.checked;
-    setValue('isVisionEnabled', enabled);
+    setValue('isTextToImageEnabled', enabled);
     if (enabled) {
       setValue('isAssistantEnabled', false);
       setValue('isRagEnabled', false);
@@ -73,17 +73,17 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
         url: urlInput,
       };
 
-      const response = await addVisionUrl({ userEmail, file: newFile });
+      const response = await addTextToImageUrl({ userEmail, file: newFile });
       if (response.status === 200) {
         newFile.textToImageId = response.file.textToImageId;
-        const newVisionFiles = [...textToImageFiles, newFile];
-        setValue('textToImageFiles', newVisionFiles);
+        const newTextToImageFiles = [...textToImageFiles, newFile];
+        setValue('textToImageFiles', newTextToImageFiles);
         await handleUpdate();
       } else {
-        throw new Error('Failed to add URL to Vision');
+        throw new Error('Failed to add URL to TextToImage');
       }
     } catch (error) {
-      console.error('Failed to add URL to Vision: ', error);
+      console.error('Failed to add URL to TextToImage: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -93,13 +93,16 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
     try {
       onClose();
       setValue('isLoading', true);
-      if (isVisionDefined) {
+      if (isTextToImageDefined) {
         const userEmail = session?.user?.email as string;
         const retrieveVisionResponse = await retrieveServices({
           userEmail,
           serviceName: 'vision',
         });
-        setValue('isVisionEnabled', retrieveVisionResponse.isVisionEnabled);
+        setValue(
+          'isTextToImageEnabled',
+          retrieveVisionResponse.isTextToImageEnabled
+        );
       }
     } catch (error) {
       console.error('Failed to close assistant dialog: ', error);
@@ -114,16 +117,16 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       if (session) {
         const userEmail = session.user?.email as string;
         const updateVisionResponse = await updateVision({
-          isVisionEnabled,
+          isTextToImageEnabled,
           userEmail,
         });
-        setValue('isVisionDefined', true);
+        setValue('isTextToImageDefined', true);
         console.log('Vision updated successfully', updateVisionResponse);
       } else {
         throw new Error('No session found');
       }
     } catch (error) {
-      console.error('Error updating Vision: ', error);
+      console.error('Error updating vision: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -142,11 +145,11 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
       if (!userEmail) {
         throw new Error('No user found');
       }
-      const response = await deleteVisionFile(file, userEmail);
-      console.log('File successfully deleted from Vision:', response);
+      const response = await deleteTextToImageFile(file, userEmail);
+      console.log('File successfully deleted from TextToImage:', response);
       textToImageFiles.splice(textToImageFiles.indexOf(file), 1);
     } catch (error) {
-      console.error('Failed to remove file from Vision: ', error);
+      console.error('Failed to remove file from TextToImage: ', error);
     } finally {
       setValue('isLoading', false);
     }
@@ -159,7 +162,10 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
           Vision Settings
         </DialogTitle>
         <DialogContent style={{ paddingBottom: 8 }}>
-          <TextToImageFileList files={textToImageFiles} onDelete={handleRemoveUrl} />
+          <TextToImageFileList
+            files={textToImageFiles}
+            onDelete={handleRemoveUrl}
+          />
           <Button
             fullWidth
             onClick={handleUpdate}
@@ -184,7 +190,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
                 Disable
               </Typography>
               <Switch
-                checked={isVisionEnabled}
+                checked={isTextToImageEnabled}
                 onChange={handleToggle}
                 name="activeVision"
               />
@@ -193,7 +199,7 @@ const VisionDialog: React.FC<VisionDialogProps> = ({
               </Typography>
               <input
                 type="file"
-                ref={visionFileInputRef}
+                ref={textToImageFileInputRef}
                 style={{ display: 'none' }}
               />
             </Box>

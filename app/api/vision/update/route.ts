@@ -6,8 +6,8 @@ import { sendErrorResponse } from '@/app/lib/utils/response';
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
-    const { isVisionEnabled, userEmail } = (await req.json()) as {
-      isVisionEnabled: boolean;
+    const { isTextToImageEnabled, userEmail } = (await req.json()) as {
+      isTextToImageEnabled: boolean;
       userEmail: string;
     };
 
@@ -18,12 +18,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return sendErrorResponse('User not found', 404);
     }
 
-    await updateVision(user, usersCollection, isVisionEnabled);
+    await updateVision(user, usersCollection, isTextToImageEnabled);
 
     return NextResponse.json({
       message: 'Vision updated',
       textToImageId: user.textToImageId,
-      isVisionEnabled: isVisionEnabled,
+      isTextToImageEnabled: isTextToImageEnabled,
       status: 200,
     });
   } catch (error: any) {
@@ -35,9 +35,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 async function updateVision(
   user: IUser,
   usersCollection: Collection<IUser>,
-  isVisionEnabled: boolean
+  isTextToImageEnabled: boolean
 ): Promise<void> {
-  let disableOtherServices = isVisionEnabled ? false : user.isAssistantEnabled;
+  let disableOtherServices = isTextToImageEnabled ? false : user.isAssistantEnabled;
   let textToImageId = user.textToImageId;
   if (!textToImageId) {
     console.log('No textToImageId found. Creating a new one');
@@ -49,7 +49,7 @@ async function updateVision(
       $set: {
         isAssistantEnabled: disableOtherServices,
         isRagEnabled: disableOtherServices,
-        isVisionEnabled: isVisionEnabled,
+        isTextToImageEnabled: isTextToImageEnabled,
         textToImageId: textToImageId,
       },
     }

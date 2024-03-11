@@ -1,9 +1,9 @@
 interface VisionUpdateData {
-  isVisionEnabled: boolean;
+  isTextToImageEnabled: boolean;
   userEmail: string;
 }
 
-interface VisionAddUrlData {
+interface TextToImageAddUrlData {
   userEmail: string;
   file: {
     id: string;
@@ -14,7 +14,7 @@ interface VisionAddUrlData {
   };
 }
 const updateVision = async ({
-  isVisionEnabled,
+  isTextToImageEnabled,
   userEmail,
 }: VisionUpdateData): Promise<any> => {
   try {
@@ -24,7 +24,7 @@ const updateVision = async ({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        isVisionEnabled,
+        isTextToImageEnabled,
         userEmail,
       }),
     });
@@ -35,7 +35,7 @@ const updateVision = async ({
   }
 };
 
-const deleteVisionFile = async (
+const deleteTextToImageFile = async (
   file: {
     id: string;
     textToImageId: string;
@@ -60,10 +60,10 @@ const deleteVisionFile = async (
   }
 };
 
-const addVisionUrl = async ({
+const addTextToImageUrl = async ({
   userEmail,
   file,
-}: VisionAddUrlData): Promise<any> => {
+}: TextToImageAddUrlData): Promise<any> => {
   try {
     const response = await fetch('/api/vision/tti/add-url', {
       method: 'POST',
@@ -81,4 +81,4 @@ const addVisionUrl = async ({
   }
 };
 
-export { updateVision, deleteVisionFile, addVisionUrl };
+export { updateVision, deleteTextToImageFile, addTextToImageUrl };

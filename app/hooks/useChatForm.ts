@@ -13,8 +13,8 @@ interface ChatFormValues {
   historyLength: string;
   isAssistantEnabled: boolean;
   isAssistantDefined: boolean;
-  isVisionEnabled: boolean;
-  isVisionDefined: boolean;
+  isTextToImageEnabled: boolean;
+  isTextToImageDefined: boolean;
   isTextToSpeechEnabled: boolean;
   isSpeechToTextEnabled: boolean;
   isRagEnabled: boolean;
@@ -54,8 +54,8 @@ export const useChatForm = () => {
       historyLength: '',
       isAssistantEnabled: false,
       isAssistantDefined: false,
-      isVisionEnabled: false,
-      isVisionDefined: false,
+      isTextToImageEnabled: false,
+      isTextToImageDefined: false,
       isTextToSpeechEnabled: false,
       isSpeechToTextEnabled: false,
       isRagEnabled: false,

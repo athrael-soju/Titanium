@@ -11,7 +11,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return sendErrorResponse('User textToImageId not found', 404);
     }
 
-    const fileCollection = db.collection<VisionFile>('files');
+    const fileCollection = db.collection<TextToImageFile>('files');
     const deleteFileResponse = await fileCollection.deleteOne({
       textToImageId: file.textToImageId,
     });

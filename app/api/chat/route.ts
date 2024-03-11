@@ -75,16 +75,16 @@ async function handlePostRequest(req: NextRequest) {
     }
     let model = process.env.OPENAI_API_MODEL as string,
       content = userMessage;
-    if (user.isVisionEnabled && user.textToImageId) {
+    if (user.isTextToImageEnabled && user.textToImageId) {
       model = 'gpt-4-vision-preview';
       content = [{ type: 'text', text: userMessage }] as any[];
-      const fileCollection = db.collection<VisionFile>('files');
-      const visionFileList = await fileCollection
+      const fileCollection = db.collection<TextToImageFile>('files');
+      const textToImageFileList = await fileCollection
         .find({ textToImageId: user.textToImageId })
         .toArray();
 
-      if (visionFileList) {
-        visionFileList.forEach((file: { url: any }) => {
+      if (textToImageFileList) {
+        textToImageFileList.forEach((file: { url: any }) => {
           content.push({
             type: 'image_url',
             image_url: {

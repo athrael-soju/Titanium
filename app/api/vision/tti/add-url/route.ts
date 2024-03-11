@@ -21,7 +21,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       textToImageId = user.textToImageId;
     }
     file.textToImageId = textToImageId;
-    const fileCollection = db.collection<VisionFile>('files');
+    const fileCollection = db.collection<TextToImageFile>('files');
     const insertFileResponse = await fileCollection.insertOne(file);
 
     return NextResponse.json({

@@ -70,7 +70,7 @@ async function updateRag(
       $set: {
         isRagEnabled: isRagEnabled,
         isAssistantEnabled: disableOtherServices,
-        isVisionEnabled: disableOtherServices,
+        isTextToImageEnabled: disableOtherServices,
         ragId: ragId,
         topK: topK,
         chunkSize: chunkSize,

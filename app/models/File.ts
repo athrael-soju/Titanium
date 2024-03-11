@@ -1,4 +1,4 @@
-interface VisionFile {
+interface TextToImageFile {
   textToImageId: string;
   name: string;
   type: string;

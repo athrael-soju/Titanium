@@ -43,11 +43,11 @@ export const useCustomInput = ({ onSendMessage }: UseCustomInputProps) => {
       serviceName: 'vision',
     });
     if (response.textToImageId) {
-      setValue('isVisionEnabled', response.isVisionEnabled);
-      setValue('textToImageFiles', response.visionFileList);
-      setValue('isVisionDefined', true);
+      setValue('isTextToImageEnabled', response.isTextToImageEnabled);
+      setValue('textToImageFiles', response.textToImageFileList);
+      setValue('isTextToImageDefined', true);
     } else {
-      setValue('isVisionDefined', false);
+      setValue('isTextToImageDefined', false);
     }
     // Prefetch speech data
     response = await retrieveServices({
