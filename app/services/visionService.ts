@@ -1,20 +1,20 @@
 interface VisionUpdateData {
-  isTextToImageEnabled: boolean;
+  isImageToTextEnabled: boolean;
   userEmail: string;
 }
 
-interface TextToImageAddUrlData {
+interface ImageToTextAddUrlData {
   userEmail: string;
   file: {
     id: string;
-    textToImageId: string;
+    imageToTextId: string;
     name: string;
     type: string;
     url: string;
   };
 }
 const updateVision = async ({
-  isTextToImageEnabled,
+  isImageToTextEnabled,
   userEmail,
 }: VisionUpdateData): Promise<any> => {
   try {
@@ -24,7 +24,7 @@ const updateVision = async ({
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        isTextToImageEnabled,
+        isImageToTextEnabled,
         userEmail,
       }),
     });
@@ -35,10 +35,10 @@ const updateVision = async ({
   }
 };
 
-const deleteTextToImageFile = async (
+const deleteImageToTextFile = async (
   file: {
     id: string;
-    textToImageId: string;
+    imageToTextId: string;
     name: string;
     type: string;
     url: string;
@@ -46,7 +46,7 @@ const deleteTextToImageFile = async (
   userEmail: string
 ): Promise<any> => {
   try {
-    const response = await fetch('/api/vision/tti/delete-url', {
+    const response = await fetch('/api/vision/itt/delete-url', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -60,12 +60,12 @@ const deleteTextToImageFile = async (
   }
 };
 
-const addTextToImageUrl = async ({
+const addImageToTextUrl = async ({
   userEmail,
   file,
-}: TextToImageAddUrlData): Promise<any> => {
+}: ImageToTextAddUrlData): Promise<any> => {
   try {
-    const response = await fetch('/api/vision/tti/add-url', {
+    const response = await fetch('/api/vision/itt/add-url', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,4 +81,4 @@ const addTextToImageUrl = async ({
   }
 };
 
-export { updateVision, deleteTextToImageFile, addTextToImageUrl };
+export { updateVision, deleteImageToTextFile, addImageToTextUrl };

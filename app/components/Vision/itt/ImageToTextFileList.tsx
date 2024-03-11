@@ -10,10 +10,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FolderIcon from '@mui/icons-material/Folder';
 import FilePaper from '../../FileList';
 
-interface TextToImageFileListProps {
+interface ImageToTextFileListProps {
   files: {
     id: string;
-    textToImageId: string;
+    imageToTextId: string;
     name: string;
     type: string;
     url: string;
@@ -21,7 +21,7 @@ interface TextToImageFileListProps {
   onDelete: (file: any) => void;
 }
 
-const TextToImageFileList: React.FC<TextToImageFileListProps> = ({ files, onDelete }) => {
+const ImageToTextFileList: React.FC<ImageToTextFileListProps> = ({ files, onDelete }) => {
   return (
     <div style={{ paddingTop: 5 }}>
       <FilePaper
@@ -52,4 +52,4 @@ const TextToImageFileList: React.FC<TextToImageFileListProps> = ({ files, onDele
   );
 };
 
-export default TextToImageFileList;
+export default ImageToTextFileList;

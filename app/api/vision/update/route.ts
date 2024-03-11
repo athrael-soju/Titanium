@@ -6,8 +6,8 @@ import { sendErrorResponse } from '@/app/lib/utils/response';
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
-    const { isTextToImageEnabled, userEmail } = (await req.json()) as {
-      isTextToImageEnabled: boolean;
+    const { isImageToTextEnabled, userEmail } = (await req.json()) as {
+      isImageToTextEnabled: boolean;
       userEmail: string;
     };
 
@@ -18,12 +18,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return sendErrorResponse('User not found', 404);
     }
 
-    await updateVision(user, usersCollection, isTextToImageEnabled);
+    await updateVision(user, usersCollection, isImageToTextEnabled);
 
     return NextResponse.json({
       message: 'Vision updated',
-      textToImageId: user.textToImageId,
-      isTextToImageEnabled: isTextToImageEnabled,
+      imageToTextId: user.imageToTextId,
+      isImageToTextEnabled: isImageToTextEnabled,
       status: 200,
     });
   } catch (error: any) {
@@ -35,13 +35,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 async function updateVision(
   user: IUser,
   usersCollection: Collection<IUser>,
-  isTextToImageEnabled: boolean
+  isImageToTextEnabled: boolean
 ): Promise<void> {
-  let disableOtherServices = isTextToImageEnabled ? false : user.isAssistantEnabled;
-  let textToImageId = user.textToImageId;
-  if (!textToImageId) {
-    console.log('No textToImageId found. Creating a new one');
-    textToImageId = crypto.randomUUID();
+  let disableOtherServices = isImageToTextEnabled ? false : user.isAssistantEnabled;
+  let imageToTextId = user.imageToTextId;
+  if (!imageToTextId) {
+    console.log('No imageToTextId found. Creating a new one');
+    imageToTextId = crypto.randomUUID();
   }
   await usersCollection.updateOne(
     { email: user.email },
@@ -49,8 +49,8 @@ async function updateVision(
       $set: {
         isAssistantEnabled: disableOtherServices,
         isRagEnabled: disableOtherServices,
-        isTextToImageEnabled: isTextToImageEnabled,
-        textToImageId: textToImageId,
+        isImageToTextEnabled: isImageToTextEnabled,
+        imageToTextId: imageToTextId,
       },
     }
   );

@@ -14,17 +14,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const serviceName = req.headers.get('serviceName');
     const { user } = await getDatabaseAndUser(db, userEmail);
 
-    if (serviceName === 'vision' && user.textToImageId) {
-      const fileCollection = db.collection<TextToImageFile>('files');
-      const textToImageFileList = await fileCollection
-        .find({ textToImageId: user.textToImageId })
+    if (serviceName === 'vision' && user.imageToTextId) {
+      const fileCollection = db.collection<ImageToTextFile>('files');
+      const imageToTextFileList = await fileCollection
+        .find({ imageToTextId: user.imageToTextId })
         .toArray();
 
       return NextResponse.json({
         message: 'Vision retrieved',
-        textToImageId: user.textToImageId,
-        textToImageFileList,
-        isTextToImageEnabled: user.isTextToImageEnabled,
+        imageToTextId: user.imageToTextId,
+        imageToTextFileList,
+        isImageToTextEnabled: user.isImageToTextEnabled,
         status: 200,
       });
     } else {

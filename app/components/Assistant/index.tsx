@@ -54,7 +54,7 @@ const AssistantDialog: React.FC<AssistantDialogProps> = ({
     const enabled = event.target.checked;
     setValue('isAssistantEnabled', enabled);
     if (enabled) {
-      setValue('isTextToImageEnabled', false);
+      setValue('isImageToTextEnabled', false);
       setValue('isRagEnabled', false);
     }
 

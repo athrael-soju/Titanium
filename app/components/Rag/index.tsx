@@ -66,7 +66,7 @@ const RagDialog: React.FC<RagDialogProps> = ({
     setValue('isRagEnabled', enabled);
     if (enabled) {
       setValue('isAssistantEnabled', false);
-      setValue('isTextToImageEnabled', false);
+      setValue('isImageToTextEnabled', false);
     }
 
     if (onToggleRag) {

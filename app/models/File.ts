@@ -1,5 +1,5 @@
-interface TextToImageFile {
-  textToImageId: string;
+interface ImageToTextFile {
+  imageToTextId: string;
   name: string;
   type: string;
   url: string;
