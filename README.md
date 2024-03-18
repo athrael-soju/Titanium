@@ -91,7 +91,6 @@ GITHUB_SECRET=<your-github-client-secret>
 ```env
 GOOGLE_ID=<your-google-client-id>
 GOOGLE_SECRET=<your-google-client-secret>
-
 ```
 
 ## Unstructured.io
