@@ -145,7 +145,7 @@ Keep in mind that upon logout from a guest account, you will lose access to your
 
 # Features
 
-To access the features, you can click the humburger icon at the left of the inpupt box. A menu will pop up, allowing you to make a selection. Available features are:
+To access the features, you can click the hamburger icon at the left of the inpupt box. A menu will pop up, allowing you to make a selection. Available features are:
 
 - R.A.G. (Retrieval Augmented Generation)
 - Assistant
