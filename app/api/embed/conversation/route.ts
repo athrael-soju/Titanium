@@ -10,6 +10,10 @@ if (!process.env.OPENAI_API_KEY) {
 const options: ClientOptions = { apiKey: process.env.OPENAI_API_KEY };
 const openai = new OpenAI(options);
 
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const db = await getDb();
@@ -29,6 +33,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const embeddings = await Promise.all(
       data.map(async (item: any) => {
+        delay(13); // Temporary fix for rate limiting 5000 RPM
         const response = await openai.embeddings.create({
           model: 'text-embedding-3-large',
           input: item.text,

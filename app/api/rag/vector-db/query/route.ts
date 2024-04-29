@@ -19,8 +19,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
 
       const context = response.matches
-        .map((item: any) => item.metadata.text)
-        .join(' | ');
+        .map((item: any) => {
+          return (
+            `Filename: "${item.metadata.filename}"\n` +
+            `Filetype: "${item.metadata.filetype}"\n` +
+            `Languages: [ ${item.metadata.languages.join(', ')} ]\n` +
+            `Page Number: ${item.metadata.page_number}\n` +
+            `Parent ID: "${item.metadata.parent_id}"\n` +
+            `RAG ID: "${item.metadata.rag_id}"\n` +
+            `Text: "${item.metadata.text}"\n` +
+            `User Email: "${item.metadata.user_email}"`
+          );
+        })
+        .join('\n\n');
 
       return NextResponse.json({
         message: 'Pinecone query successful',

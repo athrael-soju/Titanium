@@ -220,7 +220,7 @@ ${conversationHistory || ''}`;
 PROMPT: 
 ${message}
           `;
-    //console.info('Enhanced message: ', message);
+    console.info('Enhanced message: ', message);
     return message;
   }
 
