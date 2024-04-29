@@ -40,7 +40,7 @@ const MessagesField: React.FC<MessagesFieldProps> = ({ messages }) => {
         >
           {/* @ts-ignore ReactMarkdown doesn't have types */}
           <ReactMarkdown components={{ code: CodeBlock }}>
-            {`${message.sender === 'user' ? '🧑‍💻' : '🤖'} ${message.text}`}
+            {`${message.sender === 'user' ? '🧑' : '🤖'} ${message.text}`}
           </ReactMarkdown>
         </div>
       ))}
