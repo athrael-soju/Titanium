@@ -23,7 +23,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const fileCollection = db.collection<RagFile>('files');
 
     const fileDeletedFromDB = await fileCollection.deleteOne({
-      ragId: file.ragId,
+      id: file.id,
     });
     const fileDeletedFromDisk = await fs.unlink(file.path);
     return NextResponse.json({
