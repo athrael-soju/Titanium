@@ -10,6 +10,7 @@ interface RagFile {
   name: string;
   path: string;
   ragId: string;
+  id: string;
   purpose: string;
   processed: boolean;
   chunks: string[];

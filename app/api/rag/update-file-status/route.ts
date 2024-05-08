@@ -23,7 +23,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     await fileCollection.updateOne(
       {
-        ragId: file.ragId,
+        id: file.id,
       },
       {
         $set: {
