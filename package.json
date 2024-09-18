@@ -22,7 +22,7 @@
     "fs": "^0.0.1-security",
     "fs.promises": "^0.1.2",
     "mongodb": "^6.3.0",
-    "next": "^14.1.1",
+    "next": "^14.2.12",
     "next-auth": "^4.24.5",
     "openai": "^4.26.1",
     "react": "^18",
