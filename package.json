@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth/mongodb-adapter": "^2.0.7",
+    "@auth/mongodb-adapter": "^3.7.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.18",
@@ -23,7 +23,7 @@
     "fs.promises": "^0.1.2",
     "mongodb": "^6.3.0",
     "next": "^14.2.12",
-    "next-auth": "^4.24.5",
+    "next-auth": "^4.24.10",
     "openai": "^4.26.1",
     "react": "^18",
     "react-dom": "^18",
